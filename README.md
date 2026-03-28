@@ -2,10 +2,12 @@
 
 A comprehensive command-line interface for RevenueCat, providing access to both the public v2 API and powerful internal APIs.
 
+> **Disclaimer**: This is an unofficial CLI project made with love for developers to make their lives easier. It is not affiliated with, endorsed by, or connected to RevenueCat in any way.
+
 ## Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/rc-cli.git
+git clone https://github.com/swapnanildhol/rc-cli.git
 cd rc-cli
 go build -o rc .
 ./rc login
@@ -117,6 +119,24 @@ Base URL: `https://api.revenuecat.com/v2`
 
 - Read-only access to projects, apps, customers, products, offerings, entitlements
 - Requires API key authentication
+
+## Claude Code Integration
+
+This CLI integrates with Claude Code via a skill file. Once Claude Code is configured, you can use natural language to interact with RevenueCat:
+
+```
+# Example Claude Code prompts:
+"List all my RevenueCat projects"
+"Create a new entitlement called Pro in my project"
+"Show me the trial analytics for the last 30 days"
+"What's the store connection status?"
+```
+
+The skill is located at `~/.claude/skills/revenuecat/SKILL.md` and provides:
+- Full command documentation
+- API endpoint references
+- Authentication instructions
+- Usage examples
 
 ## Notes
 
