@@ -113,6 +113,10 @@ func (c *Client) Delete(path string) (*Response, error) {
 	return c.doRequest("DELETE", path, nil)
 }
 
+func (c *Client) Patch(path string, data interface{}) (*Response, error) {
+	return c.doRequest("PATCH", path, data)
+}
+
 func (c *Client) doRequest(method, path string, data interface{}) (*Response, error) {
 	var body io.Reader
 	if data != nil {

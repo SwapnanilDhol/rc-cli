@@ -83,7 +83,9 @@ This document covers all APIs accessible by the RevenueCat CLI.
 | GET | `/developers/me/projects/{project_id}/offerings?platform=IOS` | List offerings filtered by platform |
 | GET | `/developers/me/projects/{project_id}/offerings/{id}` | Get offering |
 | POST | `/developers/me/projects/{project_id}/offerings` | Create offering |
+| POST | `/developers/me/projects/{project_id}/offerings/{id}/duplicate` | Duplicate offering |
 | PUT | `/developers/me/projects/{project_id}/offerings/{id}` | Update offering |
+| PATCH | `/developers/me/projects/{project_id}/offerings/{id}` with `{"is_current": true}` | Set offering as current/default |
 | DELETE | `/developers/me/projects/{project_id}/offerings/{id}` | Delete offering |
 
 ### Products

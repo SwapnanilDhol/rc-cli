@@ -125,7 +125,24 @@ func init() {
 	}
 	offeringsGetCmd.Flags().StringP("offering-id", "o", "", "Offering ID")
 
-	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsCreateCmd, offeringsDeleteCmd)
+	offeringsDuplicateCmd := &cobra.Command{
+		Use:   "duplicate",
+		Short: "Duplicate an offering",
+		RunE:  runInternalOfferingsDuplicate,
+	}
+	offeringsDuplicateCmd.Flags().StringP("offering-id", "o", "", "Offering ID to duplicate (required)")
+	offeringsDuplicateCmd.Flags().StringP("identifier", "i", "", "New offering identifier (required)")
+	offeringsDuplicateCmd.Flags().StringP("name", "n", "", "New offering display name (required)")
+	offeringsDuplicateCmd.Flags().Bool("packages-only", false, "Only duplicate packages")
+
+	offeringsSetCurrentCmd := &cobra.Command{
+		Use:   "set-current",
+		Short: "Set an offering as the current/default",
+		RunE:  runInternalOfferingsSetCurrent,
+	}
+	offeringsSetCurrentCmd.Flags().StringP("offering-id", "o", "", "Offering ID (required)")
+
+	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsCreateCmd, offeringsDeleteCmd, offeringsDuplicateCmd, offeringsSetCurrentCmd)
 
 	// Products command
 	productsCmd := &cobra.Command{
@@ -871,6 +888,100 @@ func runInternalOfferingsDelete(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(greenStyle.Render("\n✓ Offering deleted: " + offeringID))
+	return nil
+}
+
+func runInternalOfferingsDuplicate(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	offeringID, _ := cmd.Flags().GetString("offering-id")
+	identifier, _ := cmd.Flags().GetString("identifier")
+	name, _ := cmd.Flags().GetString("name")
+	packagesOnly, _ := cmd.Flags().GetBool("packages-only")
+
+	if offeringID == "" {
+		return fmt.Errorf("offering-id is required (--offering-id or -o)")
+	}
+	if identifier == "" {
+		return fmt.Errorf("identifier is required (--identifier or -i)")
+	}
+	if name == "" {
+		return fmt.Errorf("name is required (--name or -n)")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📦 Duplicating offering...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s/duplicate", projectID, offeringID)
+	data := map[string]interface{}{
+		"identifier":     identifier,
+		"display_name":  name,
+		"packages_only": packagesOnly,
+	}
+
+	resp, err := client.Post(path, data)
+	if err != nil {
+		return err
+	}
+
+	if resp.Code != "" {
+		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
+	}
+
+	var offering map[string]interface{}
+	if err := json.Unmarshal(toJSON(resp.Data), &offering); err != nil {
+		return fmt.Errorf("error parsing response: %w", err)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Offering duplicated:"))
+	fmt.Printf("  ID: %s\n", cyanStyle.Render(offering["id"].(string)))
+	fmt.Printf("  Identifier: %s\n", offering["identifier"])
+	fmt.Printf("  Name: %s\n", offering["display_name"])
+
+	return nil
+}
+
+func runInternalOfferingsSetCurrent(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	offeringID, _ := cmd.Flags().GetString("offering-id")
+	if offeringID == "" {
+		return fmt.Errorf("offering-id is required (--offering-id or -o)")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📦 Setting offering as current...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID)
+	data := map[string]interface{}{
+		"is_current": true,
+	}
+
+	resp, err := client.Patch(path, data)
+	if err != nil {
+		return err
+	}
+
+	if resp.Code != "" {
+		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Offering set as current"))
+
 	return nil
 }
 
