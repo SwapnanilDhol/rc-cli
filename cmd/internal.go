@@ -142,7 +142,14 @@ func init() {
 	}
 	offeringsSetCurrentCmd.Flags().StringP("offering-id", "o", "", "Offering ID (required)")
 
-	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsCreateCmd, offeringsDeleteCmd, offeringsDuplicateCmd, offeringsSetCurrentCmd)
+	offeringsArchiveCmd := &cobra.Command{
+		Use:   "archive",
+		Short: "Archive an offering",
+		RunE:  runInternalOfferingsArchive,
+	}
+	offeringsArchiveCmd.Flags().StringP("offering-id", "o", "", "Offering ID (required)")
+
+	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsCreateCmd, offeringsDeleteCmd, offeringsDuplicateCmd, offeringsSetCurrentCmd, offeringsArchiveCmd)
 
 	// Products command
 	productsCmd := &cobra.Command{
@@ -981,6 +988,39 @@ func runInternalOfferingsSetCurrent(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(greenStyle.Render("\n✓ Offering set as current"))
+
+	return nil
+}
+
+func runInternalOfferingsArchive(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	offeringID, _ := cmd.Flags().GetString("offering-id")
+	if offeringID == "" {
+		return fmt.Errorf("offering-id is required (--offering-id or -o)")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📦 Archiving offering...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s/actions/archive", projectID, offeringID)
+	resp, err := client.Post(path, map[string]interface{}{})
+	if err != nil {
+		return err
+	}
+
+	if resp.Code != "" {
+		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Offering archived"))
 
 	return nil
 }

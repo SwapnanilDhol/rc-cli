@@ -86,6 +86,7 @@ This document covers all APIs accessible by the RevenueCat CLI.
 | POST | `/developers/me/projects/{project_id}/offerings/{id}/duplicate` | Duplicate offering |
 | PUT | `/developers/me/projects/{project_id}/offerings/{id}` | Update offering |
 | PATCH | `/developers/me/projects/{project_id}/offerings/{id}` with `{"is_current": true}` | Set offering as current/default |
+| POST | `/developers/me/projects/{project_id}/offerings/{id}/actions/archive` | Archive offering |
 | DELETE | `/developers/me/projects/{project_id}/offerings/{id}` | Delete offering |
 
 ### Products
