@@ -2312,6 +2312,43 @@
               }
             },
             {
+              "name": "Update offering (sample body: metadata)",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"display_name\": \"Edit in Postman\",\n  \"metadata\": {\n    \"rc_cli_note\": \"dashboard should show this under offering / Paywalls context\"\n  }\n}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PUT",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}"
+              }
+            },
+            {
               "name": "Set current offering (PATCH)",
               "request": {
                 "body": {

@@ -20,12 +20,14 @@ type ep struct {
 // internalEp is a dashboard session route.
 // Base "": https://app.revenuecat.com/internal/v1 + Path (catalog, projects list, etc.)
 // Base "appv1": https://app.revenuecat.com/v1 + Path (bare /developers/me and same-origin me routes — not under internal/v1).
+// PostmanBody: optional default raw JSON in Postman for POST/PUT/PATCH; nil uses "{}".
 type internalEp struct {
-	Folder string
-	Name   string
-	Method string
-	Path   string // e.g. /developers/me/projects — uses {{project_id}}, …
-	Base   string // "" or "appv1"
+	Folder      string
+	Name        string
+	Method      string
+	Path        string // e.g. /developers/me/projects — uses {{project_id}}, …
+	Base        string // "" or "appv1"
+	PostmanBody *string
 }
 
 func main() {
@@ -267,79 +269,81 @@ func v2Endpoints() []ep {
 }
 
 func internalEndpointsFromCLI() []internalEp {
+	postmanOfferingMetadata := "{\n  \"display_name\": \"Edit in Postman\",\n  \"metadata\": {\n    \"rc_cli_note\": \"dashboard should show this under offering / Paywalls context\"\n  }\n}"
 	return []internalEp{
 		// Account / me — same-origin v1 (NOT internal/v1); see API.md § Same-origin v1
-		{"Account", "GET developers/me", "GET", "/developers/me", "appv1"},
-		{"Account", "GET billing info", "GET", "/developers/me/billing/info", "appv1"},
-		{"Account", "GET pending collaborations", "GET", "/developers/me/collaborations/pending", "appv1"},
-		{"Account", "GET dashboard notifications", "GET", "/developers/me/dashboard_notifications", "appv1"},
-		{"Account", "GET transactions (me)", "GET", "/developers/me/transactions", "appv1"},
+		{"Account", "GET developers/me", "GET", "/developers/me", "appv1", nil},
+		{"Account", "GET billing info", "GET", "/developers/me/billing/info", "appv1", nil},
+		{"Account", "GET pending collaborations", "GET", "/developers/me/collaborations/pending", "appv1", nil},
+		{"Account", "GET dashboard notifications", "GET", "/developers/me/dashboard_notifications", "appv1", nil},
+		{"Account", "GET transactions (me)", "GET", "/developers/me/transactions", "appv1", nil},
 
 		// Projects
-		{"Internal — Projects", "List all projects", "GET", "/developers/me/projects", ""},
-		{"Internal — Projects", "Create project", "POST", "/developers/me/projects", ""},
-		{"Internal — Projects", "Get project", "GET", "/developers/me/projects/{{project_id}}", ""},
+		{"Internal — Projects", "List all projects", "GET", "/developers/me/projects", "", nil},
+		{"Internal — Projects", "Create project", "POST", "/developers/me/projects", "", nil},
+		{"Internal — Projects", "Get project", "GET", "/developers/me/projects/{{project_id}}", "", nil},
 
 		// Catalog
-		{"Internal — Catalog", "List entitlements", "GET", "/developers/me/projects/{{project_id}}/entitlements", ""},
-		{"Internal — Catalog", "Create entitlement", "POST", "/developers/me/projects/{{project_id}}/entitlements", ""},
-		{"Internal — Catalog", "Get entitlement", "GET", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", ""},
-		{"Internal — Catalog", "Update entitlement", "PUT", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", ""},
-		{"Internal — Catalog", "Delete entitlement", "DELETE", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", ""},
-		{"Internal — Catalog", "Archive entitlement", "POST", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/archive", ""},
-		{"Internal — Catalog", "Get entitlement products", "GET", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/products", ""},
-		{"Internal — Catalog", "List offerings", "GET", "/developers/me/projects/{{project_id}}/offerings", ""},
-		{"Internal — Catalog", "Create offering", "POST", "/developers/me/projects/{{project_id}}/offerings", ""},
-		{"Internal — Catalog", "Get offering", "GET", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", ""},
-		{"Internal — Catalog", "Update offering", "PUT", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", ""},
-		{"Internal — Catalog", "Set current offering (PATCH)", "PATCH", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", ""},
-		{"Internal — Catalog", "Duplicate offering", "POST", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/duplicate", ""},
-		{"Internal — Catalog", "Archive offering", "POST", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/actions/archive", ""},
-		{"Internal — Catalog", "Delete offering", "DELETE", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", ""},
-		{"Internal — Catalog", "List products", "GET", "/developers/me/projects/{{project_id}}/products", ""},
-		{"Internal — Catalog", "List paywalls", "GET", "/developers/me/projects/{{project_id}}/paywalls", ""},
-		{"Internal — Catalog", "Product store statuses", "GET", "/developers/me/projects/{{project_id}}/product_stores_statuses", ""},
-		{"Internal — Catalog", "List promotions", "GET", "/developers/me/projects/{{project_id}}/promotions", ""},
-		{"Internal — Catalog", "List intro offers", "GET", "/developers/me/projects/{{project_id}}/intro_offers", ""},
-		{"Internal — Catalog", "List apps", "GET", "/developers/me/projects/{{project_id}}/apps", ""},
+		{"Internal — Catalog", "List entitlements", "GET", "/developers/me/projects/{{project_id}}/entitlements", "", nil},
+		{"Internal — Catalog", "Create entitlement", "POST", "/developers/me/projects/{{project_id}}/entitlements", "", nil},
+		{"Internal — Catalog", "Get entitlement", "GET", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", "", nil},
+		{"Internal — Catalog", "Update entitlement", "PUT", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", "", nil},
+		{"Internal — Catalog", "Delete entitlement", "DELETE", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", "", nil},
+		{"Internal — Catalog", "Archive entitlement", "POST", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/archive", "", nil},
+		{"Internal — Catalog", "Get entitlement products", "GET", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/products", "", nil},
+		{"Internal — Catalog", "List offerings", "GET", "/developers/me/projects/{{project_id}}/offerings", "", nil},
+		{"Internal — Catalog", "Create offering", "POST", "/developers/me/projects/{{project_id}}/offerings", "", nil},
+		{"Internal — Catalog", "Get offering", "GET", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", "", nil},
+		{"Internal — Catalog", "Update offering", "PUT", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", "", nil},
+		{"Internal — Catalog", "Update offering (sample body: metadata)", "PUT", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", "", &postmanOfferingMetadata},
+		{"Internal — Catalog", "Set current offering (PATCH)", "PATCH", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", "", nil},
+		{"Internal — Catalog", "Duplicate offering", "POST", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/duplicate", "", nil},
+		{"Internal — Catalog", "Archive offering", "POST", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/actions/archive", "", nil},
+		{"Internal — Catalog", "Delete offering", "DELETE", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", "", nil},
+		{"Internal — Catalog", "List products", "GET", "/developers/me/projects/{{project_id}}/products", "", nil},
+		{"Internal — Catalog", "List paywalls", "GET", "/developers/me/projects/{{project_id}}/paywalls", "", nil},
+		{"Internal — Catalog", "Product store statuses", "GET", "/developers/me/projects/{{project_id}}/product_stores_statuses", "", nil},
+		{"Internal — Catalog", "List promotions", "GET", "/developers/me/projects/{{project_id}}/promotions", "", nil},
+		{"Internal — Catalog", "List intro offers", "GET", "/developers/me/projects/{{project_id}}/intro_offers", "", nil},
+		{"Internal — Catalog", "List apps", "GET", "/developers/me/projects/{{project_id}}/apps", "", nil},
 
 		// Project admin
-		{"Internal — Project admin", "List collaborators", "GET", "/developers/me/projects/{{project_id}}/collaborators", ""},
-		{"Internal — Project admin", "Get collaborator", "GET", "/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}", ""},
-		{"Internal — Project admin", "Add collaborator", "POST", "/developers/me/projects/{{project_id}}/collaborators", ""},
-		{"Internal — Project admin", "Update collaborator", "PUT", "/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}", ""},
-		{"Internal — Project admin", "Remove collaborator", "DELETE", "/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}", ""},
-		{"Internal — Project admin", "List API keys", "GET", "/developers/me/projects/{{project_id}}/api_keys", ""},
-		{"Internal — Project admin", "Create API key", "POST", "/developers/me/projects/{{project_id}}/api_keys", ""},
-		{"Internal — Project admin", "Delete API key", "DELETE", "/developers/me/projects/{{project_id}}/api_keys/{{api_key_id}}", ""},
-		{"Internal — Project admin", "List audit logs", "GET", "/developers/me/projects/{{project_id}}/audit_logs", ""},
-		{"Internal — Project admin", "List webhooks (legacy path)", "GET", "/developers/me/projects/{{project_id}}/webhooks", ""},
-		{"Internal — Project admin", "Create webhook", "POST", "/developers/me/projects/{{project_id}}/webhooks", ""},
-		{"Internal — Project admin", "Update webhook", "PUT", "/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}", ""},
-		{"Internal — Project admin", "Delete webhook", "DELETE", "/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}", ""},
-		{"Internal — Project admin", "Test webhook", "POST", "/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}/test", ""},
-		{"Internal — Project admin", "Webhook events", "GET", "/developers/me/projects/{{project_id}}/webhooks/events", ""},
+		{"Internal — Project admin", "List collaborators", "GET", "/developers/me/projects/{{project_id}}/collaborators", "", nil},
+		{"Internal — Project admin", "Get collaborator", "GET", "/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}", "", nil},
+		{"Internal — Project admin", "Add collaborator", "POST", "/developers/me/projects/{{project_id}}/collaborators", "", nil},
+		{"Internal — Project admin", "Update collaborator", "PUT", "/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}", "", nil},
+		{"Internal — Project admin", "Remove collaborator", "DELETE", "/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}", "", nil},
+		{"Internal — Project admin", "List API keys", "GET", "/developers/me/projects/{{project_id}}/api_keys", "", nil},
+		{"Internal — Project admin", "Create API key", "POST", "/developers/me/projects/{{project_id}}/api_keys", "", nil},
+		{"Internal — Project admin", "Delete API key", "DELETE", "/developers/me/projects/{{project_id}}/api_keys/{{api_key_id}}", "", nil},
+		{"Internal — Project admin", "List audit logs", "GET", "/developers/me/projects/{{project_id}}/audit_logs", "", nil},
+		{"Internal — Project admin", "List webhooks (legacy path)", "GET", "/developers/me/projects/{{project_id}}/webhooks", "", nil},
+		{"Internal — Project admin", "Create webhook", "POST", "/developers/me/projects/{{project_id}}/webhooks", "", nil},
+		{"Internal — Project admin", "Update webhook", "PUT", "/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}", "", nil},
+		{"Internal — Project admin", "Delete webhook", "DELETE", "/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}", "", nil},
+		{"Internal — Project admin", "Test webhook", "POST", "/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}/test", "", nil},
+		{"Internal — Project admin", "Webhook events", "GET", "/developers/me/projects/{{project_id}}/webhooks/events", "", nil},
 
 		// Experiments & lists
-		{"Internal — Experiments & lists", "List price experiments", "GET", "/developers/me/projects/{{project_id}}/price_experiments", ""},
-		{"Internal — Experiments & lists", "Get price experiment", "GET", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}", ""},
-		{"Internal — Experiments & lists", "Create price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments", ""},
-		{"Internal — Experiments & lists", "Pause price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/pause", ""},
-		{"Internal — Experiments & lists", "Resume price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/resume", ""},
-		{"Internal — Experiments & lists", "Stop price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/stop", ""},
-		{"Internal — Experiments & lists", "List subscriber lists", "GET", "/developers/me/projects/{{project_id}}/subscriber_lists", ""},
-		{"Internal — Experiments & lists", "Get subscriber list", "GET", "/developers/me/subscriber_lists/{{subscriber_list_id}}", ""},
-		{"Internal — Experiments & lists", "Subscriber lists manifest", "GET", "/developers/me/subscriber_lists/manifest", ""},
+		{"Internal — Experiments & lists", "List price experiments", "GET", "/developers/me/projects/{{project_id}}/price_experiments", "", nil},
+		{"Internal — Experiments & lists", "Get price experiment", "GET", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}", "", nil},
+		{"Internal — Experiments & lists", "Create price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments", "", nil},
+		{"Internal — Experiments & lists", "Pause price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/pause", "", nil},
+		{"Internal — Experiments & lists", "Resume price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/resume", "", nil},
+		{"Internal — Experiments & lists", "Stop price experiment", "POST", "/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/stop", "", nil},
+		{"Internal — Experiments & lists", "List subscriber lists", "GET", "/developers/me/projects/{{project_id}}/subscriber_lists", "", nil},
+		{"Internal — Experiments & lists", "Get subscriber list", "GET", "/developers/me/subscriber_lists/{{subscriber_list_id}}", "", nil},
+		{"Internal — Experiments & lists", "Subscriber lists manifest", "GET", "/developers/me/subscriber_lists/manifest", "", nil},
 
 		// Charts (dashboard analytics; query params match rc internal charts)
-		{"Internal — Charts v2", "Overview (project)", "GET", "/developers/me/charts_v2/overview?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}", ""},
-		{"Internal — Charts v2", "Overview (all projects)", "GET", "/developers/me/charts_v2/overview?sandbox_mode={{sandbox_mode}}&v3=false", ""},
-		{"Internal — Charts v2", "Trials", "GET", "/developers/me/charts_v2/trials?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}&resolution={{charts_resolution}}", ""},
-		{"Internal — Charts v2", "Transactions", "GET", "/developers/me/charts_v2/transactions?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}&resolution={{charts_resolution}}", ""},
-		{"Internal — Charts v2", "Revenue", "GET", "/developers/me/charts_v2/revenue?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}&resolution={{charts_resolution}}", ""},
-		{"Internal — Charts v2", "Customers new", "GET", "/developers/me/charts_v2/customers_new?sandbox_mode={{sandbox_mode}}", ""},
-		{"Internal — Charts v2", "MRR", "GET", "/developers/me/charts_v2/mrr?sandbox_mode={{sandbox_mode}}", ""},
-		{"Internal — Charts v2", "Actives", "GET", "/developers/me/charts_v2/actives?sandbox_mode={{sandbox_mode}}", ""},
+		{"Internal — Charts v2", "Overview (project)", "GET", "/developers/me/charts_v2/overview?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}", "", nil},
+		{"Internal — Charts v2", "Overview (all projects)", "GET", "/developers/me/charts_v2/overview?sandbox_mode={{sandbox_mode}}&v3=false", "", nil},
+		{"Internal — Charts v2", "Trials", "GET", "/developers/me/charts_v2/trials?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}&resolution={{charts_resolution}}", "", nil},
+		{"Internal — Charts v2", "Transactions", "GET", "/developers/me/charts_v2/transactions?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}&resolution={{charts_resolution}}", "", nil},
+		{"Internal — Charts v2", "Revenue", "GET", "/developers/me/charts_v2/revenue?app_uuid={{project_id}}&sandbox_mode={{sandbox_mode}}&resolution={{charts_resolution}}", "", nil},
+		{"Internal — Charts v2", "Customers new", "GET", "/developers/me/charts_v2/customers_new?sandbox_mode={{sandbox_mode}}", "", nil},
+		{"Internal — Charts v2", "MRR", "GET", "/developers/me/charts_v2/mrr?sandbox_mode={{sandbox_mode}}", "", nil},
+		{"Internal — Charts v2", "Actives", "GET", "/developers/me/charts_v2/actives?sandbox_mode={{sandbox_mode}}", "", nil},
 	}
 }
 
@@ -396,9 +400,13 @@ func buildInternalItem(e internalEp) map[string]interface{} {
 		"url":    rawURL,
 	}
 	if e.Method == "POST" || e.Method == "PUT" || e.Method == "PATCH" {
+		raw := "{}"
+		if e.PostmanBody != nil {
+			raw = *e.PostmanBody
+		}
 		req["body"] = map[string]interface{}{
 			"mode": "raw",
-			"raw":  "{}",
+			"raw":  raw,
 		}
 	}
 	return map[string]interface{}{
@@ -423,7 +431,7 @@ func buildAuthLoginItem() map[string]interface{} {
 				"mode": "raw",
 				"raw":  "{\n  \"email\": \"{{rc_email}}\",\n  \"password\": \"{{rc_password}}\"\n}",
 			},
-			"url": "{{authBaseUrl}}/developers/login",
+			"url":         "{{authBaseUrl}}/developers/login",
 			"description": "Same as `rc login`. Copies `authentication_token` into collection variable `rc_auth_token` (Tests tab).",
 		},
 		"event": []interface{}{
@@ -463,7 +471,7 @@ func buildAuthRefreshItem() map[string]interface{} {
 				"mode": "raw",
 				"raw":  "{}",
 			},
-			"url": "{{authBaseUrl}}/developers/login/refresh-token",
+			"url":         "{{authBaseUrl}}/developers/login/refresh-token",
 			"description": "Same as CLI refresh. Requires existing `rc_auth_token`. Updates variable from response.",
 		},
 		"event": []interface{}{

@@ -156,7 +156,18 @@ func init() {
 	}
 	offeringsArchiveCmd.Flags().StringP("offering-id", "o", "", "Offering ID (required)")
 
-	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsCreateCmd, offeringsDeleteCmd, offeringsDuplicateCmd, offeringsSetCurrentCmd, offeringsArchiveCmd)
+	offeringsUpdateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "Update offering (dashboard API PUT: display name, identifier, metadata)",
+		Long:  "Fetches the offering via GET, strips packages from the payload, applies your flags, then PUTs to the internal API. Confirm in the dashboard under Product catalog → Offerings (metadata appears on offering detail / in Paywalls context depending on your project).",
+		RunE:  runInternalOfferingsUpdate,
+	}
+	offeringsUpdateCmd.Flags().StringP("offering-id", "o", "", "Offering ID (required)")
+	offeringsUpdateCmd.Flags().StringP("name", "n", "", "Display name (display_name)")
+	offeringsUpdateCmd.Flags().StringP("identifier", "i", "", "Offering identifier / slug")
+	offeringsUpdateCmd.Flags().StringP("metadata", "m", "", `JSON object for metadata, e.g. '{"tier":"pro"}'`)
+
+	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsCreateCmd, offeringsUpdateCmd, offeringsDeleteCmd, offeringsDuplicateCmd, offeringsSetCurrentCmd, offeringsArchiveCmd)
 
 	// Products command
 	productsCmd := &cobra.Command{
@@ -565,7 +576,7 @@ func runInternalProjectsCreate(cmd *cobra.Command, args []string) error {
 
 	path := "/developers/me/projects"
 	data := map[string]interface{}{
-		"name":                name,
+		"name":               name,
 		"category":           category,
 		"expected_platforms": platforms,
 	}
@@ -860,6 +871,76 @@ func runInternalOfferingGet(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func runInternalOfferingsUpdate(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+	offeringID, _ := cmd.Flags().GetString("offering-id")
+	if offeringID == "" {
+		return fmt.Errorf("offering-id is required (--offering-id or -o)")
+	}
+	displayName, _ := cmd.Flags().GetString("name")
+	identifier, _ := cmd.Flags().GetString("identifier")
+	metadataStr, _ := cmd.Flags().GetString("metadata")
+	if displayName == "" && identifier == "" && metadataStr == "" {
+		return fmt.Errorf("at least one of --name (-n), --identifier (-i), or --metadata (-m) is required")
+	}
+	if metadataStr != "" {
+		var tmp map[string]interface{}
+		if err := json.Unmarshal([]byte(metadataStr), &tmp); err != nil {
+			return fmt.Errorf("--metadata must be a JSON object: %w", err)
+		}
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID)
+	fmt.Println("\n📦 Fetching offering for update...")
+	getResp, err := client.Get(path)
+	if err != nil {
+		return err
+	}
+
+	var body map[string]interface{}
+	if err := json.Unmarshal(toJSON(getResp.Data), &body); err != nil {
+		return fmt.Errorf("error parsing offering: %w", err)
+	}
+
+	delete(body, "packages")
+
+	if displayName != "" {
+		body["display_name"] = displayName
+	}
+	if identifier != "" {
+		body["identifier"] = identifier
+	}
+	if metadataStr != "" {
+		var meta map[string]interface{}
+		_ = json.Unmarshal([]byte(metadataStr), &meta)
+		body["metadata"] = meta
+	}
+
+	fmt.Println("\n📦 Saving offering (internal PUT)...")
+	putResp, err := client.Put(path, body)
+	if err != nil {
+		return err
+	}
+	if putResp.StatusCode >= 400 {
+		return fmt.Errorf("update failed: HTTP %d %s %s", putResp.StatusCode, putResp.Code, putResp.Message)
+	}
+	if putResp.Code != "" {
+		return fmt.Errorf("update failed: %s - %s", putResp.Code, putResp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Offering updated via internal API."))
+	fmt.Println(grayStyle.Render("Open RevenueCat → Product catalog → Offerings, select this offering, and refresh if needed to see display name / metadata."))
+	return nil
+}
+
 func runInternalOfferingsCreate(cmd *cobra.Command, args []string) error {
 	projectID, err := getProjectID()
 	if err != nil {
@@ -968,7 +1049,7 @@ func runInternalOfferingsDuplicate(cmd *cobra.Command, args []string) error {
 
 	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s/duplicate", projectID, offeringID)
 	data := map[string]interface{}{
-		"identifier":     identifier,
+		"identifier":    identifier,
 		"display_name":  name,
 		"packages_only": packagesOnly,
 	}
@@ -1471,7 +1552,7 @@ func runInternalPriceExperimentCreate(cmd *cobra.Command, args []string) error {
 
 	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments", projectID)
 	data := map[string]interface{}{
-		"display_name":         name,
+		"display_name":          name,
 		"offering_a_id":         offeringA,
 		"offering_b_id":         offeringB,
 		"enrollment_percentage": enrollment,

@@ -399,27 +399,28 @@ go run ./tools/genpostman
 
 Friendly subcommands above remain for common read flows; **writes** and any route not wrapped yet go through `rc api`.
 
-### Internal API Commands
+### Internal API Commands (after `rc login`; top-level `rc …`, not `rc internal …`)
 ```
 rc login                  → POST /v1/developers/login
 rc logout                 → Clear config
-rc internal projects list → GET /developers/me/projects
-rc internal projects get  → GET /developers/me/projects/{id}
-rc internal entitlements list    → GET /developers/me/projects/{id}/entitlements
-rc internal entitlements create  → POST /developers/me/projects/{id}/entitlements
-rc internal entitlements delete  → DELETE /developers/me/projects/{id}/entitlements/{id}
-rc internal offerings list       → GET /developers/me/projects/{id}/offerings
-rc internal offerings get        → GET /developers/me/projects/{id}/offerings/{id}
-rc internal offerings create     → POST /developers/me/projects/{id}/offerings
-rc internal offerings delete     → DELETE /developers/me/projects/{id}/offerings/{id}
-rc internal offerings duplicate  → POST /developers/me/projects/{id}/offerings/{id}/duplicate
-rc internal offerings set-current → PATCH /developers/me/projects/{id}/offerings/{id}
-rc internal offerings archive    → POST /developers/me/projects/{id}/offerings/{id}/actions/archive
-rc internal products list        → GET /developers/me/projects/{id}/products
-rc internal apps list            → GET /developers/me/projects/{id}/apps
-rc internal collaborators list   → GET /developers/me/projects/{id}/collaborators
-rc internal apikeys list         → GET /developers/me/projects/{id}/api_keys
-rc internal audit list           → GET /developers/me/projects/{id}/audit_logs
+rc projects list          → GET /developers/me/projects
+rc projects get           → GET /developers/me/projects/{id}
+rc entitlements list      → GET /developers/me/projects/{id}/entitlements
+rc entitlements create    → POST /developers/me/projects/{id}/entitlements
+rc entitlements delete    → DELETE /developers/me/projects/{id}/entitlements/{id}
+rc offerings list         → GET /developers/me/projects/{id}/offerings
+rc offerings get          → GET /developers/me/projects/{id}/offerings/{id}
+rc offerings create       → POST /developers/me/projects/{id}/offerings
+rc offerings update       → PUT /developers/me/projects/{id}/offerings/{id} (display name, identifier, metadata; see AGENTS.md)
+rc offerings delete       → DELETE /developers/me/projects/{id}/offerings/{id}
+rc offerings duplicate    → POST /developers/me/projects/{id}/offerings/{id}/duplicate
+rc offerings set-current  → PATCH /developers/me/projects/{id}/offerings/{id}
+rc offerings archive      → POST /developers/me/projects/{id}/offerings/{id}/actions/archive
+rc products list          → GET /developers/me/projects/{id}/products
+rc apps list              → GET /developers/me/projects/{id}/apps
+rc collaborators list     → GET /developers/me/projects/{id}/collaborators
+rc apikeys list           → GET /developers/me/projects/{id}/api_keys
+rc audit list             → GET /developers/me/projects/{id}/audit_logs
 ```
 
 ---

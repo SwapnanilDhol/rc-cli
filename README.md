@@ -54,6 +54,7 @@ Credentials are stored in `~/.revenuerc` with automatic token refresh.
 # Offerings
 ./rc offerings list
 ./rc offerings create --identifier monthly --name "Monthly Offering"
+./rc offerings update -o <offering_id> -m '{"tier":"pro"}'   # metadata + optional -n / -i (after rc login)
 
 # Products
 ./rc products list --limit 2500

@@ -12,7 +12,7 @@ This repo talks to **two different HTTP backends**. Picking the wrong auth is th
 | **Base URL** | `https://api.revenuecat.com/v2` | `https://app.revenuecat.com/internal/v1` (most routes) |
 | **Auth** | **`Authorization: Bearer <secret API key>`** (`sk_…` from Project → API keys) | **Session cookie** `rc_auth_token=<token>` (from **`rc login`**) |
 | **Config keys** (`~/.revenuerc`) | `apiKey`, `projectId` | `email`, `password`, `authToken` |
-| **CLI surface** | `rc api …`, `rc projects …`, `rc offerings …`, etc. (no `internal` in path) | **`rc internal …`** and anything using `internal.EnsureAuthenticated` |
+| **CLI surface** | `rc api …`, and other commands wired to **`api` package** / Bearer key | After **`rc login`**: dashboard session commands (`internal.EnsureAuthenticated`) e.g. **`rc offerings update`** (PUT offering + **metadata**), `rc projects …`, `rc entitlements …` — see `API.md` / `rc --help` (this repo does not use a single `rc internal …` prefix everywhere) |
 | **Project scope** | Secret keys are **per-project**; `GET /v2/projects` lists what **that key** can see | **Account/session** — list **all projects** you can access (`GET /internal/v1/developers/me/projects`) |
 | **Postman** | Folder: **Developer API v2** — variable **`apiKey`** | Folder: **Internal — dashboard session** — run **Auth → Login**, variable **`rc_auth_token`** |
 
@@ -47,11 +47,20 @@ Some routes (e.g. `GET /v1/developers/me`) live at **`https://app.revenuecat.com
 
 ---
 
+## Offerings: edit + **metadata** (dashboard / internal)
+
+- **CLI (session):** `rc offerings update -o <offering_id> [-n "Display name"] [-i identifier] [-m '{"key":"value"}']` — uses `GET` → strip `packages` → `PUT` on `…/internal/v1/developers/me/projects/{project}/offerings/{id}`.  
+- **Verify:** RevenueCat dashboard → **Product catalog → Offerings** → open the offering; refresh if needed. Metadata is part of the offering object (also visible in Paywalls / SDK-facing contexts per RevenueCat).  
+- **Postman:** Internal folder → **Update offering (sample body: metadata)**.  
+- **Public v2 alternative:** `rc api POST '/projects/{project_id}/offerings/{id}' -d '{"metadata":{...}}'` with **API key** (see [Developer API v2](https://www.revenuecat.com/docs/api-v2)).
+
+---
+
 ## When another tool embeds this CLI
 
 Pass through **which backend** the user wants:
 
 - **“Use my API key / v2 / public API”** → configure `apiKey` + `projectId`, use `rc api` or v2 subcommands.  
-- **“Use my account / dashboard / all projects / internal”** → `rc login`, use `rc internal …`.
+- **“Use my account / dashboard / all projects / internal session”** → `rc login`, then session-backed commands (`rc offerings update`, `rc projects list`, … per `API.md`).
 
 Never assume one credential satisfies both.
