@@ -1,0 +1,24 @@
+---
+description: RevenueCat rc-cli — never mix public v2 (API key) with internal/dashboard (session cookie) auth.
+alwaysApply: true
+---
+
+# RevenueCat CLI — two APIs, two auths
+
+This repository integrates **two separate backends**:
+
+## Public Developer API v2
+- **Host:** `https://api.revenuecat.com/v2`
+- **Auth:** `Authorization: Bearer <API key>` — project secret key (`sk_…`), config key **`apiKey`**
+- **CLI:** `rc api`, `rc projects`, `rc offerings`, … (commands **without** `internal`)
+
+## Internal (dashboard) API
+- **Host:** `https://app.revenuecat.com/internal/v1` (plus some routes on `…/v1` for `/developers/me`, login — see `API.md`)
+- **Auth:** **`Cookie: rc_auth_token=<token>`** after **`rc login`** — config **`authToken`** / email+password
+- **CLI:** **`rc internal …`**, `rc login`
+
+**Do not** send a v2 API key to `internal/v1` or a session cookie to `api.revenuecat.com/v2` expecting it to work.
+
+**Listing all projects:** use **internal** session (`rc internal projects list` or Postman Internal + Login), not a single project’s v2 key alone.
+
+For full tables and Postman layout, read **`AGENTS.md`** at the repo root.

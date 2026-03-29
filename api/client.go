@@ -1,10 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"revenuecat-cli/config"
 )
@@ -91,6 +93,48 @@ func (c *Client) GetWithParams(path string, params map[string]string) (*Response
 
 	response.StatusCode = resp.StatusCode
 	return &response, nil
+}
+
+// DoRaw performs an HTTP request against the v2 API and returns status and body as returned by the server.
+// path must start with "/" (e.g. "/projects/foo/customers"). query may be nil.
+func (c *Client) DoRaw(method, path string, query url.Values, body []byte) (status int, respBody []byte, err error) {
+	if len(path) == 0 || path[0] != '/' {
+		return 0, nil, fmt.Errorf("path must start with /, got %q", path)
+	}
+	u, err := url.Parse(BaseURL + path)
+	if err != nil {
+		return 0, nil, err
+	}
+	if query != nil {
+		u.RawQuery = query.Encode()
+	}
+
+	var rdr io.Reader
+	if len(body) > 0 {
+		rdr = bytes.NewReader(body)
+	}
+
+	req, err := http.NewRequest(method, u.String(), rdr)
+	if err != nil {
+		return 0, nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	switch method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch:
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return 0, nil, err
+	}
+	defer resp.Body.Close()
+
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return resp.StatusCode, nil, err
+	}
+	return resp.StatusCode, raw, nil
 }
 
 type Response struct {

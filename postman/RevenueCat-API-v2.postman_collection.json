@@ -1,0 +1,3660 @@
+{
+  "info": {
+    "description": "Public v2: Bearer `apiKey` → `https://api.revenuecat.com/v2`. Dashboard session: Cookie `rc_auth_token={{rc_auth_token}}`. Most internal JSON uses `internal/v1`; **Account → GET developers/me** uses `https://app.revenuecat.com/v1` (not internal/v1) or you get HTTP 7117. Run **Auth → Login** first. Official v2 docs: https://www.revenuecat.com/docs/api-v2. Regenerate: `go run ./tools/genpostman` from repo root.",
+    "name": "RevenueCat API — Developer v2 + Internal (dashboard)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "item": [
+        {
+          "name": "List projects",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects"
+          }
+        },
+        {
+          "name": "Create project",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects"
+          }
+        },
+        {
+          "name": "Get project",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}"
+          }
+        }
+      ],
+      "name": "Projects"
+    },
+    {
+      "item": [
+        {
+          "name": "List apps",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps"
+          }
+        },
+        {
+          "name": "Create app",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps"
+          }
+        },
+        {
+          "name": "Get app",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps/{{app_id}}"
+          }
+        },
+        {
+          "name": "Update app",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps/{{app_id}}"
+          }
+        },
+        {
+          "name": "Delete app",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps/{{app_id}}"
+          }
+        },
+        {
+          "name": "Get app public API keys",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps/{{app_id}}/public_api_keys"
+          }
+        },
+        {
+          "name": "Get StoreKit config",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/apps/{{app_id}}/store_kit_config"
+          }
+        }
+      ],
+      "name": "Apps"
+    },
+    {
+      "item": [
+        {
+          "name": "List audit logs",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/audit_logs"
+          }
+        },
+        {
+          "name": "List collaborators",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/collaborators"
+          }
+        }
+      ],
+      "name": "Project admin"
+    },
+    {
+      "item": [
+        {
+          "name": "Metrics overview",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/metrics/overview"
+          }
+        },
+        {
+          "name": "Get chart",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/charts/{{chart_name}}"
+          }
+        },
+        {
+          "name": "Get chart options",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/charts/{{chart_name}}/options"
+          }
+        }
+      ],
+      "name": "Metrics \u0026 charts"
+    },
+    {
+      "item": [
+        {
+          "name": "List customers",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers"
+          }
+        },
+        {
+          "name": "Create customer",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers"
+          }
+        },
+        {
+          "name": "Get customer",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}"
+          }
+        },
+        {
+          "name": "Delete customer",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}"
+          }
+        },
+        {
+          "name": "Transfer customer",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/actions/transfer"
+          }
+        },
+        {
+          "name": "Grant entitlement",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/actions/grant_entitlement"
+          }
+        },
+        {
+          "name": "Revoke granted entitlement",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/actions/revoke_granted_entitlement"
+          }
+        },
+        {
+          "name": "Assign offering override",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/actions/assign_offering"
+          }
+        },
+        {
+          "name": "List subscriptions",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/subscriptions"
+          }
+        },
+        {
+          "name": "List purchases",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/purchases"
+          }
+        },
+        {
+          "name": "Active entitlements",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/active_entitlements"
+          }
+        },
+        {
+          "name": "List aliases",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/aliases"
+          }
+        },
+        {
+          "name": "Virtual currency balances",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/virtual_currencies"
+          }
+        },
+        {
+          "name": "Virtual currency transaction",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/virtual_currencies/transactions"
+          }
+        },
+        {
+          "name": "Virtual currency update balance",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/virtual_currencies/update_balance"
+          }
+        },
+        {
+          "name": "Get attributes",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/attributes"
+          }
+        },
+        {
+          "name": "Set attributes",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/attributes"
+          }
+        },
+        {
+          "name": "List invoices",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/invoices"
+          }
+        },
+        {
+          "name": "Download invoice file",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/customers/{{customer_id}}/invoices/{{invoice_id}}/file"
+          }
+        }
+      ],
+      "name": "Customers"
+    },
+    {
+      "item": [
+        {
+          "name": "List entitlements",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements"
+          }
+        },
+        {
+          "name": "Create entitlement",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements"
+          }
+        },
+        {
+          "name": "Get entitlement",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}"
+          }
+        },
+        {
+          "name": "Update entitlement",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}"
+          }
+        },
+        {
+          "name": "Delete entitlement",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}"
+          }
+        },
+        {
+          "name": "List entitlement products",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}/products"
+          }
+        },
+        {
+          "name": "Archive entitlement",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/archive"
+          }
+        },
+        {
+          "name": "Unarchive entitlement",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/unarchive"
+          }
+        },
+        {
+          "name": "Attach products",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/attach_products"
+          }
+        },
+        {
+          "name": "Detach products",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/detach_products"
+          }
+        }
+      ],
+      "name": "Entitlements"
+    },
+    {
+      "item": [
+        {
+          "name": "List offerings",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings"
+          }
+        },
+        {
+          "name": "Create offering",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings"
+          }
+        },
+        {
+          "name": "Get offering",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}"
+          }
+        },
+        {
+          "name": "Update offering",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}"
+          }
+        },
+        {
+          "name": "Delete offering",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}"
+          }
+        },
+        {
+          "name": "Archive offering",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}/actions/archive"
+          }
+        },
+        {
+          "name": "Unarchive offering",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}/actions/unarchive"
+          }
+        }
+      ],
+      "name": "Offerings"
+    },
+    {
+      "item": [
+        {
+          "name": "List packages in offering",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}/packages"
+          }
+        },
+        {
+          "name": "Create package",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/offerings/{{offering_id}}/packages"
+          }
+        },
+        {
+          "name": "Get package",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/packages/{{package_id}}"
+          }
+        },
+        {
+          "name": "Update package",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/packages/{{package_id}}"
+          }
+        },
+        {
+          "name": "Delete package",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/packages/{{package_id}}"
+          }
+        },
+        {
+          "name": "List package products",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/packages/{{package_id}}/products"
+          }
+        },
+        {
+          "name": "Attach products",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/packages/{{package_id}}/actions/attach_products"
+          }
+        },
+        {
+          "name": "Detach products",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/packages/{{package_id}}/actions/detach_products"
+          }
+        }
+      ],
+      "name": "Packages"
+    },
+    {
+      "item": [
+        {
+          "name": "List products",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products"
+          }
+        },
+        {
+          "name": "Create product",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products"
+          }
+        },
+        {
+          "name": "Get product",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products/{{product_id}}"
+          }
+        },
+        {
+          "name": "Update product",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products/{{product_id}}"
+          }
+        },
+        {
+          "name": "Delete product",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products/{{product_id}}"
+          }
+        },
+        {
+          "name": "Archive product",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products/{{product_id}}/actions/archive"
+          }
+        },
+        {
+          "name": "Unarchive product",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products/{{product_id}}/actions/unarchive"
+          }
+        },
+        {
+          "name": "Create in store",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/products/{{product_id}}/create_in_store"
+          }
+        }
+      ],
+      "name": "Products"
+    },
+    {
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies"
+          }
+        },
+        {
+          "name": "Get",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies/{{virtual_currency_code}}"
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies/{{virtual_currency_code}}"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies/{{virtual_currency_code}}"
+          }
+        },
+        {
+          "name": "Archive",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies/{{virtual_currency_code}}/actions/archive"
+          }
+        },
+        {
+          "name": "Unarchive",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/virtual_currencies/{{virtual_currency_code}}/actions/unarchive"
+          }
+        }
+      ],
+      "name": "Virtual currencies"
+    },
+    {
+      "item": [
+        {
+          "name": "List purchases",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/purchases"
+          }
+        },
+        {
+          "name": "Get purchase",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/purchases/{{purchase_id}}"
+          }
+        },
+        {
+          "name": "Purchase entitlements",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/purchases/{{purchase_id}}/entitlements"
+          }
+        },
+        {
+          "name": "Refund purchase",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/purchases/{{purchase_id}}/actions/refund"
+          }
+        }
+      ],
+      "name": "Purchases"
+    },
+    {
+      "item": [
+        {
+          "name": "List subscriptions",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions"
+          }
+        },
+        {
+          "name": "Get subscription",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}"
+          }
+        },
+        {
+          "name": "Subscription transactions",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}/transactions"
+          }
+        },
+        {
+          "name": "Refund subscription transaction",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}/transactions/{{transaction_id}}/actions/refund"
+          }
+        },
+        {
+          "name": "Subscription entitlements",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}/entitlements"
+          }
+        },
+        {
+          "name": "Cancel subscription",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}/actions/cancel"
+          }
+        },
+        {
+          "name": "Refund subscription",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}/actions/refund"
+          }
+        },
+        {
+          "name": "Authenticated management URL",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/subscriptions/{{subscription_id}}/authenticated_management_url"
+          }
+        }
+      ],
+      "name": "Subscriptions"
+    },
+    {
+      "item": [
+        {
+          "name": "List paywalls",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/paywalls"
+          }
+        },
+        {
+          "name": "Create paywall",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/paywalls"
+          }
+        },
+        {
+          "name": "Get paywall",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/paywalls/{{paywall_id}}"
+          }
+        },
+        {
+          "name": "Delete paywall",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/paywalls/{{paywall_id}}"
+          }
+        }
+      ],
+      "name": "Paywalls"
+    },
+    {
+      "item": [
+        {
+          "name": "List webhook integrations",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/integrations/webhooks"
+          }
+        },
+        {
+          "name": "Create webhook integration",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/integrations/webhooks"
+          }
+        },
+        {
+          "name": "Get webhook integration",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/{{project_id}}/integrations/webhooks/{{webhook_integration_id}}"
+          }
+        },
+        {
+          "name": "Update webhook integration",
+          "request": {
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/{{project_id}}/integrations/webhooks/{{webhook_integration_id}}"
+          }
+        },
+        {
+          "name": "Delete webhook integration",
+          "request": {
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/{{project_id}}/integrations/webhooks/{{webhook_integration_id}}"
+          }
+        }
+      ],
+      "name": "Integrations"
+    },
+    {
+      "description": "Undocumented dashboard JSON. Auth: Cookie `rc_auth_token` after **Auth → Login**. Most routes: `{{internalBaseUrl}}` …/internal/v1. **Account** folder: `{{authBaseUrl}}` …/v1 (e.g. GET /developers/me is not served under internal/v1). Matches `revenuecat-cli` (see `internal/internal.go`).",
+      "item": [
+        {
+          "description": "Set `rc_email` and `rc_password` in collection variables, run **Login** — then use Internal requests.",
+          "item": [
+            {
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "try {",
+                      "    var j = pm.response.json();",
+                      "    if (j \u0026\u0026 j.authentication_token) {",
+                      "        pm.collectionVariables.set(\"rc_auth_token\", j.authentication_token);",
+                      "        console.log(\"Set rc_auth_token\");",
+                      "    }",
+                      "} catch (e) { console.warn(e); }"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "name": "Login (email + password → sets rc_auth_token)",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{rc_email}}\",\n  \"password\": \"{{rc_password}}\"\n}"
+                },
+                "description": "Same as `rc login`. Copies `authentication_token` into collection variable `rc_auth_token` (Tests tab).",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/login"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{authBaseUrl}}/developers/login"
+              }
+            },
+            {
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "try {",
+                      "    var j = pm.response.json();",
+                      "    if (j \u0026\u0026 j.authentication_token) {",
+                      "        pm.collectionVariables.set(\"rc_auth_token\", j.authentication_token);",
+                      "    }",
+                      "} catch (e) { console.warn(e); }"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "name": "Refresh session token",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "description": "Same as CLI refresh. Requires existing `rc_auth_token`. Updates variable from response.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/login"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{authBaseUrl}}/developers/login/refresh-token"
+              }
+            }
+          ],
+          "name": "Auth"
+        },
+        {
+          "item": [
+            {
+              "name": "GET developers/me",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{authBaseUrl}}/developers/me"
+              }
+            },
+            {
+              "name": "GET billing info",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{authBaseUrl}}/developers/me/billing/info"
+              }
+            },
+            {
+              "name": "GET pending collaborations",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{authBaseUrl}}/developers/me/collaborations/pending"
+              }
+            },
+            {
+              "name": "GET dashboard notifications",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{authBaseUrl}}/developers/me/dashboard_notifications"
+              }
+            },
+            {
+              "name": "GET transactions (me)",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{authBaseUrl}}/developers/me/transactions"
+              }
+            }
+          ],
+          "name": "Account"
+        },
+        {
+          "item": [
+            {
+              "name": "List all projects",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects"
+              }
+            },
+            {
+              "name": "Create project",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects"
+              }
+            },
+            {
+              "name": "Get project",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}"
+              }
+            }
+          ],
+          "name": "Internal — Projects"
+        },
+        {
+          "item": [
+            {
+              "name": "List entitlements",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements"
+              }
+            },
+            {
+              "name": "Create entitlement",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements"
+              }
+            },
+            {
+              "name": "Get entitlement",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}"
+              }
+            },
+            {
+              "name": "Update entitlement",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PUT",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}"
+              }
+            },
+            {
+              "name": "Delete entitlement",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "DELETE",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}"
+              }
+            },
+            {
+              "name": "Archive entitlement",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/archive"
+              }
+            },
+            {
+              "name": "Get entitlement products",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/products"
+              }
+            },
+            {
+              "name": "List offerings",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings"
+              }
+            },
+            {
+              "name": "Create offering",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings"
+              }
+            },
+            {
+              "name": "Get offering",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}"
+              }
+            },
+            {
+              "name": "Update offering",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PUT",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}"
+              }
+            },
+            {
+              "name": "Set current offering (PATCH)",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PATCH",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}"
+              }
+            },
+            {
+              "name": "Duplicate offering",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/duplicate"
+              }
+            },
+            {
+              "name": "Archive offering",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/actions/archive"
+              }
+            },
+            {
+              "name": "Delete offering",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "DELETE",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/offerings/{{offering_id}}"
+              }
+            },
+            {
+              "name": "List products",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/products"
+              }
+            },
+            {
+              "name": "List paywalls",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/paywalls"
+              }
+            },
+            {
+              "name": "Product store statuses",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/product_stores_statuses"
+              }
+            },
+            {
+              "name": "List promotions",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/promotions"
+              }
+            },
+            {
+              "name": "List intro offers",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/intro_offers"
+              }
+            },
+            {
+              "name": "List apps",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/apps"
+              }
+            }
+          ],
+          "name": "Internal — Catalog"
+        },
+        {
+          "item": [
+            {
+              "name": "List collaborators",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/collaborators"
+              }
+            },
+            {
+              "name": "Get collaborator",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}"
+              }
+            },
+            {
+              "name": "Add collaborator",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/collaborators"
+              }
+            },
+            {
+              "name": "Update collaborator",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PUT",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}"
+              }
+            },
+            {
+              "name": "Remove collaborator",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "DELETE",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/collaborators/{{collaborator_id}}"
+              }
+            },
+            {
+              "name": "List API keys",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/api_keys"
+              }
+            },
+            {
+              "name": "Create API key",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/api_keys"
+              }
+            },
+            {
+              "name": "Delete API key",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "DELETE",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/api_keys/{{api_key_id}}"
+              }
+            },
+            {
+              "name": "List audit logs",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/audit_logs"
+              }
+            },
+            {
+              "name": "List webhooks (legacy path)",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/webhooks"
+              }
+            },
+            {
+              "name": "Create webhook",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/webhooks"
+              }
+            },
+            {
+              "name": "Update webhook",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PUT",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}"
+              }
+            },
+            {
+              "name": "Delete webhook",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "DELETE",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}"
+              }
+            },
+            {
+              "name": "Test webhook",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/webhooks/{{webhook_id}}/test"
+              }
+            },
+            {
+              "name": "Webhook events",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/webhooks/events"
+              }
+            }
+          ],
+          "name": "Internal — Project admin"
+        },
+        {
+          "item": [
+            {
+              "name": "List price experiments",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/price_experiments"
+              }
+            },
+            {
+              "name": "Get price experiment",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}"
+              }
+            },
+            {
+              "name": "Create price experiment",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/price_experiments"
+              }
+            },
+            {
+              "name": "Pause price experiment",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/pause"
+              }
+            },
+            {
+              "name": "Resume price experiment",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/resume"
+              }
+            },
+            {
+              "name": "Stop price experiment",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/price_experiments/{{experiment_id}}/stop"
+              }
+            },
+            {
+              "name": "List subscriber lists",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/subscriber_lists"
+              }
+            },
+            {
+              "name": "Get subscriber list",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/subscriber_lists/{{subscriber_list_id}}"
+              }
+            },
+            {
+              "name": "Subscriber lists manifest",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/subscriber_lists/manifest"
+              }
+            }
+          ],
+          "name": "Internal — Experiments \u0026 lists"
+        },
+        {
+          "item": [
+            {
+              "name": "Overview (project)",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/overview?app_uuid={{project_id}}\u0026sandbox_mode={{sandbox_mode}}"
+              }
+            },
+            {
+              "name": "Overview (all projects)",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/overview?sandbox_mode={{sandbox_mode}}\u0026v3=false"
+              }
+            },
+            {
+              "name": "Trials",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/trials?app_uuid={{project_id}}\u0026sandbox_mode={{sandbox_mode}}\u0026resolution={{charts_resolution}}"
+              }
+            },
+            {
+              "name": "Transactions",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/transactions?app_uuid={{project_id}}\u0026sandbox_mode={{sandbox_mode}}\u0026resolution={{charts_resolution}}"
+              }
+            },
+            {
+              "name": "Revenue",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/revenue?app_uuid={{project_id}}\u0026sandbox_mode={{sandbox_mode}}\u0026resolution={{charts_resolution}}"
+              }
+            },
+            {
+              "name": "Customers new",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/customers_new?sandbox_mode={{sandbox_mode}}"
+              }
+            },
+            {
+              "name": "MRR",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/mrr?sandbox_mode={{sandbox_mode}}"
+              }
+            },
+            {
+              "name": "Actives",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/charts_v2/actives?sandbox_mode={{sandbox_mode}}"
+              }
+            }
+          ],
+          "name": "Internal — Charts v2"
+        }
+      ],
+      "name": "Internal — dashboard session"
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.revenuecat.com/v2"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "internalBaseUrl",
+      "value": "https://app.revenuecat.com/internal/v1"
+    },
+    {
+      "key": "authBaseUrl",
+      "value": "https://app.revenuecat.com/v1"
+    },
+    {
+      "key": "rc_email",
+      "value": ""
+    },
+    {
+      "key": "rc_password",
+      "value": ""
+    },
+    {
+      "key": "rc_auth_token",
+      "value": ""
+    },
+    {
+      "key": "project_id",
+      "value": ""
+    },
+    {
+      "key": "customer_id",
+      "value": ""
+    },
+    {
+      "key": "app_id",
+      "value": ""
+    },
+    {
+      "key": "entitlement_id",
+      "value": ""
+    },
+    {
+      "key": "offering_id",
+      "value": ""
+    },
+    {
+      "key": "package_id",
+      "value": ""
+    },
+    {
+      "key": "product_id",
+      "value": ""
+    },
+    {
+      "key": "purchase_id",
+      "value": ""
+    },
+    {
+      "key": "subscription_id",
+      "value": ""
+    },
+    {
+      "key": "transaction_id",
+      "value": ""
+    },
+    {
+      "key": "paywall_id",
+      "value": ""
+    },
+    {
+      "key": "webhook_integration_id",
+      "value": ""
+    },
+    {
+      "key": "invoice_id",
+      "value": ""
+    },
+    {
+      "key": "virtual_currency_code",
+      "value": ""
+    },
+    {
+      "key": "chart_name",
+      "value": "overview"
+    },
+    {
+      "key": "experiment_id",
+      "value": ""
+    },
+    {
+      "key": "subscriber_list_id",
+      "value": ""
+    },
+    {
+      "key": "collaborator_id",
+      "value": ""
+    },
+    {
+      "key": "api_key_id",
+      "value": ""
+    },
+    {
+      "key": "webhook_id",
+      "value": ""
+    },
+    {
+      "key": "sandbox_mode",
+      "value": "false"
+    },
+    {
+      "key": "charts_resolution",
+      "value": "86400"
+    }
+  ]
+}

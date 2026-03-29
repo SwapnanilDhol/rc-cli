@@ -34,4 +34,5 @@ func init() {
 	initCharts()
 	initOffers()
 	initWebhooks()
+	initApiV2()
 }

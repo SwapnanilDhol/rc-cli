@@ -1,7 +1,11 @@
 node_modules/
+.claude/settings.local.json
 .env
 .env.local
 *.log
 .DS_Store
 rc
 vendor/
+
+# Local-only v2 crawl output (PII / audit logs / customer IDs)
+docs/revenuecat-v2-api-dump.md

@@ -15,9 +15,15 @@ go build -o rc .
 
 ## Authentication
 
-### Internal API (Recommended)
+**There are two different APIs with different credentials.** Do not mix them. Full matrix: **[AGENTS.md](AGENTS.md)**.
 
-The internal API provides full CRUD operations and access to all projects:
+| | **Internal (dashboard)** | **Public API v2** |
+|--|--------------------------|---------------------|
+| **Use when** | You want **all projects**, dashboard parity, `rc internal …` | You want **documented** `api.revenuecat.com/v2` + **secret API key** |
+| **How** | `./rc login` (email + password) | `./rc config` → `apiKey` + `projectId` |
+| **In** `~/.revenuerc` | `email`, `password`, `authToken` | `apiKey`, `projectId` |
+
+### Internal API (session — recommended for multi-project)
 
 ```bash
 ./rc login
@@ -26,9 +32,7 @@ The internal API provides full CRUD operations and access to all projects:
 
 Credentials are stored in `~/.revenuerc` with automatic token refresh.
 
-### Public v2 API
-
-For read-only access using an API key:
+### Public v2 API (API key — per project)
 
 ```bash
 ./rc config
