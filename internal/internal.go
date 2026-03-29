@@ -12,6 +12,35 @@ import (
 	"revenuecat-cli/config"
 )
 
+// FlexStr unmarshals JSON fields that may be string or number (RevenueCat error payloads use numeric "code").
+type FlexStr string
+
+func (f *FlexStr) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 {
+		*f = ""
+		return nil
+	}
+	switch b[0] {
+	case '"':
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return err
+		}
+		*f = FlexStr(s)
+		return nil
+	case 'n': // null
+		*f = ""
+		return nil
+	default:
+		var n json.Number
+		if err := json.Unmarshal(b, &n); err != nil {
+			return err
+		}
+		*f = FlexStr(n)
+		return nil
+	}
+}
+
 const (
 	InternalBaseURL   = "https://app.revenuecat.com/internal/v1"
 	LoginURL         = "https://app.revenuecat.com/v1/developers/login"
@@ -250,7 +279,7 @@ func RefreshToken(authToken string) (*LoginResponse, error) {
 
 type Response struct {
 	StatusCode int             `json:"-"`
-	Code       string          `json:"code,omitempty"`
+	Code       FlexStr         `json:"code,omitempty"`
 	Message    string          `json:"message,omitempty"`
 	Data       interface{}     `json:"data,omitempty"`
 	Items      []interface{}   `json:"items,omitempty"`
@@ -264,7 +293,7 @@ type LoginResponse struct {
 	DistinctID               string `json:"distinct_id"`
 	Email                    string `json:"email"`
 	Message                  string `json:"message"`
-	Code                     string `json:"code,omitempty"`
+	Code                     FlexStr `json:"code,omitempty"`
 }
 
 // Project represents a RevenueCat project
