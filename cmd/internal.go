@@ -899,41 +899,33 @@ func runInternalOfferingsUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID)
-	fmt.Println("\n📦 Fetching offering for update...")
-	getResp, err := client.Get(path)
-	if err != nil {
-		return err
-	}
 
-	var body map[string]interface{}
-	if err := json.Unmarshal(toJSON(getResp.Data), &body); err != nil {
-		return fmt.Errorf("error parsing offering: %w", err)
-	}
-
-	delete(body, "packages")
-
+	// Build a minimal PATCH body with only the fields to update
+	patchBody := map[string]interface{}{}
 	if displayName != "" {
-		body["display_name"] = displayName
+		patchBody["display_name"] = displayName
 	}
 	if identifier != "" {
-		body["identifier"] = identifier
+		patchBody["identifier"] = identifier
 	}
 	if metadataStr != "" {
 		var meta map[string]interface{}
-		_ = json.Unmarshal([]byte(metadataStr), &meta)
-		body["metadata"] = meta
+		if err := json.Unmarshal([]byte(metadataStr), &meta); err != nil {
+			return fmt.Errorf("--metadata must be a JSON object: %w", err)
+		}
+		patchBody["metadata"] = meta
 	}
 
-	fmt.Println("\n📦 Saving offering (internal PUT)...")
-	putResp, err := client.Put(path, body)
+	fmt.Println("\n📦 Saving offering (internal PATCH)...")
+	patchResp, err := client.Patch(path, patchBody)
 	if err != nil {
 		return err
 	}
-	if putResp.StatusCode >= 400 {
-		return fmt.Errorf("update failed: HTTP %d %s %s", putResp.StatusCode, putResp.Code, putResp.Message)
+	if patchResp.StatusCode >= 400 {
+		return fmt.Errorf("update failed: HTTP %d %s %s", patchResp.StatusCode, patchResp.Code, patchResp.Message)
 	}
-	if putResp.Code != "" {
-		return fmt.Errorf("update failed: %s - %s", putResp.Code, putResp.Message)
+	if patchResp.Code != "" {
+		return fmt.Errorf("update failed: %s - %s", patchResp.Code, patchResp.Message)
 	}
 
 	fmt.Println(greenStyle.Render("\n✓ Offering updated via internal API."))
