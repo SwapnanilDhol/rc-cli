@@ -6,12 +6,41 @@ A comprehensive command-line interface for RevenueCat, providing access to both 
 
 ## Installation
 
+### Local checkout (quick)
+
 ```bash
-git clone https://github.com/swapnanildhol/rc-cli.git
+git clone https://github.com/SwapnanilDhol/rc-cli.git
 cd rc-cli
 go build -o rc .
 ./rc login
 ```
+
+### Install globally with Go (`revenuecat-cli` on your `PATH`)
+
+Requires [Go](https://go.dev/dl/) 1.21+ (see `go.mod` for the exact toolchain).
+
+```bash
+git clone https://github.com/SwapnanilDhol/rc-cli.git
+cd rc-cli
+go install .
+```
+
+- The binary is installed as **`revenuecat-cli`** in **`$(go env GOPATH)/bin`** (often `~/go/bin`). Add that directory to your **`PATH`** (and restart the terminal) if `revenuecat-cli` is not found.
+- To invoke it as **`rc`**, use either:
+  - **Alias** (e.g. in `~/.zshrc`): `alias rc=revenuecat-cli`
+  - **Symlink**: `ln -sf "$(go env GOPATH)/bin/revenuecat-cli" /usr/local/bin/rc`  
+    (use a directory that is already on your `PATH`; on Apple Silicon Homebrew, `/opt/homebrew/bin` is common.)
+
+### Update when a new version is pushed to GitHub
+
+```bash
+cd rc-cli    # your clone directory
+git pull
+go install .
+# restart the shell if you changed PATH; symlink/alias to rc stays valid
+```
+
+There is no separate release binary in this repo; **`go install .`** from an up-to-date clone is the supported global install path. (Publishing a Go module under `github.com/...` would allow `go install github.com/.../rc-cli@latest`; the current `go.mod` module path is `revenuecat-cli`, so remote `@latest` install is not configured.)
 
 ## Authentication
 
@@ -19,7 +48,7 @@ go build -o rc .
 
 | | **Internal (dashboard)** | **Public API v2** |
 |--|--------------------------|---------------------|
-| **Use when** | You want **all projects**, dashboard parity, `rc internal …` | You want **documented** `api.revenuecat.com/v2` + **secret API key** |
+| **Use when** | You want **all projects**, dashboard parity, `rc login` + `rc offerings` / `rc projects` / … | You want **documented** `api.revenuecat.com/v2` + **secret API key** |
 | **How** | `./rc login` (email + password) | `./rc config` → `apiKey` + `projectId` |
 | **In** `~/.revenuerc` | `email`, `password`, `authToken` | `apiKey`, `projectId` |
 
