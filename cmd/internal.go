@@ -86,7 +86,14 @@ func init() {
 	}
 	entitlementsDeleteCmd.Flags().StringP("entitlement-id", "e", "", "Entitlement ID")
 
-	entitlementsCmd.AddCommand(entitlementsListCmd, entitlementsCreateCmd, entitlementsDeleteCmd)
+	entitlementsArchiveCmd := &cobra.Command{
+		Use:   "archive",
+		Short: "Archive an entitlement",
+		RunE:  runInternalEntitlementsArchive,
+	}
+	entitlementsArchiveCmd.Flags().StringP("entitlement-id", "e", "", "Entitlement ID")
+
+	entitlementsCmd.AddCommand(entitlementsListCmd, entitlementsCreateCmd, entitlementsDeleteCmd, entitlementsArchiveCmd)
 
 	// Offerings command
 	offeringsCmd := &cobra.Command{
@@ -709,6 +716,39 @@ func runInternalEntitlementsDelete(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(greenStyle.Render("\n✓ Entitlement deleted: " + entitlementID))
+	return nil
+}
+
+func runInternalEntitlementsArchive(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
+	if entitlementID == "" {
+		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📋 Archiving entitlement...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/actions/archive", projectID, entitlementID)
+	resp, err := client.Post(path, map[string]interface{}{})
+	if err != nil {
+		return err
+	}
+
+	if resp.Code != "" {
+		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Entitlement archived"))
+
 	return nil
 }
 

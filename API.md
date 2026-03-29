@@ -74,6 +74,7 @@ This document covers all APIs accessible by the RevenueCat CLI.
 | POST | `/developers/me/projects/{project_id}/entitlements` | Create entitlement |
 | PUT | `/developers/me/projects/{project_id}/entitlements/{id}` | Update entitlement |
 | DELETE | `/developers/me/projects/{project_id}/entitlements/{id}` | Delete entitlement |
+| POST | `/developers/me/projects/{project_id}/entitlements/{id}/actions/archive` | Archive entitlement |
 | GET | `/developers/me/projects/{project_id}/entitlements/{id}/products` | Get products in entitlement |
 
 ### Offerings (CRUD)
