@@ -183,14 +183,44 @@ func (c *Client) doRequest(method, path string, data interface{}) (*Response, er
 		return nil, fmt.Errorf("error reading response: %w", err)
 	}
 
-	var response Response
-	if err := json.Unmarshal(respBody, &response); err != nil {
-		// Check if it's an HTML error page
-		return nil, fmt.Errorf("error unmarshaling response: %w (body: %s)", err, string(respBody[:min(200, len(respBody))]))
+	response, err := decodeInternalResponseBody(respBody, resp.StatusCode)
+	if err != nil {
+		return nil, err
 	}
+	return response, nil
+}
 
-	response.StatusCode = resp.StatusCode
-	return &response, nil
+// decodeInternalResponseBody parses the dashboard internal API JSON body. Some endpoints
+// return a top-level array (e.g. list projects) or a bare object instead of { "data": ... }.
+func decodeInternalResponseBody(respBody []byte, statusCode int) (*Response, error) {
+	trim := bytes.TrimSpace(respBody)
+	if len(trim) == 0 {
+		return &Response{StatusCode: statusCode}, nil
+	}
+	switch trim[0] {
+	case '[':
+		var items []interface{}
+		if err := json.Unmarshal(trim, &items); err != nil {
+			return nil, fmt.Errorf("error unmarshaling response: %w (body: %s)", err, string(trim[:min(200, len(trim))]))
+		}
+		return &Response{StatusCode: statusCode, Items: items}, nil
+	case '{':
+		var response Response
+		if err := json.Unmarshal(trim, &response); err != nil {
+			return nil, fmt.Errorf("error unmarshaling response: %w (body: %s)", err, string(trim[:min(200, len(trim))]))
+		}
+		response.StatusCode = statusCode
+		if response.Data == nil && len(response.Items) == 0 && response.Code == "" && response.Message == "" && !response.HasNext && response.NextPage == "" {
+			var raw map[string]interface{}
+			if err := json.Unmarshal(trim, &raw); err != nil {
+				return nil, fmt.Errorf("error unmarshaling response: %w (body: %s)", err, string(trim[:min(200, len(trim))]))
+			}
+			response.Data = raw
+		}
+		return &response, nil
+	default:
+		return nil, fmt.Errorf("error unmarshaling response: unexpected JSON (body: %s)", string(trim[:min(200, len(trim))]))
+	}
 }
 
 // Login authenticates with email/password and returns the auth token
