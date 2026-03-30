@@ -273,6 +273,30 @@ func init() {
 	}
 	experimentsListCmd.Aliases = []string{"ls"}
 
+	// Price experiment types with descriptions
+	experimentTypes := map[string]string{
+		"introductory_offer":    "Test introductory offers (free trial, pay as you go)",
+		"free_trial_offer":       "Test free trial variations",
+		"paywall_design":         "Test different paywall layouts and designs",
+		"price_point":            "Test different price points for the same product",
+		"subscription_duration": "Test different subscription durations",
+		"subscription_ordering": "Test different package orderings",
+		"other":                  "Custom experiment type",
+	}
+
+	experimentsTypesCmd := &cobra.Command{
+		Use:   "types",
+		Short: "List available price experiment types",
+		RunE:  func(cmd *cobra.Command, args []string) error {
+			fmt.Println(internalStyle.Render("\n📋 Available Price Experiment Types:\n"))
+			for t, desc := range experimentTypes {
+				fmt.Printf("  %s  %s\n", cyanStyle.Render(t), desc)
+			}
+			fmt.Println()
+			return nil
+		},
+	}
+
 	experimentsGetCmd := &cobra.Command{
 		Use:   "get",
 		Short: "Get price experiment details",
@@ -289,7 +313,7 @@ func init() {
 	experimentsCreateCmd.Flags().StringP("offering-a", "a", "", "Offering A ID (required)")
 	experimentsCreateCmd.Flags().StringP("offering-b", "b", "", "Offering B ID (required)")
 	experimentsCreateCmd.Flags().Int("enrollment", 100, "Enrollment percentage (default 100)")
-	experimentsCreateCmd.Flags().String("type", "introductory_offer", "Experiment type")
+	experimentsCreateCmd.Flags().String("type", "paywall_design", "Experiment type (see: rc experiments types)")
 	experimentsCreateCmd.Flags().String("primary-metric", "Realized LTV per customer", "Primary metric")
 	experimentsCreateCmd.Flags().String("notes", "", "Experiment notes")
 
@@ -314,7 +338,7 @@ func init() {
 	}
 	experimentsStopCmd.Flags().StringP("experiment-id", "e", "", "Experiment ID (required)")
 
-	experimentsCmd.AddCommand(experimentsListCmd, experimentsGetCmd, experimentsCreateCmd, experimentsPauseCmd, experimentsResumeCmd, experimentsStopCmd)
+	experimentsCmd.AddCommand(experimentsListCmd, experimentsGetCmd, experimentsCreateCmd, experimentsPauseCmd, experimentsResumeCmd, experimentsStopCmd, experimentsTypesCmd)
 
 	// Utilities command
 	utilitiesCmd := &cobra.Command{
