@@ -230,6 +230,27 @@ func init() {
 	appSubscriptionGroupsCmd.Flags().StringP("app-id", "i", "", "App ID (required; e.g. appb5d7b1196a)")
 	appsCmd.AddCommand(appSubscriptionGroupsCmd)
 
+	appStoreProductsCmd := &cobra.Command{
+		Use:   "app-store-products",
+		Short: "Manage App Store Connect products via app_store_products (dashboard internal API)",
+	}
+	appsCmd.AddCommand(appStoreProductsCmd)
+
+	appStoreProductsCreateCmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create an app store product (dashboard internal API)",
+		RunE:  runInternalAppStoreProductsCreate,
+	}
+	appStoreProductsCreateCmd.Flags().StringP("app-id", "i", "", "App ID (required; e.g. appb5d7b1196a)")
+	appStoreProductsCreateCmd.Flags().String("product-type", "", "Product type (e.g. subscriptions or inAppPurchases)")
+	appStoreProductsCreateCmd.Flags().String("in-app-purchase-type", "", "In-app purchase type (e.g. NON_RENEWING_SUBSCRIPTION)")
+	appStoreProductsCreateCmd.Flags().String("duration", "", "Subscription duration (ONE_WEEK|ONE_MONTH|TWO_MONTHS|THREE_MONTHS|SIX_MONTHS|ONE_YEAR)")
+	appStoreProductsCreateCmd.Flags().String("subscription-group-id", "", "App Store Connect subscription group id (required for subscriptions + duration)")
+	appStoreProductsCreateCmd.Flags().String("subscription-group-name", "", "App Store Connect subscription group name (optional)")
+	appStoreProductsCreateCmd.Flags().String("identifier", "", "Product identifier / product_identifier (required)")
+	appStoreProductsCreateCmd.Flags().StringP("name", "n", "", "Display name / name (required)")
+	appStoreProductsCmd.AddCommand(appStoreProductsCreateCmd)
+
 	// Product Stores Status command
 	storesStatusCmd := &cobra.Command{
 		Use:   "stores-status",
@@ -1472,6 +1493,96 @@ func runInternalAppsSubscriptionGroups(cmd *cobra.Command, args []string) error 
 		fmt.Println()
 	}
 
+	return nil
+}
+
+func validateInternalDurationEnum(duration string) error {
+	switch duration {
+	case "ONE_WEEK", "ONE_MONTH", "TWO_MONTHS", "THREE_MONTHS", "SIX_MONTHS", "ONE_YEAR":
+		return nil
+	default:
+		return fmt.Errorf("--duration must be one of: ONE_WEEK, ONE_MONTH, TWO_MONTHS, THREE_MONTHS, SIX_MONTHS, ONE_YEAR (got %q)", duration)
+	}
+}
+
+func runInternalAppStoreProductsCreate(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	appID, _ := cmd.Flags().GetString("app-id")
+	if appID == "" {
+		return fmt.Errorf("--app-id is required")
+	}
+
+	productType, _ := cmd.Flags().GetString("product-type")
+	if productType == "" {
+		return fmt.Errorf("--product-type is required")
+	}
+
+	inAppPurchaseType, _ := cmd.Flags().GetString("in-app-purchase-type")
+	duration, _ := cmd.Flags().GetString("duration")
+	subscriptionGroupID, _ := cmd.Flags().GetString("subscription-group-id")
+	subscriptionGroupName, _ := cmd.Flags().GetString("subscription-group-name")
+	identifier, _ := cmd.Flags().GetString("identifier")
+	displayName, _ := cmd.Flags().GetString("name")
+
+	if identifier == "" {
+		return fmt.Errorf("--identifier is required")
+	}
+	if displayName == "" {
+		return fmt.Errorf("--name is required")
+	}
+
+	if duration != "" {
+		if err := validateInternalDurationEnum(duration); err != nil {
+			return err
+		}
+		if subscriptionGroupID == "" {
+			return fmt.Errorf("--subscription-group-id is required when --duration is set")
+		}
+	}
+
+	// Build payload according to the dashboard's app_store_products POST schema:
+	// { "products": [ { product_identifier, name, product_type, ... } ] }
+	product := map[string]interface{}{
+		"product_identifier": identifier,
+		"name":               displayName,
+		"product_type":       productType,
+	}
+	if inAppPurchaseType != "" {
+		product["in_app_purchase_type"] = inAppPurchaseType
+	}
+	if duration != "" {
+		product["duration"] = duration
+	}
+	if subscriptionGroupID != "" {
+		subGroup := map[string]interface{}{"id": subscriptionGroupID}
+		if subscriptionGroupName != "" {
+			subGroup["name"] = subscriptionGroupName
+		}
+		product["subscription_group"] = subGroup
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📦 Creating app store product (internal POST)...")
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/app_store_products", projectID, appID)
+	body := map[string]interface{}{"products": []interface{}{product}}
+
+	resp, err := client.Post(path, body)
+	if err != nil {
+		return err
+	}
+	if resp.Code != "" {
+		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ App store product created."))
 	return nil
 }
 

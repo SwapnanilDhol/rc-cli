@@ -137,6 +137,7 @@ Full schemas and permissions are in the [Developer API v2](https://www.revenueca
 | GET | `/developers/me/projects/{project_id}/apps` | List apps |
 | GET | `/developers/me/projects/{project_id}/apps/{app_id}/subscription_groups` | List App Store Connect subscription groups for an app |
 | GET | `/developers/me/projects/{project_id}/apps/{app_id}/product_import` | Get App Store product import status/summary |
+| POST | `/developers/me/projects/{project_id}/apps/{app_id}/app_store_products` | Create App Store Connect products (uses app_store_products schema; supports `duration` like `ONE_WEEK`, `ONE_MONTH`, etc.) |
 
 ### Collaborators
 | Method | Endpoint | Description |

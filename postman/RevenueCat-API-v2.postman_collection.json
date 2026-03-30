@@ -2658,6 +2658,43 @@
                 "method": "GET",
                 "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/apps/{{app_id}}/subscription_groups"
               }
+            },
+            {
+              "name": "Create app store product",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"products\": [\n    {\n      \"product_identifier\": \"rc.identifier\",\n      \"name\": \"Display name\",\n      \"product_type\": \"subscriptions\",\n      \"duration\": \"ONE_WEEK\",\n      \"subscription_group\": {\n        \"id\": \"21492027\",\n        \"name\": \"passMaker-subscription-group\"\n      }\n    }\n  ]\n}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/apps/{{app_id}}/app_store_products"
+              }
             }
           ],
           "name": "Internal — Catalog"

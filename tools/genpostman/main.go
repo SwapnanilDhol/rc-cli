@@ -271,6 +271,7 @@ func v2Endpoints() []ep {
 func internalEndpointsFromCLI() []internalEp {
 	postmanOfferingMetadata := "{\n  \"display_name\": \"Edit in Postman\",\n  \"metadata\": {\n    \"rc_cli_note\": \"dashboard should show this under offering / Paywalls context\"\n  }\n}"
 	postmanProductMutationBody := "{\n  \"product_type\": \"subscription\",\n  \"identifier\": \"rc.identifier\",\n  \"display_name\": \"Display name\"\n}"
+	postmanAppStoreProductsCreateBody := "{\n  \"products\": [\n    {\n      \"product_identifier\": \"rc.identifier\",\n      \"name\": \"Display name\",\n      \"product_type\": \"subscriptions\",\n      \"duration\": \"ONE_WEEK\",\n      \"subscription_group\": {\n        \"id\": \"21492027\",\n        \"name\": \"passMaker-subscription-group\"\n      }\n    }\n  ]\n}"
 	return []internalEp{
 		// Account / me — same-origin v1 (NOT internal/v1); see API.md § Same-origin v1
 		{"Account", "GET developers/me", "GET", "/developers/me", "appv1", nil},
@@ -310,6 +311,7 @@ func internalEndpointsFromCLI() []internalEp {
 		{"Internal — Catalog", "List intro offers", "GET", "/developers/me/projects/{{project_id}}/intro_offers", "", nil},
 		{"Internal — Catalog", "List apps", "GET", "/developers/me/projects/{{project_id}}/apps", "", nil},
 		{"Internal — Catalog", "List subscription groups (App Store Connect)", "GET", "/developers/me/projects/{{project_id}}/apps/{{app_id}}/subscription_groups", "", nil},
+		{"Internal — Catalog", "Create app store product", "POST", "/developers/me/projects/{{project_id}}/apps/{{app_id}}/app_store_products", "", &postmanAppStoreProductsCreateBody},
 
 		// Project admin
 		{"Internal — Project admin", "List collaborators", "GET", "/developers/me/projects/{{project_id}}/collaborators", "", nil},

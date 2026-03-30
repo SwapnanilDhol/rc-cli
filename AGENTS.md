@@ -56,6 +56,23 @@ Some routes (e.g. `GET /v1/developers/me`) live at **`https://app.revenuecat.com
 
 ---
 
+## App Store Connect products (dashboard / internal)
+
+This repo also supports creating App Store Connect products via the dashboard session.
+
+- **Command:** `rc apps app-store-products create`
+- **Uses:** internal/dashboard session cookie (run `rc login`)
+- **Endpoint:** `POST https://app.revenuecat.com/internal/v1/developers/me/projects/{project_id}/apps/{app_id}/app_store_products`
+
+For subscription-style products, the CLI validates `--duration` as one of:
+`ONE_WEEK`, `ONE_MONTH`, `TWO_MONTHS`, `THREE_MONTHS`, `SIX_MONTHS`, `ONE_YEAR`.
+
+Other fields are passed as provided:
+`--product-type`, `--in-app-purchase-type` (passed through), `--identifier`, `--name`,
+and for subscriptions: `--subscription-group-id` (+ optional `--subscription-group-name`).
+
+---
+
 ## When another tool embeds this CLI
 
 Pass through **which backend** the user wants:
