@@ -204,14 +204,7 @@ func init() {
 	productsUpdateCmd.Flags().StringP("identifier", "i", "", "Product identifier")
 	productsUpdateCmd.Flags().StringP("name", "n", "", "Display name (display_name)")
 
-	productsSubscriptionGroupsCmd := &cobra.Command{
-		Use:   "subscription-groups",
-		Short: "List App Store subscription groups for an app",
-		RunE:  runInternalSubscriptionGroupsList,
-	}
-	productsSubscriptionGroupsCmd.Flags().String("app-id", "", "App ID (required; e.g. appb5d7b1196a)")
-
-	productsCmd.AddCommand(productsListCmd, productsCreateCmd, productsUpdateCmd, productsSubscriptionGroupsCmd)
+	productsCmd.AddCommand(productsListCmd, productsCreateCmd, productsUpdateCmd)
 
 	// Apps command
 	appsCmd := &cobra.Command{
@@ -1369,77 +1362,6 @@ func runInternalProductsUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(greenStyle.Render("\n✓ Product updated via internal API."))
-	return nil
-}
-
-func runInternalSubscriptionGroupsList(cmd *cobra.Command, args []string) error {
-	projectID, err := getProjectID()
-	if err != nil {
-		return err
-	}
-
-	appID, _ := cmd.Flags().GetString("app-id")
-	if appID == "" {
-		return fmt.Errorf("--app-id is required (e.g. appb5d7b1196a)")
-	}
-
-	client, err := getInternalClient()
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("\n📦 Fetching subscription groups...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/subscription_groups", projectID, appID)
-	resp, err := client.Get(path)
-	if err != nil {
-		return err
-	}
-
-	if resp.Code != "" {
-		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
-	}
-
-	var groups []map[string]interface{}
-	if err := json.Unmarshal(toJSON(resp.Items), &groups); err != nil {
-		// Try parsing as data if items is empty
-		var data map[string]interface{}
-		if err2 := json.Unmarshal(toJSON(resp.Data), &data); err2 != nil {
-			return fmt.Errorf("error parsing subscription groups: %w", err)
-		}
-		fmt.Println(internalStyle.Render("\n📦 Subscription Groups:\n"))
-		for key, value := range data {
-			fmt.Printf("  %s: %v\n", cyanStyle.Render(key), value)
-		}
-		return nil
-	}
-
-	if len(groups) == 0 {
-		fmt.Println(yellowStyle.Render("No subscription groups found."))
-		return nil
-	}
-
-	fmt.Println(internalStyle.Render("\n📦 Subscription Groups:\n"))
-	for _, g := range groups {
-		id, _ := g["id"].(string)
-		name, _ := g["name"].(string)
-		if name == "" {
-			name, _ = g["display_name"].(string)
-		}
-		if id == "" {
-			id, _ = g["subscription_group_id"].(string)
-		}
-		fmt.Printf("  ID: %s\n", cyanStyle.Render(id))
-		if name != "" {
-			fmt.Printf("  Name: %s\n", name)
-		}
-		if products, ok := g["products"].([]interface{}); ok && len(products) > 0 {
-			fmt.Printf("  Products: %d\n", len(products))
-		}
-		fmt.Println()
-	}
-	fmt.Println(grayStyle.Render(fmt.Sprintf("Total: %d subscription groups", len(groups))))
-
 	return nil
 }
 
