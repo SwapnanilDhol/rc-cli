@@ -1435,12 +1435,7 @@ func runInternalPriceExperimentsList(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var data map[string]interface{}
-	if err := json.Unmarshal(toJSON(resp.Data), &data); err != nil {
-		return fmt.Errorf("error parsing response: %w", err)
-	}
-
-	experiments, _ := data["experiments"].([]interface{})
+	experiments := resp.Items
 
 	if len(experiments) == 0 {
 		fmt.Println(yellowStyle.Render("No price experiments found."))
@@ -1450,15 +1445,19 @@ func runInternalPriceExperimentsList(cmd *cobra.Command, args []string) error {
 	fmt.Println(internalStyle.Render("\n🔬 Price Experiments:\n"))
 	for _, e := range experiments {
 		exp := e.(map[string]interface{})
-		id := exp["id"].(string)
-		name := exp["name"].(string)
-		status := exp["status"].(string)
-		offeringID, _ := exp["offering_id"].(string)
+		id, _ := exp["id"].(string)
+		name, _ := exp["display_name"].(string)
+		running, _ := exp["is_running"].(bool)
+		expType, _ := exp["experiment_type"].(string)
+		startingAt, _ := exp["starting_at"].(string)
+		createdAt, _ := exp["created_at"].(string)
 
 		fmt.Printf("  ID: %s\n", cyanStyle.Render(id))
 		fmt.Printf("  Name: %s\n", name)
-		fmt.Printf("  Status: %s\n", greenStyle.Render(status))
-		fmt.Printf("  Offering ID: %s\n", yellowStyle.Render(offeringID))
+		fmt.Printf("  Type: %s\n", expType)
+		fmt.Printf("  Running: %v\n", running)
+		fmt.Printf("  Starting: %s\n", startingAt)
+		fmt.Printf("  Created: %s\n", createdAt)
 		fmt.Println()
 	}
 
@@ -1496,9 +1495,17 @@ func runInternalPriceExperimentGet(cmd *cobra.Command, args []string) error {
 
 	fmt.Println(internalStyle.Render("\n🔬 Price Experiment Details:\n"))
 	fmt.Printf("  ID: %s\n", cyanStyle.Render(exp["id"].(string)))
-	fmt.Printf("  Name: %s\n", exp["name"])
-	fmt.Printf("  Status: %s\n", greenStyle.Render(exp["status"].(string)))
-	fmt.Printf("  Offering ID: %s\n", yellowStyle.Render(exp["offering_id"].(string)))
+	fmt.Printf("  Name: %s\n", exp["display_name"])
+	fmt.Printf("  Type: %s\n", exp["experiment_type"])
+	fmt.Printf("  Running: %v\n", exp["is_running"])
+	fmt.Printf("  Enrollment: %v%%\n", exp["enrollment_percentage"])
+
+	if offeringA, ok := exp["offering_a"].(map[string]interface{}); ok {
+		fmt.Printf("  Offering A: %s (%s)\n", yellowStyle.Render(offeringA["display_name"].(string)), cyanStyle.Render(offeringA["id"].(string)))
+	}
+	if offeringB, ok := exp["offering_b"].(map[string]interface{}); ok {
+		fmt.Printf("  Offering B: %s (%s)\n", yellowStyle.Render(offeringB["display_name"].(string)), cyanStyle.Render(offeringB["id"].(string)))
+	}
 
 	if variants, ok := exp["variants"].([]interface{}); ok && len(variants) > 0 {
 		fmt.Println(internalStyle.Render("\n  Variants:"))
@@ -1572,8 +1579,8 @@ func runInternalPriceExperimentCreate(cmd *cobra.Command, args []string) error {
 
 	fmt.Println(greenStyle.Render("\n✓ Price experiment created:"))
 	fmt.Printf("  ID: %s\n", cyanStyle.Render(exp["id"].(string)))
-	fmt.Printf("  Name: %s\n", exp["name"])
-	fmt.Printf("  Status: %s\n", greenStyle.Render(exp["status"].(string)))
+	fmt.Printf("  Name: %s\n", exp["display_name"])
+	fmt.Printf("  Running: %v\n", exp["is_running"])
 
 	return nil
 }
