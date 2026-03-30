@@ -259,6 +259,8 @@ Used by **`rc internal offerings …`** (session cookie). The top-level **`rc of
 | Get | GET | `/developers/me/projects/{project_id}/entitlements/{entitlement_id}` | — (used by dashboard; use public v2 `rc entitlements get` for read with API key) |
 | Create | POST | `/developers/me/projects/{project_id}/entitlements` | JSON: `identifier`, `display_name` |
 | Update | PUT | `/developers/me/projects/{project_id}/entitlements/{entitlement_id}` | JSON fields per dashboard (not wrapped in CLI yet) |
+| Attach products | POST | `/developers/me/projects/{project_id}/entitlements/{entitlement_id}/attach_products` | JSON: `{"products_ids":[...]}` |
+| Detach products | POST | `/developers/me/projects/{project_id}/entitlements/{entitlement_id}/detach_products` | JSON: `{"products_ids":[...]}` |
 | Archive | POST | `/developers/me/projects/{project_id}/entitlements/{entitlement_id}/actions/archive` | Empty JSON `{}` |
 | Delete | DELETE | `/developers/me/projects/{project_id}/entitlements/{entitlement_id}` | — |
 

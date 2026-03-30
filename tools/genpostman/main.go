@@ -292,6 +292,8 @@ func internalEndpointsFromCLI() []internalEp {
 		{"Internal — Catalog", "Update entitlement", "PUT", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", "", nil},
 		{"Internal — Catalog", "Delete entitlement", "DELETE", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}", "", nil},
 		{"Internal — Catalog", "Archive entitlement", "POST", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/actions/archive", "", nil},
+		{"Internal — Catalog", "Attach products (entitlement)", "POST", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/attach_products", "", nil},
+		{"Internal — Catalog", "Detach products (entitlement)", "POST", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/detach_products", "", nil},
 		{"Internal — Catalog", "Get entitlement products", "GET", "/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/products", "", nil},
 		{"Internal — Catalog", "List offerings", "GET", "/developers/me/projects/{{project_id}}/offerings", "", nil},
 		{"Internal — Catalog", "Create offering", "POST", "/developers/me/projects/{{project_id}}/offerings", "", nil},

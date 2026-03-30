@@ -93,7 +93,23 @@ func init() {
 	}
 	entitlementsArchiveCmd.Flags().StringP("entitlement-id", "e", "", "Entitlement ID")
 
-	entitlementsCmd.AddCommand(entitlementsListCmd, entitlementsCreateCmd, entitlementsDeleteCmd, entitlementsArchiveCmd)
+	entitlementsAttachCmd := &cobra.Command{
+		Use:   "attach-products",
+		Short: "Attach products to an entitlement (dashboard internal API)",
+		RunE:  runInternalEntitlementsAttachProducts,
+	}
+	entitlementsAttachCmd.Flags().StringP("entitlement-id", "e", "", "Entitlement ID (required)")
+	entitlementsAttachCmd.Flags().StringSlice("product-ids", []string{}, "Product IDs to attach (required)")
+
+	entitlementsDetachCmd := &cobra.Command{
+		Use:   "detach-products",
+		Short: "Detach products from an entitlement (dashboard internal API)",
+		RunE:  runInternalEntitlementsDetachProducts,
+	}
+	entitlementsDetachCmd.Flags().StringP("entitlement-id", "e", "", "Entitlement ID (required)")
+	entitlementsDetachCmd.Flags().StringSlice("product-ids", []string{}, "Product IDs to detach (required)")
+
+	entitlementsCmd.AddCommand(entitlementsListCmd, entitlementsCreateCmd, entitlementsDeleteCmd, entitlementsArchiveCmd, entitlementsAttachCmd, entitlementsDetachCmd)
 
 	// Offerings command
 	offeringsCmd := &cobra.Command{
@@ -833,6 +849,92 @@ func runInternalEntitlementsArchive(cmd *cobra.Command, args []string) error {
 
 	fmt.Println(greenStyle.Render("\n✓ Entitlement archived"))
 
+	return nil
+}
+
+func runInternalEntitlementsAttachProducts(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
+	if entitlementID == "" {
+		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
+	}
+
+	productIDs, _ := cmd.Flags().GetStringSlice("product-ids")
+	if len(productIDs) == 0 {
+		return fmt.Errorf("--product-ids is required")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📎 Attaching products to entitlement...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/attach_products", projectID, entitlementID)
+	body := map[string]interface{}{
+		"products_ids": productIDs,
+	}
+
+	resp, err := client.Post(path, body)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("attach failed: HTTP %d %s %s", resp.StatusCode, resp.Code, resp.Message)
+	}
+	if resp.Code != "" {
+		return fmt.Errorf("attach failed: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Products attached"))
+	return nil
+}
+
+func runInternalEntitlementsDetachProducts(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
+	if entitlementID == "" {
+		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
+	}
+
+	productIDs, _ := cmd.Flags().GetStringSlice("product-ids")
+	if len(productIDs) == 0 {
+		return fmt.Errorf("--product-ids is required")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📎 Detaching products from entitlement...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/detach_products", projectID, entitlementID)
+	body := map[string]interface{}{
+		"products_ids": productIDs,
+	}
+
+	resp, err := client.Post(path, body)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("detach failed: HTTP %d %s %s", resp.StatusCode, resp.Code, resp.Message)
+	}
+	if resp.Code != "" {
+		return fmt.Errorf("detach failed: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Products detached"))
 	return nil
 }
 

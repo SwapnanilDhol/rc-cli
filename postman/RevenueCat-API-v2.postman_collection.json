@@ -2163,6 +2163,80 @@
               }
             },
             {
+              "name": "Attach products (entitlement)",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/attach_products"
+              }
+            },
+            {
+              "name": "Detach products (entitlement)",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/entitlements/{{entitlement_id}}/detach_products"
+              }
+            },
+            {
               "name": "Get entitlement products",
               "request": {
                 "header": [
