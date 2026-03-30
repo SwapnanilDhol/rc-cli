@@ -12,7 +12,7 @@ This repo talks to **two different HTTP backends**. Picking the wrong auth is th
 | **Base URL** | `https://api.revenuecat.com/v2` | `https://app.revenuecat.com/internal/v1` (most routes) |
 | **Auth** | **`Authorization: Bearer <secret API key>`** (`sk_…` from Project → API keys) | **Session cookie** `rc_auth_token=<token>` (from **`rc login`**) |
 | **Config keys** (`~/.revenuerc`) | `apiKey`, `projectId` | `email`, `password`, `authToken` |
-| **CLI surface** | `rc api …`, and other commands wired to **`api` package** / Bearer key | After **`rc login`**: dashboard session commands (`internal.EnsureAuthenticated`) e.g. **`rc offerings update`** (PUT offering + **metadata**), `rc projects …`, `rc entitlements …` — see `API.md` / `rc --help` (this repo does not use a single `rc internal …` prefix everywhere) |
+| **CLI surface** | `rc api …`, and other commands wired to **`api` package** / Bearer key | After **`rc login`**: dashboard session commands (`internal.EnsureAuthenticated`) e.g. **`rc offerings update`** (PUT offering + **metadata**), `rc projects …`, `rc entitlements …`, `rc experiments …` — see `API.md` / `rc --help` (this repo does not use a single `rc internal …` prefix everywhere) |
 | **Project scope** | Secret keys are **per-project**; `GET /v2/projects` lists what **that key** can see | **Account/session** — list **all projects** you can access (`GET /internal/v1/developers/me/projects`) |
 | **Postman** | Folder: **Developer API v2** — variable **`apiKey`** | Folder: **Internal — dashboard session** — run **Auth → Login**, variable **`rc_auth_token`** |
 

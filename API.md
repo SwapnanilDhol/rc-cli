@@ -135,6 +135,7 @@ Full schemas and permissions are in the [Developer API v2](https://www.revenueca
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/developers/me/projects/{project_id}/apps` | List apps |
+| GET | `/developers/me/projects/{project_id}/apps/{app_id}/product_import` | Get App Store product import status/summary |
 
 ### Collaborators
 | Method | Endpoint | Description |
@@ -176,6 +177,17 @@ Full schemas and permissions are in the [Developer API v2](https://www.revenueca
 | POST | `/developers/me/projects/{project_id}/price_experiments/{id}/pause` | Pause experiment |
 | POST | `/developers/me/projects/{project_id}/price_experiments/{id}/resume` | Resume experiment |
 | POST | `/developers/me/projects/{project_id}/price_experiments/{id}/stop` | Stop experiment |
+
+**Experiment types** (`--type` flag on create, see `rc experiments types`):
+| Type | Description |
+|------|-------------|
+| `introductory_offer` | Test introductory offers (free trial, pay as you go) |
+| `free_trial_offer` | Test free trial variations |
+| `paywall_design` | Test different paywall layouts and designs |
+| `price_point` | Test different price points for the same product |
+| `subscription_duration` | Test different subscription durations |
+| `subscription_ordering` | Test different package orderings |
+| `other` | Custom experiment type |
 
 ### Subscriber Lists
 | Method | Endpoint | Description |
@@ -418,6 +430,13 @@ rc offerings set-current  → PATCH /developers/me/projects/{id}/offerings/{id}
 rc offerings archive      → POST /developers/me/projects/{id}/offerings/{id}/actions/archive
 rc products list          → GET /developers/me/projects/{id}/products
 rc apps list              → GET /developers/me/projects/{id}/apps
+rc experiments list       → GET /developers/me/projects/{id}/price_experiments
+rc experiments get        → GET /developers/me/projects/{id}/price_experiments/{id}
+rc experiments create     → POST /developers/me/projects/{id}/price_experiments
+rc experiments pause      → POST /developers/me/projects/{id}/price_experiments/{id}/pause
+rc experiments resume     → POST /developers/me/projects/{id}/price_experiments/{id}/resume
+rc experiments stop       → POST /developers/me/projects/{id}/price_experiments/{id}/stop
+rc experiments types      → (local list, no API call)
 rc collaborators list     → GET /developers/me/projects/{id}/collaborators
 rc apikeys list           → GET /developers/me/projects/{id}/api_keys
 rc audit list             → GET /developers/me/projects/{id}/audit_logs

@@ -202,6 +202,14 @@ func init() {
 
 	appsCmd.AddCommand(appsListCmd)
 
+	appsProductImportCmd := &cobra.Command{
+		Use:   "product-import",
+		Short: "Get App Store product import status",
+		RunE:  runInternalAppProductImport,
+	}
+	appsProductImportCmd.Flags().StringP("app-id", "a", "", "RevenueCat app ID (e.g. appb5d7b1196a)")
+	appsCmd.AddCommand(appsProductImportCmd)
+
 	// Product Stores Status command
 	storesStatusCmd := &cobra.Command{
 		Use:   "stores-status",
@@ -1244,6 +1252,61 @@ func runInternalAppsList(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  Name: %s\n", a.Name)
 		fmt.Printf("  Type: %s\n", a.Type)
 		fmt.Println()
+	}
+
+	return nil
+}
+
+func runInternalAppProductImport(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	appID, _ := cmd.Flags().GetString("app-id")
+	if appID == "" {
+		return fmt.Errorf("app-id is required (--app-id or -a)")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n📦 Fetching App Store product import status...")
+
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/product_import", projectID, appID)
+	resp, err := client.Get(path)
+	if err != nil {
+		return err
+	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal(toJSON(resp.Data), &data); err != nil {
+		return fmt.Errorf("error parsing response: %w", err)
+	}
+
+	if len(data) == 0 && len(resp.Items) > 0 {
+		if item, ok := resp.Items[0].(map[string]interface{}); ok {
+			data = item
+		}
+	}
+
+	fmt.Println(internalStyle.Render("\n📦 App Store Product Import:\n"))
+	if len(data) == 0 {
+		fmt.Println(yellowStyle.Render("No import data found (app may not have imported products yet)."))
+		return nil
+	}
+	for key, value := range data {
+		switch v := value.(type) {
+		case map[string]interface{}:
+			fmt.Printf("  %s:\n", cyanStyle.Render(key))
+			for k2, v2 := range v {
+				fmt.Printf("    %s: %v\n", k2, v2)
+			}
+		default:
+			fmt.Printf("  %s: %v\n", cyanStyle.Render(key), v)
+		}
 	}
 
 	return nil
