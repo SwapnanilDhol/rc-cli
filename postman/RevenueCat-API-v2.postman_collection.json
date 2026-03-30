@@ -2633,9 +2633,113 @@
                 "method": "GET",
                 "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/apps"
               }
+            },
+            {
+              "name": "List subscription groups (App Store Connect)",
+              "request": {
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  }
+                ],
+                "method": "GET",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/apps/{{app_id}}/subscription_groups"
+              }
             }
           ],
           "name": "Internal — Catalog"
+        },
+        {
+          "item": [
+            {
+              "name": "Create product for app",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_type\": \"subscription\",\n  \"identifier\": \"rc.identifier\",\n  \"display_name\": \"Display name\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "POST",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/apps/{{app_id}}/products"
+              }
+            },
+            {
+              "name": "Update product (PATCH)",
+              "request": {
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_type\": \"subscription\",\n  \"identifier\": \"rc.identifier\",\n  \"display_name\": \"Display name\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Requested-With",
+                    "value": "XMLHttpRequest"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "rc_auth_token={{rc_auth_token}}"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "https://app.revenuecat.com"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "https://app.revenuecat.com/"
+                  }
+                ],
+                "method": "PATCH",
+                "url": "{{internalBaseUrl}}/developers/me/projects/{{project_id}}/products/{{product_id}}"
+              }
+            }
+          ],
+          "name": "Internal — Products"
         },
         {
           "item": [

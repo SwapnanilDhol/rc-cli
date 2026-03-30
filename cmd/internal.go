@@ -184,7 +184,34 @@ func init() {
 	productsListCmd.Flags().Int("limit", 100, "Maximum number of products to fetch")
 	productsListCmd.Aliases = []string{"ls"}
 
-	productsCmd.AddCommand(productsListCmd)
+	productsCreateCmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a product for an app (dashboard internal API)",
+		RunE:  runInternalProductsCreate,
+	}
+	productsCreateCmd.Flags().String("app-id", "", "App ID (required; e.g. appb5d7b1196a)")
+	productsCreateCmd.Flags().String("product-type", "", "Product type (subscription|non_consumable_product|consumable_product|non_renewing_subscription)")
+	productsCreateCmd.Flags().StringP("identifier", "i", "", "Product identifier (required)")
+	productsCreateCmd.Flags().StringP("name", "n", "", "Display name (display_name) (required)")
+
+	productsUpdateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "Update a product by id (dashboard internal API)",
+		RunE:  runInternalProductsUpdate,
+	}
+	productsUpdateCmd.Flags().String("product-id", "", "Product ID (required)")
+	productsUpdateCmd.Flags().String("product-type", "", "Product type (subscription|non_consumable_product|consumable_product|non_renewing_subscription)")
+	productsUpdateCmd.Flags().StringP("identifier", "i", "", "Product identifier")
+	productsUpdateCmd.Flags().StringP("name", "n", "", "Display name (display_name)")
+
+	productsSubscriptionGroupsCmd := &cobra.Command{
+		Use:   "subscription-groups",
+		Short: "List App Store subscription groups for an app",
+		RunE:  runInternalSubscriptionGroupsList,
+	}
+	productsSubscriptionGroupsCmd.Flags().String("app-id", "", "App ID (required; e.g. appb5d7b1196a)")
+
+	productsCmd.AddCommand(productsListCmd, productsCreateCmd, productsUpdateCmd, productsSubscriptionGroupsCmd)
 
 	// Apps command
 	appsCmd := &cobra.Command{
@@ -202,13 +229,13 @@ func init() {
 
 	appsCmd.AddCommand(appsListCmd)
 
-	appsProductImportCmd := &cobra.Command{
-		Use:   "product-import",
-		Short: "Get App Store product import status",
-		RunE:  runInternalAppProductImport,
+	appSubscriptionGroupsCmd := &cobra.Command{
+		Use:   "subscription-groups",
+		Short: "List App Store Connect subscription groups for an app (dashboard internal API)",
+		RunE:  runInternalAppsSubscriptionGroups,
 	}
-	appsProductImportCmd.Flags().StringP("app-id", "a", "", "RevenueCat app ID (e.g. appb5d7b1196a)")
-	appsCmd.AddCommand(appsProductImportCmd)
+	appSubscriptionGroupsCmd.Flags().StringP("app-id", "i", "", "App ID (required; e.g. appb5d7b1196a)")
+	appsCmd.AddCommand(appSubscriptionGroupsCmd)
 
 	// Product Stores Status command
 	storesStatusCmd := &cobra.Command{
@@ -1217,6 +1244,134 @@ func runInternalProductsList(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func validateInternalProductType(productType string) error {
+	switch productType {
+	case "subscription", "non_consumable_product", "consumable_product", "non_renewing_subscription":
+		return nil
+	default:
+		return fmt.Errorf("--product-type must be one of: subscription, non_consumable_product, consumable_product, non_renewing_subscription (got %q)", productType)
+	}
+}
+
+func runInternalProductsCreate(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	appID, _ := cmd.Flags().GetString("app-id")
+	productType, _ := cmd.Flags().GetString("product-type")
+	identifier, _ := cmd.Flags().GetString("identifier")
+	displayName, _ := cmd.Flags().GetString("name")
+
+	if appID == "" {
+		return fmt.Errorf("--app-id is required")
+	}
+	if productType == "" {
+		return fmt.Errorf("--product-type is required")
+	}
+	if err := validateInternalProductType(productType); err != nil {
+		return err
+	}
+	if identifier == "" {
+		return fmt.Errorf("--identifier is required")
+	}
+	if displayName == "" {
+		return fmt.Errorf("--name is required")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n🛍️ Creating product...")
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/products", projectID, appID)
+	data := map[string]interface{}{
+		"product_type":  productType,
+		"identifier":    identifier,
+		"display_name": displayName,
+	}
+
+	resp, err := client.Post(path, data)
+	if err != nil {
+		return err
+	}
+	if resp.Code != "" {
+		return fmt.Errorf("error: %s - %s", resp.Code, resp.Message)
+	}
+
+	// Best-effort parse: some endpoints return the updated object directly, others under resp.Data.
+	var product internal.Product
+	if resp.Data != nil {
+		_ = json.Unmarshal(toJSON(resp.Data), &product)
+	}
+	if product.ID != "" {
+		fmt.Println(greenStyle.Render("\n✓ Product created"))
+		fmt.Printf("  ID: %s\n", cyanStyle.Render(product.ID))
+		fmt.Printf("  Identifier: %s\n", product.Identifier)
+		fmt.Printf("  Type: %s\n", product.ProductType)
+		return nil
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Product created"))
+	return nil
+}
+
+func runInternalProductsUpdate(cmd *cobra.Command, args []string) error {
+	projectID, err := getProjectID()
+	if err != nil {
+		return err
+	}
+
+	productID, _ := cmd.Flags().GetString("product-id")
+	productType, _ := cmd.Flags().GetString("product-type")
+	identifier, _ := cmd.Flags().GetString("identifier")
+	displayName, _ := cmd.Flags().GetString("name")
+
+	if productID == "" {
+		return fmt.Errorf("--product-id is required")
+	}
+
+	patchBody := map[string]interface{}{}
+	if productType != "" {
+		if err := validateInternalProductType(productType); err != nil {
+			return err
+		}
+		patchBody["product_type"] = productType
+	}
+	if identifier != "" {
+		patchBody["identifier"] = identifier
+	}
+	if displayName != "" {
+		patchBody["display_name"] = displayName
+	}
+	if len(patchBody) == 0 {
+		return fmt.Errorf("at least one of --product-type, --identifier, or --name is required")
+	}
+
+	client, err := getInternalClient()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n🛍️ Updating product (PATCH)...")
+	path := fmt.Sprintf("/developers/me/projects/%s/products/%s", projectID, productID)
+	resp, err := client.Patch(path, patchBody)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("update failed: HTTP %d %s %s", resp.StatusCode, resp.Code, resp.Message)
+	}
+	if resp.Code != "" {
+		return fmt.Errorf("update failed: %s - %s", resp.Code, resp.Message)
+	}
+
+	fmt.Println(greenStyle.Render("\n✓ Product updated via internal API."))
+	return nil
+}
+
 func runInternalAppsList(cmd *cobra.Command, args []string) error {
 	projectID, err := getProjectID()
 	if err != nil {
@@ -1257,7 +1412,7 @@ func runInternalAppsList(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func runInternalAppProductImport(cmd *cobra.Command, args []string) error {
+func runInternalAppsSubscriptionGroups(cmd *cobra.Command, args []string) error {
 	projectID, err := getProjectID()
 	if err != nil {
 		return err
@@ -1265,7 +1420,7 @@ func runInternalAppProductImport(cmd *cobra.Command, args []string) error {
 
 	appID, _ := cmd.Flags().GetString("app-id")
 	if appID == "" {
-		return fmt.Errorf("app-id is required (--app-id or -a)")
+		return fmt.Errorf("--app-id is required")
 	}
 
 	client, err := getInternalClient()
@@ -1273,40 +1428,55 @@ func runInternalAppProductImport(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("\n📦 Fetching App Store product import status...")
+	fmt.Println("\n📚 Fetching subscription groups for app...")
 
-	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/product_import", projectID, appID)
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/subscription_groups", projectID, appID)
 	resp, err := client.Get(path)
 	if err != nil {
 		return err
 	}
 
-	var data map[string]interface{}
-	if err := json.Unmarshal(toJSON(resp.Data), &data); err != nil {
-		return fmt.Errorf("error parsing response: %w", err)
+	var groups []map[string]interface{}
+	if len(resp.Items) > 0 {
+		_ = json.Unmarshal(toJSON(resp.Items), &groups)
 	}
-
-	if len(data) == 0 && len(resp.Items) > 0 {
-		if item, ok := resp.Items[0].(map[string]interface{}); ok {
-			data = item
+	if len(groups) == 0 && resp.Data != nil {
+		// Some endpoints return a top-level array directly (we normalize in the internal client,
+		// but keep this extra fallback to be safe).
+		var asArray []map[string]interface{}
+		if err := json.Unmarshal(toJSON(resp.Data), &asArray); err == nil {
+			groups = asArray
+		} else {
+			var asOne map[string]interface{}
+			if err2 := json.Unmarshal(toJSON(resp.Data), &asOne); err2 == nil {
+				groups = []map[string]interface{}{asOne}
+			}
 		}
 	}
 
-	fmt.Println(internalStyle.Render("\n📦 App Store Product Import:\n"))
-	if len(data) == 0 {
-		fmt.Println(yellowStyle.Render("No import data found (app may not have imported products yet)."))
+	if len(groups) == 0 {
+		fmt.Println(yellowStyle.Render("No subscription groups found."))
 		return nil
 	}
-	for key, value := range data {
-		switch v := value.(type) {
-		case map[string]interface{}:
-			fmt.Printf("  %s:\n", cyanStyle.Render(key))
-			for k2, v2 := range v {
-				fmt.Printf("    %s: %v\n", k2, v2)
-			}
-		default:
-			fmt.Printf("  %s: %v\n", cyanStyle.Render(key), v)
+
+	fmt.Println(internalStyle.Render("\n📚 Subscription Groups:\n"))
+	for _, g := range groups {
+		id := getStringValue(g, "id", getStringValue(g, "subscription_group_id", ""))
+		identifier := getStringValue(g, "identifier", getStringValue(g, "subscription_group_identifier", ""))
+		name := getStringValue(g, "name", getStringValue(g, "display_name", getStringValue(g, "group_name", "")))
+
+		fmt.Printf("  ID: %s\n", cyanStyle.Render(id))
+		if identifier != "" {
+			fmt.Printf("  Identifier: %s\n", identifier)
 		}
+		if name != "" {
+			fmt.Printf("  Name: %s\n", name)
+		}
+
+		if products, ok := g["products"].([]interface{}); ok {
+			fmt.Printf("  Products: %d\n", len(products))
+		}
+		fmt.Println()
 	}
 
 	return nil

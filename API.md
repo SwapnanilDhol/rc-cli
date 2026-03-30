@@ -135,6 +135,7 @@ Full schemas and permissions are in the [Developer API v2](https://www.revenueca
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/developers/me/projects/{project_id}/apps` | List apps |
+| GET | `/developers/me/projects/{project_id}/apps/{app_id}/subscription_groups` | List App Store Connect subscription groups for an app |
 | GET | `/developers/me/projects/{project_id}/apps/{app_id}/product_import` | Get App Store product import status/summary |
 
 ### Collaborators
@@ -267,8 +268,11 @@ CLI commands: `rc entitlements list|create|archive|delete` (internal auth).
 | Operation | Method | Path | Body / query |
 |-----------|--------|------|----------------|
 | List | GET | `/developers/me/projects/{project_id}/products` | Query `limit` (dashboard/CLI often use large limits) |
+| Create (for app) | POST | `/developers/me/projects/{project_id}/apps/{app_id}/products` | JSON: `product_type`, `identifier`, `display_name` |
+| Update | PATCH | `/developers/me/projects/{project_id}/products/{product_id}` | JSON (patch): supports `product_type`, `identifier`, `display_name` |
 
-The CLI only implements **list** (`rc products list`). Product **creation** in RevenueCat is normally tied to App Store / Play / other stores (import / sync), not a generic “create SKU” wizard in the same shape as offerings. If the dashboard exposes extra mutations, capture them via DevTools when you attach or refresh store products.
+The CLI now implements `rc products list`, plus basic `rc products create` / `rc products update` for dashboard-shaped product objects. The dashboard uses `product_type` values like:
+`subscription`, `non_consumable_product`, `consumable_product`, `non_renewing_subscription`.
 
 ### Virtual currencies — **public v2 API** (`https://api.revenuecat.com/v2`)
 

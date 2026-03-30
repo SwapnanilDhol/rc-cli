@@ -270,6 +270,7 @@ func v2Endpoints() []ep {
 
 func internalEndpointsFromCLI() []internalEp {
 	postmanOfferingMetadata := "{\n  \"display_name\": \"Edit in Postman\",\n  \"metadata\": {\n    \"rc_cli_note\": \"dashboard should show this under offering / Paywalls context\"\n  }\n}"
+	postmanProductMutationBody := "{\n  \"product_type\": \"subscription\",\n  \"identifier\": \"rc.identifier\",\n  \"display_name\": \"Display name\"\n}"
 	return []internalEp{
 		// Account / me — same-origin v1 (NOT internal/v1); see API.md § Same-origin v1
 		{"Account", "GET developers/me", "GET", "/developers/me", "appv1", nil},
@@ -301,11 +302,14 @@ func internalEndpointsFromCLI() []internalEp {
 		{"Internal — Catalog", "Archive offering", "POST", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}/actions/archive", "", nil},
 		{"Internal — Catalog", "Delete offering", "DELETE", "/developers/me/projects/{{project_id}}/offerings/{{offering_id}}", "", nil},
 		{"Internal — Catalog", "List products", "GET", "/developers/me/projects/{{project_id}}/products", "", nil},
+		{"Internal — Products", "Create product for app", "POST", "/developers/me/projects/{{project_id}}/apps/{{app_id}}/products", "", &postmanProductMutationBody},
+		{"Internal — Products", "Update product (PATCH)", "PATCH", "/developers/me/projects/{{project_id}}/products/{{product_id}}", "", &postmanProductMutationBody},
 		{"Internal — Catalog", "List paywalls", "GET", "/developers/me/projects/{{project_id}}/paywalls", "", nil},
 		{"Internal — Catalog", "Product store statuses", "GET", "/developers/me/projects/{{project_id}}/product_stores_statuses", "", nil},
 		{"Internal — Catalog", "List promotions", "GET", "/developers/me/projects/{{project_id}}/promotions", "", nil},
 		{"Internal — Catalog", "List intro offers", "GET", "/developers/me/projects/{{project_id}}/intro_offers", "", nil},
 		{"Internal — Catalog", "List apps", "GET", "/developers/me/projects/{{project_id}}/apps", "", nil},
+		{"Internal — Catalog", "List subscription groups (App Store Connect)", "GET", "/developers/me/projects/{{project_id}}/apps/{{app_id}}/subscription_groups", "", nil},
 
 		// Project admin
 		{"Internal — Project admin", "List collaborators", "GET", "/developers/me/projects/{{project_id}}/collaborators", "", nil},
