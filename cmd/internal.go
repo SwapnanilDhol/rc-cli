@@ -21,7 +21,7 @@ func init() {
 		Use:   "projects",
 		Short: "Manage projects",
 	}
-	RootCmd.AddCommand(projectsCmd)
+	internalCmd.AddCommand(projectsCmd)
 
 	projectsListCmd := &cobra.Command{
 		Use:   "list",
@@ -62,7 +62,7 @@ func init() {
 		Use:   "entitlements",
 		Short: "Manage entitlements",
 	}
-	RootCmd.AddCommand(entitlementsCmd)
+	internalCmd.AddCommand(entitlementsCmd)
 
 	entitlementsListCmd := &cobra.Command{
 		Use:   "list",
@@ -116,7 +116,7 @@ func init() {
 		Use:   "offerings",
 		Short: "Manage offerings",
 	}
-	RootCmd.AddCommand(offeringsCmd)
+	internalCmd.AddCommand(offeringsCmd)
 
 	offeringsListCmd := &cobra.Command{
 		Use:   "list",
@@ -190,7 +190,7 @@ func init() {
 		Use:   "products",
 		Short: "Manage products",
 	}
-	RootCmd.AddCommand(productsCmd)
+	internalCmd.AddCommand(productsCmd)
 
 	productsListCmd := &cobra.Command{
 		Use:   "list",
@@ -227,7 +227,7 @@ func init() {
 		Use:   "apps",
 		Short: "Manage apps",
 	}
-	RootCmd.AddCommand(appsCmd)
+	internalCmd.AddCommand(appsCmd)
 
 	appsListCmd := &cobra.Command{
 		Use:   "list",
@@ -274,14 +274,14 @@ func init() {
 		RunE:  runInternalProductStoresStatuses,
 	}
 	storesStatusCmd.Aliases = []string{"stores", "product-stores"}
-	RootCmd.AddCommand(storesStatusCmd)
+	internalCmd.AddCommand(storesStatusCmd)
 
 	// Collaborators command
 	collaboratorsCmd := &cobra.Command{
 		Use:   "collaborators",
 		Short: "Manage collaborators",
 	}
-	RootCmd.AddCommand(collaboratorsCmd)
+	internalCmd.AddCommand(collaboratorsCmd)
 
 	collaboratorsListCmd := &cobra.Command{
 		Use:   "list",
@@ -297,7 +297,7 @@ func init() {
 		Use:   "apikeys",
 		Short: "Manage API keys",
 	}
-	RootCmd.AddCommand(apiKeysCmd)
+	internalCmd.AddCommand(apiKeysCmd)
 
 	apiKeysListCmd := &cobra.Command{
 		Use:   "list",
@@ -313,7 +313,7 @@ func init() {
 		Use:   "audit",
 		Short: "View audit logs",
 	}
-	RootCmd.AddCommand(auditCmd)
+	internalCmd.AddCommand(auditCmd)
 
 	auditListCmd := &cobra.Command{
 		Use:   "list",
@@ -329,7 +329,7 @@ func init() {
 		Use:   "experiments",
 		Short: "Manage price experiments (A/B tests)",
 	}
-	RootCmd.AddCommand(experimentsCmd)
+	internalCmd.AddCommand(experimentsCmd)
 
 	experimentsListCmd := &cobra.Command{
 		Use:   "list",
@@ -410,7 +410,7 @@ func init() {
 		Use:   "utilities",
 		Short: "Utility endpoints",
 	}
-	RootCmd.AddCommand(utilitiesCmd)
+	internalCmd.AddCommand(utilitiesCmd)
 
 	utilitiesCountriesCmd := &cobra.Command{
 		Use:   "countries",
@@ -425,7 +425,7 @@ func init() {
 		Use:   "lists",
 		Short: "Manage subscriber lists",
 	}
-	RootCmd.AddCommand(listsCmd)
+	internalCmd.AddCommand(listsCmd)
 
 	listsListCmd := &cobra.Command{
 		Use:   "list",
@@ -455,7 +455,7 @@ func init() {
 		Use:   "charts",
 		Short: "View analytics charts",
 	}
-	RootCmd.AddCommand(chartsCmd)
+	internalCmd.AddCommand(chartsCmd)
 
 	chartsOverviewCmd := &cobra.Command{
 		Use:   "overview",

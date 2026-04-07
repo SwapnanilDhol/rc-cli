@@ -11,7 +11,7 @@ RevenueCat exposes **two different HTTP APIs** to programmatic tooling. They tal
 | **Base** | `https://api.revenuecat.com/v2` | `https://app.revenuecat.com/internal/v1` |
 | **Official docs** | Yes — [Developer API v2](https://www.revenuecat.com/docs/api-v2) | No — paths match what the **web app** calls after you log in |
 | **Auth** | **API key** in `Authorization: Bearer …` | **Session** from `rc login` (cookie / token in config) |
-| **Typical `rc` commands** | `rc offerings …`, `rc packages …`, `rc subscribers …`, `rc projects …` | `rc internal offerings …`, `rc internal projects …`, etc. |
+| **Typical `rc` commands** | `rc offerings …`, `rc packages …`, `rc subscribers …`, `rc projects …` | All internal commands are prefixed with `rc internal …` (e.g. `rc internal offerings …`, `rc internal projects …`) |
 
 **Rule of thumb:** If the command is under `rc internal`, it hits **internal**. Otherwise most data commands use **public v2** with your project API key. Open **Authentication** below for where each credential lives in `~/.revenuerc`.
 
@@ -418,35 +418,51 @@ go run ./tools/genpostman
 
 Friendly subcommands above remain for common read flows; **writes** and any route not wrapped yet go through `rc api`.
 
-### Internal API Commands (after `rc login`; top-level `rc …`, not `rc internal …`)
+### Internal API Commands (after `rc login`; all under `rc internal …` prefix)
 ```
-rc login                  → POST /v1/developers/login
-rc logout                 → Clear config
-rc projects list          → GET /developers/me/projects
-rc projects get           → GET /developers/me/projects/{id}
-rc entitlements list      → GET /developers/me/projects/{id}/entitlements
-rc entitlements create    → POST /developers/me/projects/{id}/entitlements
-rc entitlements delete    → DELETE /developers/me/projects/{id}/entitlements/{id}
-rc offerings list         → GET /developers/me/projects/{id}/offerings
-rc offerings get          → GET /developers/me/projects/{id}/offerings/{id}
-rc offerings create       → POST /developers/me/projects/{id}/offerings
-rc offerings update       → PUT /developers/me/projects/{id}/offerings/{id} (display name, identifier, metadata; see AGENTS.md)
-rc offerings delete       → DELETE /developers/me/projects/{id}/offerings/{id}
-rc offerings duplicate    → POST /developers/me/projects/{id}/offerings/{id}/duplicate
-rc offerings set-current  → PATCH /developers/me/projects/{id}/offerings/{id}
-rc offerings archive      → POST /developers/me/projects/{id}/offerings/{id}/actions/archive
-rc products list          → GET /developers/me/projects/{id}/products
-rc apps list              → GET /developers/me/projects/{id}/apps
-rc experiments list       → GET /developers/me/projects/{id}/price_experiments
-rc experiments get        → GET /developers/me/projects/{id}/price_experiments/{id}
-rc experiments create     → POST /developers/me/projects/{id}/price_experiments
-rc experiments pause      → POST /developers/me/projects/{id}/price_experiments/{id}/pause
-rc experiments resume     → POST /developers/me/projects/{id}/price_experiments/{id}/resume
-rc experiments stop       → POST /developers/me/projects/{id}/price_experiments/{id}/stop
-rc experiments types      → (local list, no API call)
-rc collaborators list     → GET /developers/me/projects/{id}/collaborators
-rc apikeys list           → GET /developers/me/projects/{id}/api_keys
-rc audit list             → GET /developers/me/projects/{id}/audit_logs
+rc internal login                  → POST /v1/developers/login
+rc internal logout                 → Clear config
+rc internal projects list          → GET /developers/me/projects
+rc internal projects get           → GET /developers/me/projects/{id}
+rc internal projects create        → POST /developers/me/projects
+rc internal entitlements list      → GET /developers/me/projects/{id}/entitlements
+rc internal entitlements create    → POST /developers/me/projects/{id}/entitlements
+rc internal entitlements delete    → DELETE /developers/me/projects/{id}/entitlements/{id}
+rc internal entitlements attach-products → POST /developers/me/projects/{id}/entitlements/{id}/attach_products
+rc internal entitlements detach-products → POST /developers/me/projects/{id}/entitlements/{id}/detach_products
+rc internal offerings list         → GET /developers/me/projects/{id}/offerings
+rc internal offerings get          → GET /developers/me/projects/{id}/offerings/{id}
+rc internal offerings create       → POST /developers/me/projects/{id}/offerings
+rc internal offerings update       → PATCH /developers/me/projects/{id}/offerings/{id} (display name, identifier, metadata)
+rc internal offerings delete       → DELETE /developers/me/projects/{id}/offerings/{id}
+rc internal offerings duplicate    → POST /developers/me/projects/{id}/offerings/{id}/duplicate
+rc internal offerings set-current  → PATCH /developers/me/projects/{id}/offerings/{id}
+rc internal offerings archive      → POST /developers/me/projects/{id}/offerings/{id}/actions/archive
+rc internal products list          → GET /developers/me/projects/{id}/products
+rc internal products create       → POST /developers/me/projects/{id}/apps/{app_id}/products
+rc internal products update        → PATCH /developers/me/projects/{id}/products/{id}
+rc internal apps list              → GET /developers/me/projects/{id}/apps
+rc internal apps subscription-groups → GET /developers/me/projects/{id}/apps/{id}/subscription_groups
+rc internal apps app-store-products create → POST /developers/me/projects/{id}/apps/{id}/app_store_products
+rc internal experiments list       → GET /developers/me/projects/{id}/price_experiments
+rc internal experiments get        → GET /developers/me/projects/{id}/price_experiments/{id}
+rc internal experiments create     → POST /developers/me/projects/{id}/price_experiments
+rc internal experiments pause      → POST /developers/me/projects/{id}/price_experiments/{id}/pause
+rc internal experiments resume     → POST /developers/me/projects/{id}/price_experiments/{id}/resume
+rc internal experiments stop       → POST /developers/me/projects/{id}/price_experiments/{id}/stop
+rc internal experiments types      → (local list, no API call)
+rc internal charts overview         → GET /developers/me/charts_v2/overview
+rc internal charts trials          → GET /developers/me/charts_v2/trials
+rc internal charts transactions    → GET /developers/me/charts_v2/transactions
+rc internal charts revenue         → GET /developers/me/charts_v2/revenue
+rc internal collaborators list     → GET /developers/me/projects/{id}/collaborators
+rc internal apikeys list           → GET /developers/me/projects/{id}/api_keys
+rc internal audit list             → GET /developers/me/projects/{id}/audit_logs
+rc internal stores-status          → GET /developers/me/projects/{id}/product_stores_statuses
+rc internal utilities countries    → GET /utilities/countries
+rc internal lists list             → GET /developers/me/projects/{id}/subscriber_lists
+rc internal lists get              → GET /developers/me/subscriber_lists/{id}
+rc internal lists manifest         → GET /developers/me/subscriber_lists/manifest
 ```
 
 ---
