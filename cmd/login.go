@@ -13,20 +13,62 @@ import (
 func init() {
 	loginCmd := &cobra.Command{
 		Use:   "login",
-		Short: "Login to RevenueCat",
+		Short: "Login to RevenueCat dashboard API (session-based auth)",
+		Long:  `Authenticate with email and password to get a session cookie for the internal dashboard API.
+
+Usage:
+  rc internal login --email user@example.com --password secret
+
+Or run interactively:
+  rc internal login`,
 		RunE:  runLogin,
 	}
-	RootCmd.AddCommand(loginCmd)
+	loginCmd.Flags().String("email", "", "Email address")
+	loginCmd.Flags().String("password", "", "Password")
+	internalCmd.AddCommand(loginCmd)
 
 	logoutCmd := &cobra.Command{
 		Use:   "logout",
-		Short: "Logout from RevenueCat",
+		Short: "Logout from RevenueCat dashboard API",
 		RunE:  runLogout,
 	}
-	RootCmd.AddCommand(logoutCmd)
+	internalCmd.AddCommand(logoutCmd)
 }
 
 func runLogin(cmd *cobra.Command, args []string) error {
+	email, _ := cmd.Flags().GetString("email")
+	password, _ := cmd.Flags().GetString("password")
+
+	// If email/password not provided via flags, use interactive mode
+	if email == "" || password == "" {
+		return runLoginInteractive()
+	}
+
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n🔐 Logging in...")
+
+	loginResp, err := internal.Login(email, password)
+	if err != nil {
+		return fmt.Errorf("login failed: %w", err)
+	}
+
+	cfg.Email = email
+	cfg.Password = password
+	cfg.AuthToken = loginResp.AuthenticationToken
+
+	if err := config.SaveConfig(cfg); err != nil {
+		return fmt.Errorf("error saving config: %w", err)
+	}
+
+	fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("10")).Render("\n✓ Logged in as " + loginResp.Email))
+	return nil
+}
+
+func runLoginInteractive() error {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		return err
