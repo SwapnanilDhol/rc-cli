@@ -8,10 +8,13 @@ var (
 	apiKey    string
 	projectID string
 
+	version = "0.2.0"
+
 	RootCmd = &cobra.Command{
 		Use:   "rc",
 		Short: "RevenueCat CLI - Manage your subscription apps, users, and analytics",
 		Long:  `RevenueCat CLI for managing subscriptions, apps, and analytics.`,
+		Version: version,
 	}
 )
 

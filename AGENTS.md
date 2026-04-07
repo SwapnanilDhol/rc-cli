@@ -10,7 +10,7 @@ This repo talks to **two different HTTP backends**. Picking the wrong auth is th
 |--|------------------------------|--------------------------------|
 | **What it is** | Official, documented REST API | Same JSON the web app uses; **not** public docs |
 | **Base URL** | `https://api.revenuecat.com/v2` | `https://app.revenuecat.com/internal/v1` (most routes) |
-| **Auth** | **`Authorization: Bearer <secret API key>`** (`sk_…` from Project → API keys) | **Session cookie** `rc_auth_token=<token>` (from **`rc login`**) |
+| **Auth** | **`Authorization: Bearer <secret API key>`** (`sk_…` from Project → API keys) | **Session cookie** `rc_auth_token=<token>` (from **`rc internal login`** — email/password) |
 | **Config keys** (`~/.revenuerc`) | `apiKey`, `projectId` | `email`, `password`, `authToken` |
 | **CLI surface** | `rc api …`, and other commands wired to **`api` package** / Bearer key | After **`rc login`**: dashboard session commands under **`rc internal …`** prefix (e.g. `rc internal projects list`, `rc internal offerings create`, `rc internal experiments …`) — see `API.md` / `rc --help` |
 | **Project scope** | Secret keys are **per-project**; `GET /v2/projects` lists what **that key** can see | **Account/session** — list **all projects** you can access (`GET /internal/v1/developers/me/projects`) |
@@ -26,7 +26,7 @@ There is **no** single “RevenueCat API”: **v2 + API key** and **internal + s
    → **v2 + API key.** Use `rc config`, then `rc api GET '/projects/{project_id}/…'`.
 
 2. **Need dashboard parity, all projects, CRUD that matches the app, or `rc internal`?**  
-   → **Internal + session.** Run `rc login` (email/password). Do **not** put an API key in `Authorization` for `internal/v1`.
+   → **Internal + session.** Run `rc internal login` (email/password). Do **not** put an API key in `Authorization` for `internal/v1`.
 
 3. **“Same” resource, two URLs?**  
    Often yes (e.g. offerings). Field names and verbs may differ. Prefer **v2** for stable automation; **internal** when the CLI already wraps it or you need an undocumented action.
@@ -49,7 +49,7 @@ Some routes (e.g. `GET /v1/developers/me`) live at **`https://app.revenuecat.com
 
 ## Offerings: edit + **metadata** (dashboard / internal)
 
-- **CLI (session):** `rc offerings update -o <offering_id> [-n "Display name"] [-i identifier] [-m '{"key":"value"}']` — uses `GET` → strip `packages` → `PUT` on `…/internal/v1/developers/me/projects/{project}/offerings/{id}`.  
+- **CLI (session):** `rc internal offerings update -o <offering_id> [-n "Display name"] [-i identifier] [-m '{"key":"value"}']` — uses `GET` → strip `packages` → `PATCH` on `…/internal/v1/developers/me/projects/{project}/offerings/{id}`.  
 - **Verify:** RevenueCat dashboard → **Product catalog → Offerings** → open the offering; refresh if needed. Metadata is part of the offering object (also visible in Paywalls / SDK-facing contexts per RevenueCat).  
 - **Postman:** Internal folder → **Update offering (sample body: metadata)**.  
 - **Public v2 alternative:** `rc api POST '/projects/{project_id}/offerings/{id}' -d '{"metadata":{...}}'` with **API key** (see [Developer API v2](https://www.revenuecat.com/docs/api-v2)).
@@ -60,8 +60,8 @@ Some routes (e.g. `GET /v1/developers/me`) live at **`https://app.revenuecat.com
 
 This repo also supports creating App Store Connect products via the dashboard session.
 
-- **Command:** `rc apps app-store-products create`
-- **Uses:** internal/dashboard session cookie (run `rc login`)
+- **Command:** `rc internal apps app-store-products create`
+- **Uses:** internal/dashboard session cookie (run `rc internal login`)
 - **Endpoint:** `POST https://app.revenuecat.com/internal/v1/developers/me/projects/{project_id}/apps/{app_id}/app_store_products`
 
 For subscription-style products, the CLI validates `--duration` as one of:
@@ -78,6 +78,6 @@ and for subscriptions: `--subscription-group-id` (+ optional `--subscription-gro
 Pass through **which backend** the user wants:
 
 - **“Use my API key / v2 / public API”** → configure `apiKey` + `projectId`, use `rc api` or v2 subcommands.  
-- **“Use my account / dashboard / all projects / internal session”** → `rc login`, then session-backed commands (`rc offerings update`, `rc projects list`, … per `API.md`).
+- **“Use my account / dashboard / all projects / internal session”** → `rc internal login`, then session-backed commands (`rc internal offerings update`, `rc internal projects list`, … per `API.md`).
 
 Never assume one credential satisfies both.

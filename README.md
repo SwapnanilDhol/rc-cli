@@ -6,13 +6,28 @@ A comprehensive command-line interface for RevenueCat, providing access to both 
 
 ## Installation
 
+### Homebrew (recommended for easy upgrades)
+
+```bash
+# Tap the repository
+brew tap swapnanildhol/homebrew-rc-cli /Users/swapnanildhol/Desktop/cli-projects/homebrew-rc-cli
+
+# Install
+brew install rc-cli
+```
+
+To upgrade to a new version:
+```bash
+brew upgrade rc-cli
+```
+
 ### Local checkout (quick)
 
 ```bash
 git clone https://github.com/SwapnanilDhol/rc-cli.git
 cd rc-cli
 go build -o rc .
-./rc login
+./rc internal login
 ```
 
 ### Install globally with Go (`revenuecat-cli` on your `PATH`)
@@ -28,11 +43,16 @@ go install .
 - The binary is installed as **`revenuecat-cli`** in **`$(go env GOPATH)/bin`** (often `~/go/bin`). Add that directory to your **`PATH`** (and restart the terminal) if `revenuecat-cli` is not found.
 - To invoke it as **`rc`**, use either:
   - **Alias** (e.g. in `~/.zshrc`): `alias rc=revenuecat-cli`
-  - **Symlink**: `ln -sf "$(go env GOPATH)/bin/revenuecat-cli" /usr/local/bin/rc`  
+  - **Symlink**: `ln -sf "$(go env GOPATH)/bin/revenuecat-cli" /usr/local/bin/rc`
     (use a directory that is already on your `PATH`; on Apple Silicon Homebrew, `/opt/homebrew/bin` is common.)
 
 ### Update when a new version is pushed to GitHub
 
+```bash
+brew upgrade rc-cli
+```
+
+Or with Go:
 ```bash
 cd rc-cli    # your clone directory
 git pull
@@ -40,7 +60,12 @@ go install .
 # restart the shell if you changed PATH; symlink/alias to rc stays valid
 ```
 
-There is no separate release binary in this repo; **`go install .`** from an up-to-date clone is the supported global install path. (Publishing a Go module under `github.com/...` would allow `go install github.com/.../rc-cli@latest`; the current `go.mod` module path is `revenuecat-cli`, so remote `@latest` install is not configured.)
+## Version
+
+Check the current version:
+```bash
+rc --version
+```
 
 ## Authentication
 
@@ -48,15 +73,16 @@ There is no separate release binary in this repo; **`go install .`** from an up-
 
 | | **Internal (dashboard)** | **Public API v2** |
 |--|--------------------------|---------------------|
-| **Use when** | You want **all projects**, dashboard parity, `rc login` + `rc offerings` / `rc projects` / … | You want **documented** `api.revenuecat.com/v2` + **secret API key** |
-| **How** | `./rc login` (email + password) | `./rc config` → `apiKey` + `projectId` |
+| **Use when** | You want **all projects**, dashboard parity, `rc internal login` + `rc internal offerings` / `rc internal projects` / … | You want **documented** `api.revenuecat.com/v2` + **secret API key** |
+| **How** | `rc internal login` (email + password) | `rc config` → `apiKey` + `projectId` |
 | **In** `~/.revenuerc` | `email`, `password`, `authToken` | `apiKey`, `projectId` |
 
 ### Internal API (session — recommended for multi-project)
 
 ```bash
-./rc login
-# Enter your RevenueCat email and password
+rc internal login --email your@email.com --password yourpassword
+# Or interactive (prompts for credentials):
+rc internal login
 ```
 
 Credentials are stored in `~/.revenuerc` with automatic token refresh.
@@ -64,76 +90,89 @@ Credentials are stored in `~/.revenuerc` with automatic token refresh.
 ### Public v2 API (API key — per project)
 
 ```bash
-./rc config
+rc config
 # Enter your API key and project ID
 ```
 
 ## Quick Commands
 
+**Internal API** (session auth via `rc internal login`):
+
 ```bash
 # Projects
-./rc projects list              # List all projects
-./rc projects use <id>          # Set default project
-./rc projects create --name "My App"  # Create project
+rc internal projects list              # List all projects
+rc internal projects use <id>          # Set default project
+rc internal projects create --name "My App"  # Create project
 
 # Entitlements
-./rc entitlements list
-./rc entitlements create --identifier pro --name "Pro Tier"
+rc internal entitlements list
+rc internal entitlements create --identifier pro --name "Pro Tier"
+rc internal entitlements attach-products -e <id> --product-ids <id1>,<id2>
 
 # Offerings
-./rc offerings list
-./rc offerings create --identifier monthly --name "Monthly Offering"
-./rc offerings update -o <offering_id> -m '{"tier":"pro"}'   # metadata + optional -n / -i (after rc login)
+rc internal offerings list
+rc internal offerings create --identifier monthly --name "Monthly Offering"
+rc internal offerings update -o <offering_id> -m '{"tier":"pro"}'   # metadata + optional -n / -i
 
 # Products
-./rc products list --limit 2500
+rc internal products list --limit 2500
 
 # Experiments (A/B Testing)
-./rc experiments list
-./rc experiments create --name "Price Test" --offering-a <id> --offering-b <id>
+rc internal experiments list
+rc internal experiments create --name "Price Test" --offering-a <id> --offering-b <id>
 
 # Charts & Analytics
-./rc charts overview            # Project overview
-./rc charts trials             # Trial analytics
-./rc charts revenue            # Revenue analytics
+rc internal charts overview            # Project overview
+rc internal charts trials             # Trial analytics
+rc internal charts revenue            # Revenue analytics
 
 # Subscriber Lists
-./rc lists list
-./rc lists manifest
+rc internal lists list
+rc internal lists manifest
 
 # Utilities
-./rc utilities countries
-./rc stores-status
+rc internal utilities countries
+rc internal stores-status
 ```
 
-## Multi-Project Support
+**Public v2 API** (API key auth via `rc config`):
 
 ```bash
-# List all accessible projects
-./rc projects list
+# Projects
+rc projects list              # List projects (v2)
+rc projects get <id>          # Get project details
 
-# Set default project (all commands use this project)
-./rc projects use <project-id>
+# Entitlements
+rc entitlements list         # List entitlements (v2)
 
-# Projects show (current) marker when listed
+# Offerings
+rc offerings list            # List offerings (v2)
+rc packages list             # List packages
+
+# Products
+rc products list --limit 2500
+
+# Subscribers
+rc subscribers list          # List customers
+rc subscribers get <id>      # Get customer details
 ```
 
 ## Full Command Reference
 
 | Category | Commands |
 |----------|----------|
-| Auth | `login`, `logout` |
-| Projects | `list`, `get`, `use`, `create` |
-| Entitlements | `list`, `create`, `delete` |
-| Offerings | `list`, `get`, `create`, `delete` |
-| Products | `list` |
-| Experiments | `list`, `get`, `create`, `pause`, `resume`, `stop` |
-| Subscriber Lists | `list`, `get`, `manifest` |
-| Charts | `overview`, `overview-all`, `trials`, `transactions`, `revenue` |
-| Stores | `stores-status` |
-| Utilities | `countries` |
-| Team | `collaborators list`, `apikeys list`, `audit list` |
-| Customers (v2) | `subscribers list`, `subscribers get`, `entitlements`, `subscriptions` |
+| Auth | `rc internal login`, `rc internal logout` |
+| Projects | `rc internal projects list|get|use|create` |
+| Entitlements | `rc internal entitlements list|create|delete|attach-products|detach-products` |
+| Offerings | `rc internal offerings list|get|create|update|delete|duplicate|set-current|archive` |
+| Products | `rc internal products list|create|update` |
+| Experiments | `rc internal experiments list|get|create|pause|resume|stop|types` |
+| Subscriber Lists | `rc internal lists list|get|manifest` |
+| Charts | `rc internal charts overview|overview-all|trials|transactions|revenue` |
+| Stores | `rc internal stores-status` |
+| Utilities | `rc internal utilities countries` |
+| Team | `rc internal collaborators list`, `rc internal apikeys list`, `rc internal audit list` |
+| Customers (v2) | `rc subscribers list`, `rc subscribers get`, `rc entitlements`, `rc subscriptions` |
 
 ## Internal API Endpoints
 
