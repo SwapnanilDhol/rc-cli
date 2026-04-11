@@ -1,38 +1,38 @@
 # RevenueCat CLI
 
-A comprehensive command-line interface for RevenueCat, providing access to both the public v2 API and powerful internal APIs.
+A command-line interface for the **[RevenueCat Public V2 API](https://www.revenuecat.com/docs/api-v2)** and the **Internal Dashboard API** (`app.revenuecat.com/internal/v1`).
 
-> **Disclaimer**: This is an unofficial CLI project made with love for developers to make their lives easier. It is not affiliated with, endorsed by, or connected to RevenueCat in any way.
+## Two APIs, One CLI
+
+| | **Public V2 API** | **Internal Dashboard API** |
+|--|---|---|
+| **Base URL** | `api.revenuecat.com/v2` | `app.revenuecat.com/internal/v1` |
+| **Auth** | API key (`sk_…`) | Session cookie |
+| **Use for** | Documented REST API, CI/CD, server-to-server | Full dashboard parity, all projects, CRUD |
+| **Configure** | `rc config` | `rc login` |
+
+## Prerequisites
+
+- [Go](https://go.dev/dl/) 1.21+
 
 ## Installation
 
-### Homebrew (recommended for easy upgrades)
+### Homebrew
 
 ```bash
-# Tap the repository
-brew tap swapnanildhol/homebrew-rc-cli /Users/swapnanildhol/Desktop/cli-projects/homebrew-rc-cli
-
-# Install
-brew install rc-cli
+brew tap swapnanildhol/tap
+brew install swapnanildhol/tap/rc-cli
 ```
 
-To upgrade to a new version:
-```bash
-brew upgrade rc-cli
-```
-
-### Local checkout (quick)
+### From source
 
 ```bash
 git clone https://github.com/SwapnanilDhol/rc-cli.git
 cd rc-cli
 go build -o rc .
-./rc internal login
 ```
 
-### Install globally with Go (`revenuecat-cli` on your `PATH`)
-
-Requires [Go](https://go.dev/dl/) 1.21+ (see `go.mod` for the exact toolchain).
+### Install globally
 
 ```bash
 git clone https://github.com/SwapnanilDhol/rc-cli.git
@@ -40,183 +40,157 @@ cd rc-cli
 go install .
 ```
 
-- The binary is installed as **`revenuecat-cli`** in **`$(go env GOPATH)/bin`** (often `~/go/bin`). Add that directory to your **`PATH`** (and restart the terminal) if `revenuecat-cli` is not found.
-- To invoke it as **`rc`**, use either:
-  - **Alias** (e.g. in `~/.zshrc`): `alias rc=revenuecat-cli`
-  - **Symlink**: `ln -sf "$(go env GOPATH)/bin/revenuecat-cli" /usr/local/bin/rc`
-    (use a directory that is already on your `PATH`; on Apple Silicon Homebrew, `/opt/homebrew/bin` is common.)
-
-### Update when a new version is pushed to GitHub
+The binary is installed as **`revenuecat-cli`** in **`$(go env GOPATH)/bin`**. Add that directory to your `PATH`, then invoke it as `rc` via alias or symlink:
 
 ```bash
-brew upgrade rc-cli
-```
+# Alias (e.g. in ~/.zshrc)
+alias rc=revenuecat-cli
 
-Or with Go:
-```bash
-cd rc-cli    # your clone directory
-git pull
-go install .
-# restart the shell if you changed PATH; symlink/alias to rc stays valid
-```
-
-## Version
-
-Check the current version:
-```bash
-rc --version
+# Or symlink
+ln -sf "$(go env GOPATH)/bin/revenuecat-cli" /usr/local/bin/rc
 ```
 
 ## Authentication
 
-**There are two different APIs with different credentials.** Do not mix them. Full matrix: **[AGENTS.md](AGENTS.md)**.
-
-| | **Internal (dashboard)** | **Public API v2** |
-|--|--------------------------|---------------------|
-| **Use when** | You want **all projects**, dashboard parity, `rc internal login` + `rc internal offerings` / `rc internal projects` / … | You want **documented** `api.revenuecat.com/v2` + **secret API key** |
-| **How** | `rc internal login` (email + password) | `rc config` → `apiKey` + `projectId` |
-| **In** `~/.revenuerc` | `email`, `password`, `authToken` | `apiKey`, `projectId` |
-
-### Internal API (session — recommended for multi-project)
-
-```bash
-rc internal login --email your@email.com --password yourpassword
-# Or interactive (prompts for credentials):
-rc internal login
-```
-
-Credentials are stored in `~/.revenuerc` with automatic token refresh.
-
-### Public v2 API (API key — per project)
+### Public V2 API
 
 ```bash
 rc config
 # Enter your API key and project ID
 ```
 
-## Quick Commands
+Credentials are stored in `~/.revenuerc`.
 
-**Internal API** (session auth via `rc internal login`):
+### Internal Dashboard API
 
 ```bash
-# Projects
-rc internal projects list              # List all projects
+rc login
+# Enter your RevenueCat email and password
+```
+
+Session token is stored in `~/.revenuerc` with auto-refresh.
+
+## Public V2 Commands
+
+### Subscribers
+
+```bash
+rc subscribers list                          # List subscribers
+rc subscribers get <customer_id>             # Get subscriber details
+rc subscribers entitlements <customer_id>    # Get subscriber entitlements
+rc subscribers subscriptions <customer_id>   # Get subscriber subscriptions
+```
+
+### Products
+
+```bash
+rc products list                              # List products
+```
+
+### Offerings
+
+```bash
+rc offerings list                             # List offerings
+```
+
+### Apps
+
+```bash
+rc apps list                                 # List apps
+```
+
+### Entitlements
+
+```bash
+rc entitlements list                         # List entitlements
+```
+
+### Charts
+
+```bash
+rc charts revenue                            # Revenue chart
+rc charts overview                           # Overview chart
+```
+
+### Configuration
+
+```bash
+rc config                                    # Configure API key and project ID
+rc config show                               # Show current configuration
+rc config unset                              # Clear configuration
+```
+
+### Utilities
+
+```bash
+rc utilities countries                       # List supported countries
+```
+
+## Internal Dashboard Commands
+
+All internal commands use `rc internal` and require `rc login` first.
+
+### Projects
+
+```bash
+rc internal projects list              # List all accessible projects
 rc internal projects use <id>          # Set default project
 rc internal projects create --name "My App"  # Create project
-
-# Entitlements
-rc internal entitlements list
-rc internal entitlements create --identifier pro --name "Pro Tier"
-rc internal entitlements attach-products -e <id> --product-ids <id1>,<id2>
-
-# Offerings
-rc internal offerings list
-rc internal offerings create --identifier monthly --name "Monthly Offering"
-rc internal offerings update -o <offering_id> -m '{"tier":"pro"}'   # metadata + optional -n / -i
-
-# Products
-rc internal products list --limit 2500
-
-# Experiments (A/B Testing)
-rc internal experiments list
-rc internal experiments create --name "Price Test" --offering-a <id> --offering-b <id>
-
-# Charts & Analytics
-rc internal charts overview            # Project overview
-rc internal charts trials             # Trial analytics
-rc internal charts revenue            # Revenue analytics
-
-# Subscriber Lists
-rc internal lists list
-rc internal lists manifest
-
-# Utilities
-rc internal utilities countries
-rc internal stores-status
 ```
 
-**Public v2 API** (API key auth via `rc config`):
+### Entitlements
 
 ```bash
-# Projects
-rc projects list              # List projects (v2)
-rc projects get <id>          # Get project details
-
-# Entitlements
-rc entitlements list         # List entitlements (v2)
-
-# Offerings
-rc offerings list            # List offerings (v2)
-rc packages list             # List packages
-
-# Products
-rc products list --limit 2500
-
-# Subscribers
-rc subscribers list          # List customers
-rc subscribers get <id>      # Get customer details
+rc internal entitlements list
+rc internal entitlements create --identifier pro --name "Pro Tier"
+rc internal entitlements attach-products --entitlement-id <id> --product-ids <ids>
 ```
 
-## Full Command Reference
+### Offerings
 
-| Category | Commands |
-|----------|----------|
-| Auth | `rc internal login`, `rc internal logout` |
-| Projects | `rc internal projects list|get|use|create` |
-| Entitlements | `rc internal entitlements list|create|delete|attach-products|detach-products` |
-| Offerings | `rc internal offerings list|get|create|update|delete|duplicate|set-current|archive` |
-| Products | `rc internal products list|create|update` |
-| Experiments | `rc internal experiments list|get|create|pause|resume|stop|types` |
-| Subscriber Lists | `rc internal lists list|get|manifest` |
-| Charts | `rc internal charts overview|overview-all|trials|transactions|revenue` |
-| Stores | `rc internal stores-status` |
-| Utilities | `rc internal utilities countries` |
-| Team | `rc internal collaborators list`, `rc internal apikeys list`, `rc internal audit list` |
-| Customers (v2) | `rc subscribers list`, `rc subscribers get`, `rc entitlements`, `rc subscriptions` |
-
-## Internal API Endpoints
-
-Base URL: `https://app.revenuecat.com/internal/v1`
-
-- Full CRUD on entitlements, offerings, experiments
-- Access to all projects (not just one)
-- Team management (collaborators, API keys)
-- Audit logs
-- Price experiments lifecycle (create, pause, resume, stop)
-- Subscriber lists management
-- Chart analytics (overview, trials, transactions, revenue)
-
-## Public v2 API Endpoints
-
-Base URL: `https://api.revenuecat.com/v2`
-
-- Read-only access to projects, apps, customers, products, offerings, entitlements
-- Requires API key authentication
-
-## Claude Code Integration
-
-This CLI integrates with Claude Code via a skill file. Once Claude Code is configured, you can use natural language to interact with RevenueCat:
-
-```
-# Example Claude Code prompts:
-"List all my RevenueCat projects"
-"Create a new entitlement called Pro in my project"
-"Show me the trial analytics for the last 30 days"
-"What's the store connection status?"
+```bash
+rc internal offerings list
+rc internal offerings create --identifier monthly --name "Monthly Offering"
+rc internal offerings update --offering-id <id> --name <name> --metadata '{"tier":"pro"}'
 ```
 
-The skill is located at `~/.claude/skills/revenuecat/SKILL.md` and provides:
-- Full command documentation
-- API endpoint references
-- Authentication instructions
-- Usage examples
+### Products
 
-## Notes
+```bash
+rc internal products list --limit 2500
+rc internal products create --app-id <id> --product-type subscription --identifier <id> --name <name>
+```
 
-- Internal API tokens auto-refresh when expired
-- If refresh fails, run `rc login` again
-- Customer IDs with special characters are automatically URL-encoded
-- Some features require dashboard configuration (webhooks, promotions)
+### Charts & Analytics
+
+```bash
+rc internal charts overview            # Project overview
+rc internal charts trials              # Trial analytics
+rc internal charts revenue             # Revenue analytics
+```
+
+### More Internal Commands
+
+```bash
+rc internal apps list
+rc internal apps subscription-groups --app-id <id>
+rc internal apps app-store-products create --app-id <id> ...
+rc internal experiments list
+rc internal experiments create --name "Price Test" --offering-a <id> --offering-b <id>
+rc internal lists list
+rc internal stores-status
+rc internal collaborators list
+rc internal apikeys list
+rc internal audit list
+rc internal utilities countries
+```
+
+## Updating
+
+```bash
+brew upgrade swapnanildhol/tap/rc-cli   # Homebrew
+git pull && go install .                # From source
+```
 
 ## License
 
