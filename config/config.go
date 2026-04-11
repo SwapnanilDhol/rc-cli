@@ -19,7 +19,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("could not find home directory: %w", err)
+		homeDir = "/tmp"
 	}
 
 	configPath := filepath.Join(homeDir, ".revenuerc")
@@ -33,9 +33,6 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("apiKey", "")
 
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, fmt.Errorf("error reading config file: %w", err)
-		}
 		return &Config{}, nil
 	}
 
@@ -50,8 +47,11 @@ func LoadConfig() (*Config, error) {
 func SaveConfig(cfg *Config) error {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return fmt.Errorf("could not find home directory: %w", err)
+		homeDir = "/tmp"
 	}
+
+	configDir := filepath.Dir(filepath.Join(homeDir, ".revenuerc"))
+	os.MkdirAll(configDir, 0700)
 
 	configPath := filepath.Join(homeDir, ".revenuerc")
 
@@ -80,7 +80,7 @@ func ClearAuth() error {
 func GetConfigPath() string {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "~/.revenuerc"
+		return "/tmp/.revenuerc"
 	}
 	return filepath.Join(homeDir, ".revenuerc")
 }
