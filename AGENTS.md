@@ -1,83 +1,84 @@
-# Agent / contributor context — RevenueCat CLI (`rc`)
+# RevenueCat CLI (`rc`)
 
-This repo talks to **two different HTTP backends**. Picking the wrong auth is the #1 mistake. Read this before adding commands, docs, or integrations.
+CLI for the **RevenueCat Public V2 API** at `https://api.revenuecat.com/v2`.
 
----
+For the internal dashboard API, use the separate **`rc-internal`** CLI: https://github.com/SwapnanilDhol/rc-internal
 
-## The split (memorize this)
+## Agent Skills
 
-| | **Public Developer API v2** | **Internal (dashboard) API** |
-|--|------------------------------|--------------------------------|
-| **What it is** | Official, documented REST API | Same JSON the web app uses; **not** public docs |
-| **Base URL** | `https://api.revenuecat.com/v2` | `https://app.revenuecat.com/internal/v1` (most routes) |
-| **Auth** | **`Authorization: Bearer <secret API key>`** (`sk_…` from Project → API keys) | **Session cookie** `rc_auth_token=<token>` (from **`rc internal login`** — email/password) |
-| **Config keys** (`~/.revenuerc`) | `apiKey`, `projectId` | `email`, `password`, `authToken` |
-| **CLI surface** | `rc api …`, and other commands wired to **`api` package** / Bearer key | After **`rc login`**: dashboard session commands under **`rc internal …`** prefix (e.g. `rc internal projects list`, `rc internal offerings create`, `rc internal experiments …`) — see `API.md` / `rc --help` |
-| **Project scope** | Secret keys are **per-project**; `GET /v2/projects` lists what **that key** can see | **Account/session** — list **all projects** you can access (`GET /internal/v1/developers/me/projects`) |
-| **Postman** | Folder: **Developer API v2** — variable **`apiKey`** | Folder: **Internal — dashboard session** — run **Auth → Login**, variable **`rc_auth_token`** |
+Agent skills for this CLI are maintained in a separate repository: https://github.com/SwapnanilDhol/rc-cli-skills
 
-There is **no** single “RevenueCat API”: **v2 + API key** and **internal + session** are different products.
+## Authentication
 
----
+```bash
+rc config
+# Enter your API key and project ID
+```
 
-## Quick decision tree
+Credentials stored in `~/.revenuerc`.
 
-1. **Need documented REST, server-to-server, CI, or Postman against `api.revenuecat.com`?**  
-   → **v2 + API key.** Use `rc config`, then `rc api GET '/projects/{project_id}/…'`.
+## Commands
 
-2. **Need dashboard parity, all projects, CRUD that matches the app, or `rc internal`?**  
-   → **Internal + session.** Run `rc internal login` (email/password). Do **not** put an API key in `Authorization` for `internal/v1`.
+### Subscribers
+```bash
+rc subscribers list                          # List subscribers
+rc subscribers get <customer_id>             # Get subscriber details
+rc subscribers entitlements <customer_id>    # Get subscriber entitlements
+rc subscribers subscriptions <customer_id>    # Get subscriber subscriptions
+```
 
-3. **“Same” resource, two URLs?**  
-   Often yes (e.g. offerings). Field names and verbs may differ. Prefer **v2** for stable automation; **internal** when the CLI already wraps it or you need an undocumented action.
+### Products
+```bash
+rc products list                             # List products
+```
 
----
+### Offerings
+```bash
+rc offerings list                            # List offerings
+```
 
-## Same-origin `v1` (edge case)
+### Apps
+```bash
+rc apps list                                # List apps
+```
 
-Some routes (e.g. `GET /v1/developers/me`) live at **`https://app.revenuecat.com/v1`**, **not** under `internal/v1`. Wrong host → errors like **7117 Page not found**. See `API.md` (Same-origin `v1`).
+### Entitlements
+```bash
+rc entitlements list                         # List entitlements
+```
 
----
+### Charts
+```bash
+rc charts revenue                            # Revenue chart
+rc charts overview                           # Overview chart
+```
 
-## Files in this repo
+### Configuration
+```bash
+rc config show                               # Show current config
+rc config unset                              # Clear config
+```
 
-- **`API.md`** — endpoint tables for both backends.  
-- **`postman/RevenueCat-API-v2.postman_collection.json`** — v2 + Internal folders; regenerate with `go run ./tools/genpostman`.  
-- **`.cursor/rules/revenuecat-cli-auth.mdc`** — Cursor rule: always prefer the correct auth for the base URL.
+### Utilities
+```bash
+rc utilities countries                       # List supported countries
+```
 
----
+### Direct API Access
+```bash
+rc api GET '/projects/{project_id}/offerings'
+rc api POST '/projects/{project_id}/offerings' -d '{"identifier":"...","name":"..."}'
+```
 
-## Offerings: edit + **metadata** (dashboard / internal)
+## Two APIs
 
-- **CLI (session):** `rc internal offerings update -o <offering_id> [-n "Display name"] [-i identifier] [-m '{"key":"value"}']` — uses `GET` → strip `packages` → `PATCH` on `…/internal/v1/developers/me/projects/{project}/offerings/{id}`.  
-- **Verify:** RevenueCat dashboard → **Product catalog → Offerings** → open the offering; refresh if needed. Metadata is part of the offering object (also visible in Paywalls / SDK-facing contexts per RevenueCat).  
-- **Postman:** Internal folder → **Update offering (sample body: metadata)**.  
-- **Public v2 alternative:** `rc api POST '/projects/{project_id}/offerings/{id}' -d '{"metadata":{...}}'` with **API key** (see [Developer API v2](https://www.revenuecat.com/docs/api-v2)).
+| CLI | Auth | Base URL | Use for |
+|-----|------|----------|---------|
+| `rc` | API key (`sk_…`) | `api.revenuecat.com/v2` | Public V2 API, CI/CD |
+| `rc-internal` | Session cookie | `app.revenuecat.com/internal/v1` | Dashboard parity |
 
----
+## Notes
 
-## App Store Connect products (dashboard / internal)
-
-This repo also supports creating App Store Connect products via the dashboard session.
-
-- **Command:** `rc internal apps app-store-products create`
-- **Uses:** internal/dashboard session cookie (run `rc internal login`)
-- **Endpoint:** `POST https://app.revenuecat.com/internal/v1/developers/me/projects/{project_id}/apps/{app_id}/app_store_products`
-
-For subscription-style products, the CLI validates `--duration` as one of:
-`ONE_WEEK`, `ONE_MONTH`, `TWO_MONTHS`, `THREE_MONTHS`, `SIX_MONTHS`, `ONE_YEAR`.
-
-Other fields are passed as provided:
-`--product-type`, `--in-app-purchase-type` (passed through), `--identifier`, `--name`,
-and for subscriptions: `--subscription-group-id` (+ optional `--subscription-group-name`).
-
----
-
-## When another tool embeds this CLI
-
-Pass through **which backend** the user wants:
-
-- **“Use my API key / v2 / public API”** → configure `apiKey` + `projectId`, use `rc api` or v2 subcommands.  
-- **“Use my account / dashboard / all projects / internal session”** → `rc internal login`, then session-backed commands (`rc internal offerings update`, `rc internal projects list`, … per `API.md`).
-
-Never assume one credential satisfies both.
+- All commands use Bearer token auth with the API key from `rc config`
+- The V2 API is documented at https://www.revenuecat.com/docs/api-v2
+- For internal dashboard commands (session-based auth), use the separate **`rc-internal`** CLI
