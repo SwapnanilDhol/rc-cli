@@ -1,24 +1,26 @@
 ---
-description: RevenueCat rc-cli — never mix public v2 (API key) with internal/dashboard (session cookie) auth.
+description: RevenueCat rc-cli — public V2 API only, API key authentication.
 alwaysApply: true
 ---
 
-# RevenueCat CLI — two APIs, two auths
+# RevenueCat CLI — Public V2 API
 
-This repository integrates **two separate backends**:
+This repository is for the **RevenueCat Public V2 API** at `https://api.revenuecat.com/v2`.
 
-## Public Developer API v2
-- **Host:** `https://api.revenuecat.com/v2`
-- **Auth:** `Authorization: Bearer <API key>` — project secret key (`sk_…`), config key **`apiKey`**
-- **CLI:** **`rc api …`**, **`rc config`** — guaranteed v2; use quoted paths and `-d` for JSON bodies.
+## Authentication
+- **Auth:** `Authorization: Bearer <API key>` — API key from `rc config`
+- **CLI:** `rc config`, `rc api …`
 
-## Dashboard session (“internal” JSON API)
-- **Host:** `https://app.revenuecat.com/internal/v1` (plus some routes on `…/v1` for `/developers/me`, login — see `API.md`)
-- **Auth:** **`Cookie: rc_auth_token=<token>`** after **`rc login`** — config **`authToken`** / email+password
-- **CLI:** **`rc login`**, then top-level **`rc projects`**, **`rc offerings`** (e.g. **`rc offerings update`** for metadata), **`rc entitlements`**, … — these hit the **dashboard** backend, not Bearer v2.
+## Commands
+- `rc config` — configure API key and project ID
+- `rc subscribers list|get <customer_id>`
+- `rc products list`
+- `rc offerings list`
+- `rc apps list`
+- `rc entitlements list`
+- `rc charts revenue|overview`
+- `rc utilities countries`
 
-**Do not** send a v2 API key to `internal/v1` or a session cookie to `api.revenuecat.com/v2` expecting it to work.
-
-**Listing all projects:** use **dashboard session** after `rc login` (`rc projects list` or Postman Internal + Login), not only a single project’s v2 key.
-
-**Offering metadata (dashboard):** `rc offerings update -o <id> -m '{"key":"value"}'` — same session cookie as `internal/v1`. Or v2: `rc api POST` with Bearer key. See **`AGENTS.md`**.
+## Notes
+- For internal dashboard commands (session-based auth), use the separate **`rc-internal`** CLI
+- Do not mix Bearer token auth with session cookie auth
