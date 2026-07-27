@@ -46,6 +46,23 @@ rc internal offerings update -o ofrngXXXX --metadata-merge '{"headerImageURL":nu
 Reach for `--metadata` only when deliberately replacing the whole object, e.g.
 configuring a brand-new offering.
 
+Verified against a live offering: `--metadata` took 18 keys down to 1.
+`--metadata-merge` kept all 18, and `{"key":null}` removed exactly one.
+
+## Duplicate camelCase / snake_case keys
+
+The dashboard stores both spellings of most fields — `headerImageURL` *and*
+`header_image_url`, `privacyPolicyURL` *and* `privacy_policy_url`, and so on.
+`--metadata-merge` sets only the key you name, so changing one leaves the other
+stale. Set both:
+
+```bash
+rc internal offerings update -o <ref> --metadata-merge \
+  '{"headerImageURL":"https://…","header_image_url":"https://…"}'
+```
+
+Run `offerings get --json` first to see which spellings that offering actually has.
+
 ## Deterministic procedure
 
 For *"update the offering metadata on project P"*, run exactly this:
