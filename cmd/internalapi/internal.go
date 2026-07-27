@@ -71,15 +71,21 @@ func GetInternalClient() (*rcinternal.Client, error) {
 
 func GetProjectID() (string, error) {
 	// Flag (-p/--project-id) takes precedence over saved config
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return "", err
+	}
 	ref := flagProjectID
 	if ref == "" {
-		cfg, err := config.LoadConfig()
-		if err != nil {
-			return "", err
-		}
 		ref = cfg.ProjectID
 	}
 	if ref == "" {
+		// Report the missing credential first — telling someone to run
+		// 'projects list' when they are not logged in just fails again one
+		// step later.
+		if cfg.AuthToken == "" && (cfg.Email == "" || cfg.Password == "") {
+			return "", fmt.Errorf("not logged in. Run: rc login")
+		}
 		return "", fmt.Errorf("no project selected. Run: rc internal projects list && rc internal projects use -i <project_id>")
 	}
 	if strings.HasPrefix(ref, "proj") {

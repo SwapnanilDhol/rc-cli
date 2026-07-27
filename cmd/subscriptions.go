@@ -39,8 +39,7 @@ func runListSubscriptions(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	appUserID, _ := cmd.Flags().GetString("app-user-id")
