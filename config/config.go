@@ -9,11 +9,11 @@ import (
 )
 
 type Config struct {
-	Email           string `mapstructure:"email"`
-	Password        string `mapstructure:"password"`
-	AuthToken       string `mapstructure:"authToken"`
-	ProjectID       string `mapstructure:"projectId"`
-	APIKey          string `mapstructure:"apiKey"` // Public v2 API key (legacy)
+	Email     string `mapstructure:"email"`
+	Password  string `mapstructure:"password"`
+	AuthToken string `mapstructure:"authToken"`
+	ProjectID string `mapstructure:"projectId"`
+	APIKey    string `mapstructure:"apiKey"` // Public v2 API key (legacy)
 }
 
 func LoadConfig() (*Config, error) {

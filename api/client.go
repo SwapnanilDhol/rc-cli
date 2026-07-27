@@ -15,7 +15,7 @@ const BaseURL = "https://api.revenuecat.com/v2"
 
 type Client struct {
 	httpClient *http.Client
-	apiKey    string
+	apiKey     string
 }
 
 func NewClient(cfg *config.Config) (*Client, error) {
@@ -138,10 +138,10 @@ func (c *Client) DoRaw(method, path string, query url.Values, body []byte) (stat
 }
 
 type Response struct {
-	StatusCode int             `json:"-"`
-	Items      []interface{}  `json:"items,omitempty"`
-	NextPage   string          `json:"next_page,omitempty"`
-	Data       interface{}     `json:"data,omitempty"`
-	Error      string          `json:"error,omitempty"`
-	Message    string          `json:"message,omitempty"`
+	StatusCode int           `json:"-"`
+	Items      []interface{} `json:"items,omitempty"`
+	NextPage   string        `json:"next_page,omitempty"`
+	Data       interface{}   `json:"data,omitempty"`
+	Error      string        `json:"error,omitempty"`
+	Message    string        `json:"message,omitempty"`
 }

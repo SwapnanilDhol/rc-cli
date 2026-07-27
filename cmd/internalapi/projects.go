@@ -12,7 +12,7 @@ import (
 var projectsCmd = &cobra.Command{
 	Use:   "projects",
 	Short: "Manage projects (Internal Dashboard API)",
-	Long:  `Manage projects using the internal dashboard API at https://app.revenuecat.com/internal/v1
+	Long: `Manage projects using the internal dashboard API at https://app.revenuecat.com/internal/v1
 
 This is separate from the public /v2 API. The internal API uses session cookie
 authentication (rc login) vs the public API's API key authentication.`,

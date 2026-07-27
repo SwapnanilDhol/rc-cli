@@ -57,7 +57,7 @@ Example — attach packages:
   rc internal offerings update -o ofrngXXXX \
     --name "Weekly, Yearly, Lifetime" \
     --packages '[{"identifier":"my.weekly","display_name":"Weekly","products":[{"product_id":"prodXXXX"}]}]'`,
-	RunE:  runOfferingsUpdate,
+	RunE: runOfferingsUpdate,
 }
 
 var offeringsDeleteCmd = &cobra.Command{
@@ -354,14 +354,7 @@ func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		metadata = current
-		for k, v := range metadataPatch {
-			if v == nil {
-				delete(metadata, k)
-				continue
-			}
-			metadata[k] = v
-		}
+		metadata = mergeMetadata(current, metadataPatch)
 	}
 
 	path := fmt.Sprintf("/developers/me/projects/%s/offerings_with_packages/%s", projectID, offeringID)
@@ -395,6 +388,28 @@ func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
 	fmt.Println(GreenStyle.Render("\n✓ Offering updated via internal API."))
 	fmt.Println(GrayStyle.Render("Open RevenueCat → Product catalog → Offerings, select this offering, and refresh if needed to see display name / metadata / packages."))
 	return nil
+}
+
+// mergeMetadata applies patch on top of current and returns the result. A nil value
+// in patch deletes that key. The merge is one level deep: a nested object in patch
+// replaces the whole nested object, it is not merged recursively — matching how the
+// dashboard treats metadata as an opaque document.
+//
+// Always returns a non-nil map, so the caller sends `metadata: {}` rather than
+// omitting the field, when every key has been deleted.
+func mergeMetadata(current, patch map[string]interface{}) map[string]interface{} {
+	merged := make(map[string]interface{}, len(current)+len(patch))
+	for k, v := range current {
+		merged[k] = v
+	}
+	for k, v := range patch {
+		if v == nil {
+			delete(merged, k)
+			continue
+		}
+		merged[k] = v
+	}
+	return merged
 }
 
 // fetchOfferingMetadata returns the offering's current metadata object, or an empty

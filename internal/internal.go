@@ -42,9 +42,9 @@ func (f *FlexStr) UnmarshalJSON(b []byte) error {
 }
 
 const (
-	InternalBaseURL   = "https://app.revenuecat.com/internal/v1"
-	LoginURL         = "https://app.revenuecat.com/v1/developers/login"
-	RefreshTokenURL  = "https://app.revenuecat.com/v1/developers/login/refresh-token"
+	InternalBaseURL = "https://app.revenuecat.com/internal/v1"
+	LoginURL        = "https://app.revenuecat.com/v1/developers/login"
+	RefreshTokenURL = "https://app.revenuecat.com/v1/developers/login/refresh-token"
 )
 
 type Client struct {
@@ -383,22 +383,22 @@ func RefreshToken(authToken string) (*LoginResponse, error) {
 }
 
 type Response struct {
-	StatusCode int             `json:"-"`
-	Code       FlexStr         `json:"code,omitempty"`
-	Message    string          `json:"message,omitempty"`
-	Data       interface{}     `json:"data,omitempty"`
-	Items      []interface{}   `json:"items,omitempty"`
-	HasNext    bool            `json:"has_next_page,omitempty"`
-	NextPage   string          `json:"next_page,omitempty"`
+	StatusCode int           `json:"-"`
+	Code       FlexStr       `json:"code,omitempty"`
+	Message    string        `json:"message,omitempty"`
+	Data       interface{}   `json:"data,omitempty"`
+	Items      []interface{} `json:"items,omitempty"`
+	HasNext    bool          `json:"has_next_page,omitempty"`
+	NextPage   string        `json:"next_page,omitempty"`
 }
 
 type LoginResponse struct {
-	AuthenticationToken       string `json:"authentication_token"`
-	AuthenticationTokenExpiration string `json:"authentication_token_expiration"`
-	DistinctID               string `json:"distinct_id"`
-	Email                    string `json:"email"`
-	Message                  string `json:"message"`
-	Code                     FlexStr `json:"code,omitempty"`
+	AuthenticationToken           string  `json:"authentication_token"`
+	AuthenticationTokenExpiration string  `json:"authentication_token_expiration"`
+	DistinctID                    string  `json:"distinct_id"`
+	Email                         string  `json:"email"`
+	Message                       string  `json:"message"`
+	Code                          FlexStr `json:"code,omitempty"`
 }
 
 // Project represents a RevenueCat project
@@ -416,44 +416,44 @@ type Entitlement struct {
 	Identifier  string    `json:"identifier"`
 	DisplayName string    `json:"display_name"`
 	IsArchived  bool      `json:"is_archived"`
-	CreatedAt  time.Time `json:"created_at"`
+	CreatedAt   time.Time `json:"created_at"`
 	Products    []Product `json:"products,omitempty"`
 }
 
 // Offering represents an offering
 type Offering struct {
-	ID          string     `json:"id"`
-	Identifier  string     `json:"identifier"`
-	DisplayName string     `json:"display_name"`
-	IsArchived  bool       `json:"is_archived"`
-	IsCurrent   bool       `json:"is_current"`
-	CreatedAt   time.Time  `json:"created_at"`
+	ID          string      `json:"id"`
+	Identifier  string      `json:"identifier"`
+	DisplayName string      `json:"display_name"`
+	IsArchived  bool        `json:"is_archived"`
+	IsCurrent   bool        `json:"is_current"`
+	CreatedAt   time.Time   `json:"created_at"`
 	Metadata    interface{} `json:"metadata"`
-	Packages    []Package  `json:"packages,omitempty"`
+	Packages    []Package   `json:"packages,omitempty"`
 }
 
 // Package represents a package within an offering
 type Package struct {
-	ID          string     `json:"id"`
-	Identifier  string     `json:"identifier"`
+	ID          string    `json:"id"`
+	Identifier  string    `json:"identifier"`
 	DisplayName string    `json:"display_name"`
-	Position    int        `json:"position"`
-	CreatedAt   time.Time  `json:"created_at"`
-	Products    []Product  `json:"products,omitempty"`
+	Position    int       `json:"position"`
+	CreatedAt   time.Time `json:"created_at"`
+	Products    []Product `json:"products,omitempty"`
 }
 
 // Product represents a product
 type Product struct {
-	ID           string    `json:"id"`
-	Identifier   string    `json:"identifier"`
-	DisplayName  string    `json:"display_name"`
-	IsArchived   bool      `json:"is_archived"`
-	IsSubscription bool    `json:"is_subscription"`
-	ProductType  string    `json:"product_type"`
-	CreatedAt    time.Time `json:"created_at"`
-	App          *App      `json:"app,omitempty"`
-	Entitlements []Entitlement `json:"entitlements,omitempty"`
-	ProductGroup *ProductGroup `json:"product_group,omitempty"`
+	ID             string        `json:"id"`
+	Identifier     string        `json:"identifier"`
+	DisplayName    string        `json:"display_name"`
+	IsArchived     bool          `json:"is_archived"`
+	IsSubscription bool          `json:"is_subscription"`
+	ProductType    string        `json:"product_type"`
+	CreatedAt      time.Time     `json:"created_at"`
+	App            *App          `json:"app,omitempty"`
+	Entitlements   []Entitlement `json:"entitlements,omitempty"`
+	ProductGroup   *ProductGroup `json:"product_group,omitempty"`
 }
 
 // ProductGroup represents a product group
@@ -465,21 +465,21 @@ type ProductGroup struct {
 
 // App represents an app
 type App struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Type        string `json:"type"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 // AuditLog represents an audit log entry
 type AuditLog struct {
-	ID              string                 `json:"id"`
-	ActionType      string                 `json:"action_type"`
-	ActorIdentifier string                 `json:"actor_identifier"`
-	ActorType       string                 `json:"actor_type"`
-	TargetIdentifier string                `json:"target_identifier"`
-	TargetType      string                 `json:"target_type"`
-	OccurredAt      time.Time              `json:"occurred_at"`
-	AdditionalData  map[string]interface{} `json:"additional_data"`
+	ID               string                 `json:"id"`
+	ActionType       string                 `json:"action_type"`
+	ActorIdentifier  string                 `json:"actor_identifier"`
+	ActorType        string                 `json:"actor_type"`
+	TargetIdentifier string                 `json:"target_identifier"`
+	TargetType       string                 `json:"target_type"`
+	OccurredAt       time.Time              `json:"occurred_at"`
+	AdditionalData   map[string]interface{} `json:"additional_data"`
 }
 
 func min(a, b int) int {

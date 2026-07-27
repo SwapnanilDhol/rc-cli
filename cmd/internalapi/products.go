@@ -156,8 +156,8 @@ func runProductsCreate(cmd *cobra.Command, args []string) error {
 	Progress("\n🛍️ Creating product...")
 	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/products", projectID, appID)
 	data := map[string]interface{}{
-		"product_type":  productType,
-		"identifier":    identifier,
+		"product_type": productType,
+		"identifier":   identifier,
 		"display_name": displayName,
 	}
 

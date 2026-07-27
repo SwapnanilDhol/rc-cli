@@ -58,12 +58,12 @@ var experimentsTypesCmd = &cobra.Command{
 
 var experimentTypes = map[string]string{
 	"introductory_offer":    "Test introductory offers (free trial, pay as you go)",
-	"free_trial_offer":     "Test free trial variations",
-	"paywall_design":       "Test different paywall layouts and designs",
-	"price_point":          "Test different price points for the same product",
+	"free_trial_offer":      "Test free trial variations",
+	"paywall_design":        "Test different paywall layouts and designs",
+	"price_point":           "Test different price points for the same product",
 	"subscription_duration": "Test different subscription durations",
 	"subscription_ordering": "Test different package orderings",
-	"other":                "Custom experiment type",
+	"other":                 "Custom experiment type",
 }
 
 func init() {
@@ -241,15 +241,15 @@ func runPriceExperimentCreate(cmd *cobra.Command, args []string) error {
 	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments", projectID)
 	data := map[string]interface{}{
 		"display_name":          name,
-		"offering_a_id":          offeringA,
-		"offering_b_id":          offeringB,
+		"offering_a_id":         offeringA,
+		"offering_b_id":         offeringB,
 		"enrollment_percentage": enrollment,
-		"experiment_type":        expType,
-		"primary_metric":         primaryMetric,
-		"secondary_metrics":      []string{"Conversion to paying", "Trials started", "Active subscribers"},
-		"notes":                  notes,
-		"targeting_conditions":   []interface{}{},
-		"placements":             nil,
+		"experiment_type":       expType,
+		"primary_metric":        primaryMetric,
+		"secondary_metrics":     []string{"Conversion to paying", "Trials started", "Active subscribers"},
+		"notes":                 notes,
+		"targeting_conditions":  []interface{}{},
+		"placements":            nil,
 	}
 
 	resp, err := client.Post(path, data)

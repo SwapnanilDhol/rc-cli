@@ -22,7 +22,9 @@ func initSubscribers() {
 		RunE:  runListSubscribers,
 	}
 	subscribersListCmd.Flags().StringP("limit", "l", "20", "Number of results (max 200)")
-	subscribersListCmd.Flags().StringP("platform", "p", "", "Filter by platform (ios, android, stripe)")
+	// No -p shorthand: it is taken by the global --project-id, and a local
+	// redefinition makes cobra panic when the command is invoked.
+	subscribersListCmd.Flags().String("platform", "", "Filter by platform (ios, android, stripe)")
 	subscribersListCmd.Flags().StringP("product-id", "r", "", "Filter by product ID")
 	subscribersListCmd.Flags().StringP("starting-after", "s", "", "Cursor for pagination (customer ID)")
 

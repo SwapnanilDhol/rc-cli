@@ -101,8 +101,6 @@ rc internal collaborators list --json
 rc internal apikeys list --json
 rc internal audit list --json
 rc internal stores-status --json
-rc internal stores-status stores --json
-rc internal stores-status product-stores --json
 rc internal utilities countries --json
 ```
 
