@@ -9,7 +9,7 @@ import (
 // document (verified live — it took an 18-key object down to 1).
 func TestMergeMetadataPreservesUntouchedKeys(t *testing.T) {
 	current := map[string]interface{}{
-		"title":    "Unlock Recur Pro",
+		"title":    "Unlock Pro",
 		"subtitle": "Unlimited Subscriptions",
 		"features": []interface{}{"a", "b"},
 		"reviews":  []interface{}{map[string]interface{}{"stars": 5}},

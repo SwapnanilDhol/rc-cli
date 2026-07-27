@@ -11,16 +11,16 @@ func TestLooksLikeID(t *testing.T) {
 		want bool
 	}{
 		// Projects use bare hex — assuming a "proj" prefix here was a real bug.
-		{"1439b090", true},
-		{"bf71a0a6", true},
-		{"e2d63c06", true},
+		{"a1b2c3d4", true},
+		{"e5f6a7b8", true},
+		{"0f1e2d3c", true},
 		// Offerings and other entities use prefixes.
-		{"ofrng56fe7fb1eb", true},
+		{"ofrng0123456789", true},
 		{"prodabc123", true},
 		{"app99f0aa", true},
 		// Human names must not be mistaken for IDs.
-		{"Recur", false},
-		{"Money Tracker", false},
+		{"Habits", false},
+		{"Budget", false},
 		{"Palette Buddy", false},
 		{"pro-access-weekly-yearly-lifetime", false},
 		{"", false},
@@ -45,31 +45,31 @@ func items(vals ...map[string]interface{}) []interface{} {
 }
 
 var projects = items(
-	map[string]interface{}{"id": "1439b090", "name": "Recur"},
-	map[string]interface{}{"id": "bf71a0a6", "name": "Aeronautical"},
-	map[string]interface{}{"id": "8f1fd662", "name": "Money Tracker"},
+	map[string]interface{}{"id": "a1b2c3d4", "name": "Habits"},
+	map[string]interface{}{"id": "e5f6a7b8", "name": "Weather"},
+	map[string]interface{}{"id": "c9d0e1f2", "name": "Budget"},
 )
 
 func TestResolveByRefMatchesLiteralID(t *testing.T) {
 	// The regression: a literal ID must resolve even though it looks like
 	// nothing in the name fields.
-	got, err := resolveByRef(projects, "1439b090", "project")
+	got, err := resolveByRef(projects, "a1b2c3d4", "project")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got != "1439b090" {
-		t.Errorf("got %q, want %q", got, "1439b090")
+	if got != "a1b2c3d4" {
+		t.Errorf("got %q, want %q", got, "a1b2c3d4")
 	}
 }
 
 func TestResolveByRefMatchesName(t *testing.T) {
-	for _, ref := range []string{"Recur", "recur", "RECUR"} {
+	for _, ref := range []string{"Habits", "habits", "HABITS"} {
 		got, err := resolveByRef(projects, ref, "project")
 		if err != nil {
 			t.Fatalf("resolveByRef(%q): %v", ref, err)
 		}
-		if got != "1439b090" {
-			t.Errorf("resolveByRef(%q) = %q, want 1439b090", ref, got)
+		if got != "a1b2c3d4" {
+			t.Errorf("resolveByRef(%q) = %q, want a1b2c3d4", ref, got)
 		}
 	}
 }
@@ -94,7 +94,7 @@ func TestResolveByRefUnknownListsCandidates(t *testing.T) {
 		t.Fatal("expected an error for an unknown reference")
 	}
 	// The error must be actionable — it is the user's only way to discover IDs.
-	for _, want := range []string{"Recur", "1439b090"} {
+	for _, want := range []string{"Habits", "a1b2c3d4"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error %q should list %q", err, want)
 		}

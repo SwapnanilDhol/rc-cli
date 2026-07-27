@@ -175,7 +175,7 @@ func EmitJSONValue(v interface{}) bool {
 	return true
 }
 
-// hexID matches the bare-hex IDs the dashboard uses for projects (e.g. "1439b090").
+// hexID matches the bare-hex IDs the dashboard uses for projects (e.g. "a1b2c3d4").
 // Prefixed IDs (ofrng…, prod…, app…) are recognised separately by looksLikeID.
 var hexID = regexp.MustCompile(`^[0-9a-f]{6,}$`)
 
