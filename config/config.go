@@ -63,7 +63,13 @@ func SaveConfig(cfg *Config) error {
 	viper.Set("projectId", cfg.ProjectID)
 	viper.Set("apiKey", cfg.APIKey)
 
-	return viper.WriteConfig()
+	if err := viper.WriteConfig(); err != nil {
+		return err
+	}
+
+	// This file holds the dashboard password and session token in plaintext, so
+	// keep it readable only by the owner. viper.WriteConfig writes 0644.
+	return os.Chmod(configPath, 0600)
 }
 
 func ClearAuth() error {
