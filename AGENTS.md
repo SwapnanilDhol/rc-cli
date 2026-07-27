@@ -1,84 +1,72 @@
 # RevenueCat CLI (`rc`)
 
-CLI for the **RevenueCat Public V2 API** at `https://api.revenuecat.com/v2`.
+Unofficial CLI covering **both** RevenueCat APIs in one binary.
 
-For the internal dashboard API, use the separate **`rc-internal`** CLI: https://github.com/SwapnanilDhol/rc-internal
+| Command form | API | Base URL | Credential |
+|---|---|---|---|
+| `rc <cmd>` | Public v2 | `https://api.revenuecat.com/v2` | API key (`sk_…`) — `rc config` |
+| `rc internal <cmd>` | Dashboard | `https://app.revenuecat.com/internal/v1` | Session cookie — `rc login` |
 
-## Agent Skills
+Both credentials live in `~/.revenuerc`.
 
-Agent skills for this CLI are maintained in a separate repository: https://github.com/SwapnanilDhol/rc-cli-skills
+## Agent skills
+
+Skills live in [`.claude/skills/`](.claude/skills/) and are discovered automatically.
+Start with `rc-cli-usage`.
+
+## Rule for choosing an API
+
+Reading catalog data works on either. **Every write goes through `rc internal`.**
+Offerings metadata, packages, product creation, entitlement attach/detach,
+experiments, and all charts exist only on the dashboard API.
+
+## Agent conventions
+
+- **Always pass `--json`.** Default output is emoji + ANSI text. `--json` puts one
+  JSON document on stdout and progress on stderr. Errors are non-zero exits.
+- **`-p` and `-o` accept names, not just IDs.** `rc internal offerings get -p "Habits"
+  -o "Pro Paywall"`. Ambiguity is an error listing candidates, never a silent pick.
+- **`--metadata` replaces the whole metadata object.** Use `--metadata-merge` to
+  change individual keys without losing the rest.
+- Offerings are **project-scoped, not app-scoped**. Only products belong to apps.
 
 ## Authentication
 
 ```bash
-rc config
-# Enter your API key and project ID
+rc login                    # dashboard session (rc internal …)
+rc config                   # public v2 API key + default project
+
+rc login --email you@example.com --password "$RC_PASSWORD"
+RC_EMAIL=… RC_PASSWORD=… rc login
 ```
 
-Credentials stored in `~/.revenuerc`.
+Sessions refresh transparently on a 401; `rc login` is only needed once.
 
-## Commands
+## Layout
 
-### Subscribers
+```
+api/              public v2 client (Bearer)
+internal/         dashboard client (session cookie, 401 refresh + retry)
+cmd/              v2 commands, rc login / rc logout, rc api
+cmd/internalapi/  everything under `rc internal`, incl. rc internal api
+.claude/skills/   agent skills
+API.md            full endpoint reference for both APIs
+```
+
+## Escape hatches
+
 ```bash
-rc subscribers list                          # List subscribers
-rc subscribers get <customer_id>             # Get subscriber details
-rc subscribers entitlements <customer_id>    # Get subscriber entitlements
-rc subscribers subscriptions <customer_id>    # Get subscriber subscriptions
+rc api GET '/projects/{project_id}/customers' -q limit=20
+rc internal api GET '/developers/me/projects/{project_id}/offerings'
 ```
 
-### Products
+`{project_id}` is substituted from the selected project.
+
+## Editing this repo
+
+The skills document a real command surface and go stale silently. After changing
+flags or commands, verify against the binary rather than memory:
+
 ```bash
-rc products list                             # List products
+go build -o rc . && ./rc internal offerings update --help
 ```
-
-### Offerings
-```bash
-rc offerings list                            # List offerings
-```
-
-### Apps
-```bash
-rc apps list                                # List apps
-```
-
-### Entitlements
-```bash
-rc entitlements list                         # List entitlements
-```
-
-### Charts
-```bash
-rc charts revenue                            # Revenue chart
-rc charts overview                           # Overview chart
-```
-
-### Configuration
-```bash
-rc config show                               # Show current config
-rc config unset                              # Clear config
-```
-
-### Utilities
-```bash
-rc utilities countries                       # List supported countries
-```
-
-### Direct API Access
-```bash
-rc api GET '/projects/{project_id}/offerings'
-rc api POST '/projects/{project_id}/offerings' -d '{"identifier":"...","name":"..."}'
-```
-
-## Two APIs
-
-| CLI | Auth | Base URL | Use for |
-|-----|------|----------|---------|
-| `rc` | API key (`sk_…`) | `api.revenuecat.com/v2` | Public V2 API, CI/CD |
-| `rc-internal` | Session cookie | `app.revenuecat.com/internal/v1` | Dashboard parity |
-
-## Notes
-
-- All commands use Bearer token auth with the API key from `rc config`
-- The V2 API is documented at https://www.revenuecat.com/docs/api-v2
-- For internal dashboard commands (session-based auth), use the separate **`rc-internal`** CLI

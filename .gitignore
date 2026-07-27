@@ -4,8 +4,15 @@ node_modules/
 .env.local
 *.log
 .DS_Store
-rc
 vendor/
+
+# Built binaries — never commit these (the pre-merge rc-internal repo did, and
+# carried ~40 MB of them in its history)
+rc
+rc-darwin-*
+rc-linux-*
+rc-windows-*
+*.tar.gz
 
 # Local-only v2 crawl output (PII / audit logs / customer IDs)
 docs/revenuecat-v2-api-dump.md

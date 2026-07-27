@@ -99,8 +99,7 @@ func runListProducts(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	client, err := api.NewClient(cfg)
@@ -150,8 +149,7 @@ func runGetProduct(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	productID, _ := cmd.Flags().GetString("product-id")
@@ -203,8 +201,7 @@ func runListOfferings(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	client, err := api.NewClient(cfg)
@@ -254,8 +251,7 @@ func runGetOffering(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	offeringID, _ := cmd.Flags().GetString("offering-id")
@@ -313,8 +309,7 @@ func runOfferingPackages(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	offeringID, _ := cmd.Flags().GetString("offering-id")
@@ -361,8 +356,7 @@ func runGetPackage(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	packageID, _ := cmd.Flags().GetString("package-id")
@@ -405,8 +399,7 @@ func runPackageProducts(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	packageID, _ := cmd.Flags().GetString("package-id")

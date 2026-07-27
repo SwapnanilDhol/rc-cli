@@ -1,26 +1,39 @@
 ---
-description: RevenueCat rc-cli — public V2 API only, API key authentication.
+description: RevenueCat rc CLI — two APIs, two credentials, one binary.
 alwaysApply: true
 ---
 
-# RevenueCat CLI — Public V2 API
+# RevenueCat CLI (`rc`)
 
-This repository is for the **RevenueCat Public V2 API** at `https://api.revenuecat.com/v2`.
+One binary covering both RevenueCat APIs. Which API a command uses is readable
+from the command itself.
 
-## Authentication
-- **Auth:** `Authorization: Bearer <API key>` — API key from `rc config`
-- **CLI:** `rc config`, `rc api …`
+| Command form | API | Credential | Set up with |
+|---|---|---|---|
+| `rc <cmd>` | `api.revenuecat.com/v2` | API key (`sk_…`), Bearer header | `rc config` |
+| `rc internal <cmd>` | `app.revenuecat.com/internal/v1` | Session cookie | `rc login` |
 
-## Commands
-- `rc config` — configure API key and project ID
-- `rc subscribers list|get <customer_id>`
-- `rc products list`
-- `rc offerings list`
-- `rc apps list`
-- `rc entitlements list`
-- `rc charts revenue|overview`
-- `rc utilities countries`
+Both are stored in `~/.revenuerc`. Never mix Bearer auth with session cookie auth.
 
-## Notes
-- For internal dashboard commands (session-based auth), use the separate **`rc-internal`** CLI
-- Do not mix Bearer token auth with session cookie auth
+## Choosing
+
+Reading catalog data works on either. **Every write goes through `rc internal`** —
+offerings metadata, packages, product creation, entitlement attach/detach,
+experiments, and all charts exist only on the dashboard API.
+
+## Agent-facing conventions
+
+- Pass `--json` for anything programmatic. Human output is emoji + ANSI and costly
+  to parse; `--json` puts a single JSON document on stdout and progress on stderr.
+- `-p/--project-id` and `-o/--offering-id` accept human names as well as IDs.
+  An ambiguous name errors with the candidates rather than picking one.
+- `rc internal offerings update --metadata` **replaces** the whole metadata object.
+  Use `--metadata-merge` to change individual keys.
+
+## Repo layout
+
+- `api/` — public v2 client
+- `internal/` — dashboard client (session cookie, transparent 401 refresh)
+- `cmd/` — v2 commands, `rc login`/`rc logout`
+- `cmd/internalapi/` — everything under `rc internal`
+- `.claude/skills/` — agent skills; verify against `--help` before editing

@@ -22,7 +22,9 @@ func initSubscribers() {
 		RunE:  runListSubscribers,
 	}
 	subscribersListCmd.Flags().StringP("limit", "l", "20", "Number of results (max 200)")
-	subscribersListCmd.Flags().StringP("platform", "p", "", "Filter by platform (ios, android, stripe)")
+	// No -p shorthand: it is taken by the global --project-id, and a local
+	// redefinition makes cobra panic when the command is invoked.
+	subscribersListCmd.Flags().String("platform", "", "Filter by platform (ios, android, stripe)")
 	subscribersListCmd.Flags().StringP("product-id", "r", "", "Filter by product ID")
 	subscribersListCmd.Flags().StringP("starting-after", "s", "", "Cursor for pagination (customer ID)")
 
@@ -77,8 +79,7 @@ func runListSubscribers(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	limit, _ := cmd.Flags().GetString("limit")
@@ -141,8 +142,7 @@ func runGetSubscriber(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	appUserID, _ := cmd.Flags().GetString("app-user-id")
@@ -198,8 +198,7 @@ func runSearchSubscriber(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	query, _ := cmd.Flags().GetString("query")
@@ -253,8 +252,7 @@ func runSubscriberEntitlements(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	appUserID, _ := cmd.Flags().GetString("app-user-id")
@@ -310,8 +308,7 @@ func runSubscriberSubscriptions(cmd *cobra.Command, args []string) error {
 	}
 
 	if cfg.ProjectID == "" {
-		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("11")).Render("\n⚠ No project ID configured. Run: rc config"))
-		return nil
+		return fmt.Errorf("no project ID configured. Run: rc config, or pass --project-id")
 	}
 
 	appUserID, _ := cmd.Flags().GetString("app-user-id")

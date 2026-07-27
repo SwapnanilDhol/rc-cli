@@ -9,11 +9,11 @@ import (
 )
 
 type Config struct {
-	Email           string `mapstructure:"email"`
-	Password        string `mapstructure:"password"`
-	AuthToken       string `mapstructure:"authToken"`
-	ProjectID       string `mapstructure:"projectId"`
-	APIKey          string `mapstructure:"apiKey"` // Public v2 API key (legacy)
+	Email     string `mapstructure:"email"`
+	Password  string `mapstructure:"password"`
+	AuthToken string `mapstructure:"authToken"`
+	ProjectID string `mapstructure:"projectId"`
+	APIKey    string `mapstructure:"apiKey"` // Public v2 API key (legacy)
 }
 
 func LoadConfig() (*Config, error) {
@@ -63,7 +63,13 @@ func SaveConfig(cfg *Config) error {
 	viper.Set("projectId", cfg.ProjectID)
 	viper.Set("apiKey", cfg.APIKey)
 
-	return viper.WriteConfig()
+	if err := viper.WriteConfig(); err != nil {
+		return err
+	}
+
+	// This file holds the dashboard password and session token in plaintext, so
+	// keep it readable only by the owner. viper.WriteConfig writes 0644.
+	return os.Chmod(configPath, 0600)
 }
 
 func ClearAuth() error {

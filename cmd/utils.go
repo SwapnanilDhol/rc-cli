@@ -1,12 +1,21 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
 	"revenuecat-cli/config"
 )
+
+// emitJSON writes v to stdout as indented JSON. Used by every command when --json
+// is set so agents get a parseable payload instead of the decorated human view.
+func emitJSON(v interface{}) error {
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(v)
+}
 
 func loadConfig() (*config.Config, error) {
 	cfg, err := config.LoadConfig()
