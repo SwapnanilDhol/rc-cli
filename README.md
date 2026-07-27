@@ -1,6 +1,21 @@
 # RevenueCat CLI
 
-A command-line interface for the **[RevenueCat Public V2 API](https://www.revenuecat.com/docs/api-v2)**.
+An unofficial command-line interface for RevenueCat, covering **both** the
+[Public V2 API](https://www.revenuecat.com/docs/api-v2) and the dashboard API —
+in one binary.
+
+| Command form | API | Credential |
+|---|---|---|
+| `rc <cmd>` | `api.revenuecat.com/v2` | API key (`sk_…`) via `rc config` |
+| `rc internal <cmd>` | `app.revenuecat.com/internal/v1` | Email + password via `rc login` |
+
+Reading catalog data works on either. Writing — offering metadata, packages,
+product creation, entitlement changes, experiments, charts — is dashboard-only,
+so it lives under `rc internal`.
+
+> This project is not affiliated with or endorsed by RevenueCat. The dashboard API
+> is undocumented and can change without notice. Use `rc login` only with your own
+> account.
 
 ## Prerequisites
 
@@ -8,14 +23,12 @@ A command-line interface for the **[RevenueCat Public V2 API](https://www.revenu
 
 ## Installation
 
-### Homebrew
-
 ```bash
 brew tap swapnanildhol/tap
 brew install swapnanildhol/tap/rc-cli
 ```
 
-### From source
+Or from source:
 
 ```bash
 git clone https://github.com/SwapnanilDhol/rc-cli.git
@@ -23,94 +36,113 @@ cd rc-cli
 go build -o rc .
 ```
 
-### Install globally
+`go install .` installs the binary as **`revenuecat-cli`** in `$(go env GOPATH)/bin`.
+Alias or symlink it to `rc`:
 
 ```bash
-git clone https://github.com/SwapnanilDhol/rc-cli.git
-cd rc-cli
-go install .
-```
-
-The binary is installed as **`revenuecat-cli`** in **`$(go env GOPATH)/bin`**. Add that directory to your `PATH`, then invoke it as `rc` via alias or symlink:
-
-```bash
-# Alias (e.g. in ~/.zshrc)
 alias rc=revenuecat-cli
-
-# Or symlink
+# or
 ln -sf "$(go env GOPATH)/bin/revenuecat-cli" /usr/local/bin/rc
 ```
 
 ## Authentication
 
 ```bash
-rc config
-# Enter your API key and project ID
+rc config     # public v2 API key + default project
+rc login      # dashboard session, for `rc internal` commands
 ```
 
-Credentials are stored in `~/.revenuerc`.
+Both are stored in `~/.revenuerc`. Sessions refresh automatically on expiry.
 
-## Commands
-
-### Subscribers
+Non-interactive:
 
 ```bash
-rc subscribers list                          # List subscribers
-rc subscribers get <customer_id>             # Get subscriber details
-rc subscribers entitlements <customer_id>    # Get subscriber entitlements
-rc subscribers subscriptions <customer_id>   # Get subscriber subscriptions
+rc login --email you@example.com --password "$RC_PASSWORD"
+RC_EMAIL=… RC_PASSWORD=… rc login
 ```
 
-### Products
+## JSON output
+
+Every command takes `--json`, which puts a single JSON document on stdout and
+progress messages on stderr. Errors exit non-zero.
 
 ```bash
-rc products list                              # List products
+rc internal offerings list --json | jq '.[].identifier'
 ```
 
-### Offerings
+## Public v2 commands
 
 ```bash
-rc offerings list                             # List offerings
+rc projects list                             rc apps list
+rc products list                             rc entitlements list
+rc offerings list                            rc offers list
+rc subscribers list                          rc subscriptions list
+rc subscribers get <customer_id>             rc webhooks list
+rc subscribers entitlements <customer_id>
+rc subscribers subscriptions <customer_id>
+
+rc config                                    # configure key + project
+rc config show | rc config unset
+
+rc api GET '/projects/{project_id}/customers' -q limit=20    # raw passthrough
 ```
 
-### Apps
+## Dashboard commands
 
 ```bash
-rc apps list                                 # List apps
+rc internal projects list | get -i <id> | use -i <id> | create -n "Name"
+rc internal offerings list | get -o <ref> | create -i <id> -n "Name"
+rc internal offerings update -o <ref> --metadata-merge '{"title":"Pro"}'
+rc internal offerings duplicate | set-current | archive | delete -o <ref>
+rc internal entitlements list | create | archive | delete
+rc internal entitlements attach-products -e <id> --product-ids <a>,<b>
+rc internal products list --limit 2500 | create | update
+rc internal apps list | subscription-groups -i <app_id>
+rc internal charts overview | revenue | transactions | trials
+rc internal experiments list | create | pause | resume | stop
+rc internal lists list | get -l <id> | manifest
+rc internal collaborators list | apikeys list | audit list
+rc internal stores-status | utilities countries
+
+rc internal api GET '/developers/me/projects/{project_id}/offerings'
 ```
 
-### Entitlements
+Run `rc internal <group> --help` for the full flag set on any group.
+
+### Names instead of IDs
+
+`-p/--project-id` and `-o/--offering-id` accept a human name, identifier, or ID:
 
 ```bash
-rc entitlements list                         # List entitlements
+rc internal offerings get -p "Habits" -o "Pro Paywall" --json
 ```
 
-### Charts
+A name matching more than one object errors with the candidates listed.
+
+### Offering metadata: replace vs merge
+
+`--metadata` **replaces the entire metadata object**. To change one key and keep
+the rest, use `--metadata-merge`:
 
 ```bash
-rc charts revenue                            # Revenue chart
-rc charts overview                           # Overview chart
+rc internal offerings update -o <ref> --metadata-merge '{"title":"Unlock Pro"}'
+rc internal offerings update -o <ref> --metadata-merge '{"headerImageURL":null}'  # delete a key
 ```
 
-### Configuration
+## Agent skills
 
-```bash
-rc config                                    # Configure API key and project ID
-rc config show                               # Show current configuration
-rc config unset                              # Clear configuration
-```
+[`.claude/skills/`](.claude/skills/) holds skills that make common tasks
+deterministic for coding agents. Start with `rc-cli-usage`.
 
-### Utilities
+## Documentation
 
-```bash
-rc utilities countries                       # List supported countries
-```
+[`API.md`](API.md) is the full endpoint reference for both APIs.
 
 ## Updating
 
 ```bash
-brew upgrade swapnanildhol/tap/rc-cli   # Homebrew
-git pull && go install .                # From source
+brew upgrade swapnanildhol/tap/rc-cli
+git pull && go install .
 ```
 
 ## License
