@@ -72,6 +72,11 @@ rc internal products update --product-id <id> -i new.identifier
 Product types: `subscription`, `non_consumable_product`, `consumable_product`,
 `non_renewing_subscription`.
 
+**Create the product in App Store Connect first.** `rc internal products create`
+only registers a reference to something Apple already sells — it does not create
+it on Apple's side. `--identifier` must match Apple's `productId` exactly, or the
+purchase will succeed and grant no entitlement. See the `rc-asc-bridge` skill.
+
 The default `--limit 100` silently truncates larger catalogs — raise it before
 concluding a product does not exist.
 

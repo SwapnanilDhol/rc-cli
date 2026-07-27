@@ -110,3 +110,13 @@ rc api GET '/projects/{project_id}/customers' -q limit=20
 - `rc-offerings-metadata` — offering metadata, packages, paywall config
 - `rc-projects-workflow` — projects, entitlements, products, apps
 - `rc-charts-analytics` — charts, experiments, subscriber lists
+- `rc-asc-bridge` — App Store Connect sync via `asc`; **read this before creating
+  any product**, since Apple must have it first
+
+## Installing these skills globally
+
+They load automatically inside this repo. For every other project:
+
+```bash
+rc install-skills
+```

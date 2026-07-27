@@ -60,6 +60,7 @@ func init() {
 	initOffers()
 	initWebhooks()
 	initApiV2()
+	initInstallSkills()
 
 	// Dashboard API commands (rc internal …) plus rc login / rc logout
 	initInternal()
