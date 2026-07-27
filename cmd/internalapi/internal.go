@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -88,7 +89,7 @@ func GetProjectID() (string, error) {
 		}
 		return "", fmt.Errorf("no project selected. Run: rc internal projects list && rc internal projects use -i <project_id>")
 	}
-	if strings.HasPrefix(ref, "proj") {
+	if looksLikeID(ref) {
 		return ref, nil
 	}
 	// -p was given a project name rather than an ID; resolve it.
@@ -174,16 +175,37 @@ func EmitJSONValue(v interface{}) bool {
 	return true
 }
 
-// resolveByRef finds an entity ID from either a literal ID (recognised by its
-// prefix) or a human-facing identifier / display name. Name matching is
-// case-insensitive and ambiguity is an error rather than a silent first-match,
-// so a given reference always maps to the same entity or fails loudly.
-func resolveByRef(items []interface{}, ref, idPrefix, kind string) (string, error) {
+// hexID matches the bare-hex IDs the dashboard uses for projects (e.g. "1439b090").
+// Prefixed IDs (ofrng…, prod…, app…) are recognised separately by looksLikeID.
+var hexID = regexp.MustCompile(`^[0-9a-f]{6,}$`)
+
+// idPrefixes are the known opaque-ID prefixes across dashboard entities. Note the
+// dashboard is not consistent: offerings are "ofrng…" but projects are bare hex.
+var idPrefixes = []string{"ofrng", "prod", "proj", "app", "entl", "pkg", "exp"}
+
+// looksLikeID reports whether ref is already an ID, letting callers skip a list
+// round trip. A false negative only costs one extra request; a false positive is
+// caught because resolveByRef matches on id as well as name.
+func looksLikeID(ref string) bool {
+	if hexID.MatchString(ref) {
+		return true
+	}
+	for _, p := range idPrefixes {
+		if strings.HasPrefix(ref, p) && len(ref) > len(p) {
+			return true
+		}
+	}
+	return false
+}
+
+// resolveByRef finds an entity ID from a literal ID, an identifier, or a display
+// name. It matches on id first so a literal ID always resolves regardless of the
+// entity's ID format. Name matching is case-insensitive, and ambiguity is an error
+// rather than a silent first-match, so a reference always maps to the same entity
+// or fails loudly.
+func resolveByRef(items []interface{}, ref, kind string) (string, error) {
 	if ref == "" {
 		return "", fmt.Errorf("%s reference is required", kind)
-	}
-	if strings.HasPrefix(ref, idPrefix) {
-		return ref, nil
 	}
 
 	needle := strings.ToLower(ref)
@@ -197,6 +219,10 @@ func resolveByRef(items []interface{}, ref, idPrefix, kind string) (string, erro
 		id := GetStringValue(obj, "id", "")
 		if id == "" {
 			continue
+		}
+		// An exact ID match wins outright — no ambiguity check needed.
+		if id == ref {
+			return id, nil
 		}
 		identifier := GetStringValue(obj, "identifier", "")
 		displayName := GetStringValue(obj, "display_name", "")
@@ -237,14 +263,11 @@ func ResolveOfferingID(client *rcinternal.Client, projectID, ref string) (string
 	if err := CheckResponse(resp); err != nil {
 		return "", err
 	}
-	return resolveByRef(resp.Items, ref, "ofrng", "offering")
+	return resolveByRef(resp.Items, ref, "offering")
 }
 
 // ResolveProjectID accepts a project ID (proj…) or a project name and returns the ID.
 func ResolveProjectID(client *rcinternal.Client, ref string) (string, error) {
-	if strings.HasPrefix(ref, "proj") {
-		return ref, nil
-	}
 	resp, err := client.Get("/developers/me/projects")
 	if err != nil {
 		return "", err
@@ -252,14 +275,11 @@ func ResolveProjectID(client *rcinternal.Client, ref string) (string, error) {
 	if err := CheckResponse(resp); err != nil {
 		return "", err
 	}
-	return resolveByRef(resp.Items, ref, "proj", "project")
+	return resolveByRef(resp.Items, ref, "project")
 }
 
 // ResolveAppID accepts an app ID (app…) or an app name and returns the ID.
 func ResolveAppID(client *rcinternal.Client, projectID, ref string) (string, error) {
-	if strings.HasPrefix(ref, "app") {
-		return ref, nil
-	}
 	resp, err := client.Get(fmt.Sprintf("/developers/me/projects/%s/apps", projectID))
 	if err != nil {
 		return "", err
@@ -267,5 +287,5 @@ func ResolveAppID(client *rcinternal.Client, projectID, ref string) (string, err
 	if err := CheckResponse(resp); err != nil {
 		return "", err
 	}
-	return resolveByRef(resp.Items, ref, "app", "app")
+	return resolveByRef(resp.Items, ref, "app")
 }
