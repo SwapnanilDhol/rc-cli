@@ -9,6 +9,7 @@ working in this repo.
 | [rc-offerings-metadata](rc-offerings-metadata/SKILL.md) | Offering metadata, paywall config, attaching packages |
 | [rc-projects-workflow](rc-projects-workflow/SKILL.md) | Projects, entitlements, products, apps, admin |
 | [rc-charts-analytics](rc-charts-analytics/SKILL.md) | Charts, A/B price experiments, subscriber lists |
+| [rc-asc-bridge](rc-asc-bridge/SKILL.md) | Keeping RevenueCat in sync with App Store Connect via [asc](https://asccli.sh) |
 
 ## Keeping them accurate
 
