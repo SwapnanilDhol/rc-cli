@@ -39,8 +39,9 @@ rc internal offerings list --json
 rc internal projects list --json
 ```
 
-Exit code is non-zero on any HTTP error, so `set -e` and `||` behave. An empty result
-is `[]`, not a "none found" sentence.
+Exit code is non-zero on any HTTP error, so `set -e` and `||` behave. Output is the
+API's response verbatim, so a command's JSON type is stable: a list command returns
+`[]` when empty, never a "none found" sentence and never an object.
 
 ## Setup
 
@@ -81,8 +82,7 @@ silent first-match.
 rc projects list                 rc subscribers list
 rc products list                 rc subscribers get <customer_id>
 rc offerings list                rc entitlements list
-rc apps list                     rc offers list
-rc webhooks list                 rc subscriptions list
+rc apps list                     rc subscriptions list
 rc api GET '/projects/{project_id}/customers'      # raw v2 passthrough
 
 # Dashboard (rc login) — see the other skills for each of these
@@ -110,3 +110,13 @@ rc api GET '/projects/{project_id}/customers' -q limit=20
 - `rc-offerings-metadata` — offering metadata, packages, paywall config
 - `rc-projects-workflow` — projects, entitlements, products, apps
 - `rc-charts-analytics` — charts, experiments, subscriber lists
+- `rc-asc-bridge` — App Store Connect sync via `asc`; **read this before creating
+  any product**, since Apple must have it first
+
+## Installing these skills globally
+
+They load automatically inside this repo. For every other project:
+
+```bash
+rc install-skills
+```

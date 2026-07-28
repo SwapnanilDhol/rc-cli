@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/cobra"
 	"revenuecat-cli/config"
 	rcinternal "revenuecat-cli/internal"
 )
@@ -18,22 +20,32 @@ var (
 	YellowStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("11"))
 	GrayStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
 	CyanStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("14"))
-
-	flagProjectID string // set via flags by root.go
-
-	// JSONOutput makes every internal command emit machine-readable JSON on stdout
-	// instead of the decorated human view. Set from the global --json flag.
-	JSONOutput bool
 )
 
-// SetFlagProjectID is called by root.go to pass the -p/--project-id flag value
-func SetFlagProjectID(id string) {
-	flagProjectID = id
+// Options are the global flags. They travel through the command context rather
+// than package-level variables, so nothing here is mutable shared state and
+// tests do not depend on execution order.
+type Options struct {
+	ProjectRef string // -p/--project-id: an ID or a name
+	JSON       bool   // --json
 }
 
-// SetJSONOutput is called by root.go to pass the --json flag value
-func SetJSONOutput(v bool) {
-	JSONOutput = v
+type optionsKey struct{}
+
+// WithOptions attaches the global flags to a command context. Called once, by
+// the root command's PersistentPreRun.
+func WithOptions(ctx context.Context, o Options) context.Context {
+	return context.WithValue(ctx, optionsKey{}, o)
+}
+
+// OptionsOf reads the global flags back out. A zero Options is a valid default,
+// so commands invoked outside the root (in tests) still work.
+func OptionsOf(cmd *cobra.Command) Options {
+	if cmd == nil || cmd.Context() == nil {
+		return Options{}
+	}
+	o, _ := cmd.Context().Value(optionsKey{}).(Options)
+	return o
 }
 
 // Exported command groups for the internal CLI shim
@@ -70,13 +82,14 @@ func GetInternalClient() (*rcinternal.Client, error) {
 	return client, nil
 }
 
-func GetProjectID() (string, error) {
-	// Flag (-p/--project-id) takes precedence over saved config
+// GetProjectID resolves the project for this invocation: the -p flag if given,
+// otherwise the saved default. A name is resolved to an ID.
+func GetProjectID(cmd *cobra.Command) (string, error) {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		return "", err
 	}
-	ref := flagProjectID
+	ref := OptionsOf(cmd).ProjectRef
 	if ref == "" {
 		ref = cfg.ProjectID
 	}
@@ -114,8 +127,8 @@ func GetStringValue(m map[string]interface{}, key, fallback string) string {
 
 // Progress prints a status line to stderr, and nothing at all under --json, so
 // that stdout stays a clean parseable document.
-func Progress(msg string) {
-	if JSONOutput {
+func Progress(cmd *cobra.Command, msg string) {
+	if OptionsOf(cmd).JSON {
 		return
 	}
 	fmt.Fprintln(os.Stderr, msg)
@@ -143,36 +156,72 @@ func CheckResponse(resp *rcinternal.Response) error {
 	return nil
 }
 
-// EmitJSON prints the response payload as JSON when --json is set and reports
-// whether it did, so callers can `if EmitJSON(resp) { return nil }` before their
-// human-readable printing.
-func EmitJSON(resp *rcinternal.Response) bool {
-	if !JSONOutput {
-		return false
-	}
-	var payload interface{}
-	switch {
-	case len(resp.Items) > 0:
-		payload = resp.Items
-	case resp.Data != nil:
-		payload = resp.Data
-	default:
-		payload = map[string]interface{}{"status": resp.StatusCode}
-	}
-	return EmitJSONValue(payload)
+// Ctx is what every dashboard command needs: the resolved project and an
+// authenticated client. Building it once removes the project/auth preamble that
+// was otherwise repeated in every runner.
+type Ctx struct {
+	ProjectID string
+	Client    *rcinternal.Client
+	JSON      bool
 }
 
-// EmitJSONValue prints an arbitrary value as JSON when --json is set.
-func EmitJSONValue(v interface{}) bool {
-	if !JSONOutput {
-		return false
+// Dashboard resolves the project, authenticates, and prints the progress line.
+// Project-scoped commands start here.
+func Dashboard(cmd *cobra.Command, progress string) (*Ctx, error) {
+	projectID, err := GetProjectID(cmd)
+	if err != nil {
+		return nil, err
 	}
+	client, err := GetInternalClient()
+	if err != nil {
+		return nil, err
+	}
+	Progress(cmd, progress)
+	return &Ctx{ProjectID: projectID, Client: client, JSON: OptionsOf(cmd).JSON}, nil
+}
+
+// DashboardNoProject is for the handful of commands that are account-scoped
+// rather than project-scoped (listing or creating projects, for instance).
+func DashboardNoProject(cmd *cobra.Command, progress string) (*Ctx, error) {
+	client, err := GetInternalClient()
+	if err != nil {
+		return nil, err
+	}
+	Progress(cmd, progress)
+	return &Ctx{Client: client, JSON: OptionsOf(cmd).JSON}, nil
+}
+
+// Path builds a project-scoped internal API path.
+func (c *Ctx) Path(format string, args ...interface{}) string {
+	return fmt.Sprintf("/developers/me/projects/"+c.ProjectID+format, args...)
+}
+
+// Respond is the single place the output mode is decided, and the only place a
+// command should return from after a request. It checks the response, then
+// renders either JSON or the human view — never both, and never one instead of
+// a side effect, because anything that must happen regardless belongs before
+// this call.
+func (c *Ctx) Respond(resp *rcinternal.Response, human func() error) error {
+	if err := CheckResponse(resp); err != nil {
+		return err
+	}
+	if c.JSON {
+		EmitJSONValue(resp.Payload())
+		return nil
+	}
+	if human == nil {
+		return nil
+	}
+	return human()
+}
+
+// EmitJSONValue writes a value to stdout as indented JSON.
+func EmitJSONValue(v interface{}) {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(v); err != nil {
 		fmt.Fprintf(os.Stderr, "error encoding JSON: %v\n", err)
 	}
-	return true
 }
 
 // hexID matches the bare-hex IDs the dashboard uses for projects (e.g. "a1b2c3d4").

@@ -11,7 +11,7 @@ import (
 	"revenuecat-cli/internal"
 )
 
-func init() {
+func initAuth(root *cobra.Command) {
 	loginCmd := &cobra.Command{
 		Use:   "login",
 		Short: "Log in to the RevenueCat dashboard (enables 'rc internal' commands)",
@@ -29,14 +29,14 @@ Non-interactive:
 	loginCmd.Flags().String("email", "", "RevenueCat email (or set RC_EMAIL)")
 	loginCmd.Flags().String("password", "", "RevenueCat password (or set RC_PASSWORD)")
 	loginCmd.Flags().Bool("force", false, "Re-authenticate even if a session already exists")
-	RootCmd.AddCommand(loginCmd)
+	root.AddCommand(loginCmd)
 
 	logoutCmd := &cobra.Command{
 		Use:   "logout",
 		Short: "Clear the stored dashboard session",
 		RunE:  runLogout,
 	}
-	RootCmd.AddCommand(logoutCmd)
+	root.AddCommand(logoutCmd)
 }
 
 // envCredential reads RC_EMAIL/RC_PASSWORD, falling back to the older
@@ -127,7 +127,7 @@ func performLogin(email, password string) error {
 		return err
 	}
 
-	fmt.Println("\n🔐 Logging in...")
+	fmt.Fprintln(os.Stderr, "\n🔐 Logging in...")
 
 	loginResp, err := internal.Login(email, password)
 	if err != nil {

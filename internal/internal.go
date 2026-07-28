@@ -119,17 +119,14 @@ func (c *Client) Get(path string) (*Response, error) {
 
 func (c *Client) GetWithParams(path string, params map[string]string) (*Response, error) {
 	if len(params) > 0 {
-		query := ""
-		for key, value := range params {
-			if query != "" {
-				query += "&"
-			}
-			query += key + "=" + value
+		// url.Values escapes values and sorts keys. Concatenating by hand left
+		// values unescaped and produced a different URL on every run, because Go
+		// randomises map iteration order.
+		q := make(url.Values, len(params))
+		for k, v := range params {
+			q.Set(k, v)
 		}
-		if path != "" {
-			path += "?"
-		}
-		path += query
+		path += "?" + q.Encode()
 	}
 	return c.doRequest("GET", path, nil)
 }
@@ -147,12 +144,6 @@ func (c *Client) Delete(path string) (*Response, error) {
 }
 
 func (c *Client) Patch(path string, data interface{}) (*Response, error) {
-	return c.doRequest("PATCH", path, data)
-}
-
-// PatchWithPackages patches an offering at the offerings_with_packages endpoint,
-// which allows setting both metadata AND attaching/detaching packages in one call.
-func (c *Client) PatchWithPackages(path string, data interface{}) (*Response, error) {
 	return c.doRequest("PATCH", path, data)
 }
 
@@ -278,7 +269,7 @@ func decodeInternalResponseBody(respBody []byte, statusCode int) (*Response, err
 		if err := json.Unmarshal(trim, &items); err != nil {
 			return nil, fmt.Errorf("error unmarshaling response: %w (body: %s)", err, string(trim[:min(200, len(trim))]))
 		}
-		return &Response{StatusCode: statusCode, Items: items}, nil
+		return &Response{StatusCode: statusCode, Items: items, IsList: true}, nil
 	case '{':
 		var response Response
 		if err := json.Unmarshal(trim, &response); err != nil {
@@ -390,6 +381,29 @@ type Response struct {
 	Items      []interface{} `json:"items,omitempty"`
 	HasNext    bool          `json:"has_next_page,omitempty"`
 	NextPage   string        `json:"next_page,omitempty"`
+
+	// IsList records that the server sent a top-level JSON array. Without it an
+	// empty array is indistinguishable from "no data", and --json would emit an
+	// object where it emitted an array for the same command with results.
+	IsList bool `json:"-"`
+}
+
+// Payload returns what --json should print: exactly what the server sent, with
+// an empty list staying a list.
+func (r *Response) Payload() interface{} {
+	switch {
+	case r.IsList:
+		if r.Items == nil {
+			return []interface{}{}
+		}
+		return r.Items
+	case r.Data != nil:
+		return r.Data
+	case len(r.Items) > 0:
+		return r.Items
+	default:
+		return map[string]interface{}{}
+	}
 }
 
 type LoginResponse struct {

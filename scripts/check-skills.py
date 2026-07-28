@@ -12,14 +12,20 @@ import glob
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 
 RC = sys.argv[1] if len(sys.argv) > 1 else "./rc"
 SKILLS = ".claude/skills/*/SKILL.md"
 
+# Third-party CLIs the skills reference. Checked the same way when installed, and
+# skipped otherwise so CI does not depend on them being present.
+EXTERNAL = {"asc": shutil.which("asc")}
+
 # Placeholders that appear in documented examples but are not real subcommands.
-PLACEHOLDER_PREFIXES = ("<", "{", "'", '"', "$", "|")
+# Quotes are absent here because shlex has already stripped them.
+PLACEHOLDER_PREFIXES = ("<", "{", "$", "|")
 
 
 # Subcommands are always lowercase words. Anything else (an HTTP verb, a URL path,
@@ -52,22 +58,23 @@ def parse(line):
     can contain more than one invocation.
     """
     toks = tokenize(line)
-    if "rc" not in toks:
+    binaries = {"rc", *EXTERNAL}
+    if not binaries & set(toks):
         return
 
-    # Split into one segment per `rc` occurrence.
-    segments, cur = [], None
+    # Split into one segment per binary occurrence.
+    segments, cur, cur_bin = [], None, None
     for t in toks:
-        if t == "rc":
+        if t in binaries:
             if cur is not None:
-                segments.append(cur)
-            cur = []
+                segments.append((cur_bin, cur))
+            cur, cur_bin = [], t
         elif cur is not None:
             cur.append(t)
     if cur:
-        segments.append(cur)
+        segments.append((cur_bin, cur))
 
-    for seg in segments:
+    for binary, seg in segments:
         path, flags = [], []
         seen_flag = False
         for t in seg:
@@ -83,7 +90,22 @@ def parse(line):
             if tuple(path) in POSITIONAL_CMDS:
                 seen_flag = True  # stop reading positionals as subcommands
         if path:
-            yield tuple(path), flags
+            yield binary, tuple(path), flags
+
+
+def resolves(binary, path, code, usage, text):
+    """Whether `binary path...` is a real subcommand.
+
+    Cobra (rc) prints the *parent's* help and exits 0 for an unknown subcommand,
+    so the exit code proves nothing; the Usage line does, because it echoes the
+    full path only on a real match. asc does not echo the path, so it falls back
+    to a clean exit with no unknown-command complaint.
+    """
+    if code != 0:
+        return False
+    if binary == "rc":
+        return usage.startswith("rc " + " ".join(path))
+    return "unknown" not in text.lower()[:400]
 
 
 def main():
@@ -98,15 +120,17 @@ def main():
     missing_cmds, missing_flags = [], []
     n_cmds = n_flags = 0
 
-    def help_for(path):
+    def help_for(binary, path):
         """Return (exists, help text) for a subcommand path.
 
         Cobra prints the *parent's* help and exits 0 for an unknown subcommand, so
         neither the exit code nor an "unknown command" string is reliable. The
         Usage line is: it echoes the full path only when the path really resolves.
         """
-        if path not in cache:
-            r = subprocess.run([RC, *path, "--help"], capture_output=True, text=True)
+        key = (binary, path)
+        if key not in cache:
+            exe = RC if binary == "rc" else EXTERNAL[binary]
+            r = subprocess.run([exe, *path, "--help"], capture_output=True, text=True)
             text = r.stdout + r.stderr
             usage = ""
             lines = text.splitlines()
@@ -114,9 +138,8 @@ def main():
                 if ln.strip() == "Usage:" and i + 1 < len(lines):
                     usage = lines[i + 1].strip()
                     break
-            exists = r.returncode == 0 and usage.startswith("rc " + " ".join(path))
-            cache[path] = (exists, text)
-        return cache[path]
+            cache[key] = (resolves(binary, path, r.returncode, usage, text), text)
+        return cache[key]
 
     for f in files:
         skill = f.split(os.sep)[2]
@@ -128,19 +151,23 @@ def main():
                 continue
             if not in_code:
                 continue
-            for path, flags in parse(line):
-                exists, text = help_for(path)
+            for binary, path, flags in parse(line):
+                if binary != "rc" and not EXTERNAL.get(binary):
+                    continue  # not installed here; skip rather than fail
+                exists, text = help_for(binary, path)
                 n_cmds += 1
                 if not exists:
-                    missing_cmds.append((skill, " ".join(path)))
+                    missing_cmds.append((skill, f"{binary} " + " ".join(path)))
                     continue
 
                 for fl in flags:
+                    if fl in ("help", "h"):
+                        continue  # universal, and not always self-documented
                     n_flags += 1
                     # Long flags appear as --name, short ones as -x, in the help.
                     needle = f"--{fl}" if len(fl) > 1 else f"-{fl}"
                     if needle not in text:
-                        missing_flags.append((skill, " ".join(path), fl))
+                        missing_flags.append((skill, f"{binary} " + " ".join(path), fl))
 
     print(f"checked {n_cmds} command usages and {n_flags} flag usages "
           f"across {len(files)} skills")
@@ -150,9 +177,9 @@ def main():
         return 0
 
     for skill, cmd in sorted(set(missing_cmds)):
-        print(f"MISSING COMMAND  {skill}: rc {cmd}", file=sys.stderr)
+        print(f"MISSING COMMAND  {skill}: {cmd}", file=sys.stderr)
     for skill, cmd, fl in sorted(set(missing_flags)):
-        print(f"MISSING FLAG     {skill}: 'rc {cmd}' has no {fl}", file=sys.stderr)
+        print(f"MISSING FLAG     {skill}: '{cmd}' has no {fl}", file=sys.stderr)
     print("\nUpdate the skill, or the CLI, so they agree.", file=sys.stderr)
     return 1
 

@@ -46,7 +46,7 @@ func runRawAPI(cmd *cobra.Command, args []string) error {
 
 	if sub, _ := cmd.Flags().GetBool("substitute-project"); sub &&
 		(strings.Contains(path, "{project_id}") || strings.Contains(path, "{{project_id}}")) {
-		projectID, err := GetProjectID()
+		projectID, err := GetProjectID(cmd)
 		if err != nil {
 			return err
 		}

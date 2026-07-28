@@ -1,18 +1,26 @@
 package cmd
 
 import (
+	"context"
+	"io/fs"
+
 	"github.com/spf13/cobra"
 	"revenuecat-cli/cmd/internalapi"
 )
 
-var (
-	apiKey     string
-	projectID  string
-	jsonOutput bool
+const version = "0.4.0"
 
-	version = "0.3.0"
+// NewRootCmd builds the whole command tree. Building it in a function rather than
+// package init() means tests get a fresh, isolated tree and nothing depends on
+// initialisation order.
+//
+// skills is the embedded agent-skill filesystem, supplied by the root package
+// because go:embed cannot reach paths above its own directory. It may be nil, in
+// which case `rc install-skills` reports that none are bundled.
+func NewRootCmd(skills fs.FS, skillsRoot string) *cobra.Command {
+	var opts options
 
-	RootCmd = &cobra.Command{
+	root := &cobra.Command{
 		Use:     "rc",
 		Short:   "RevenueCat CLI - manage subscriptions, offerings, and analytics",
 		Version: version,
@@ -31,36 +39,45 @@ packages, experiments, charts — lives under 'rc internal'.
 
 Pass --json to any command for machine-readable output.`,
 	}
-)
 
-func Execute() error {
-	return RootCmd.Execute()
-}
+	root.PersistentFlags().StringVar(&opts.APIKey, "api-key", "", "RevenueCat public v2 API key (overrides rc config)")
+	root.PersistentFlags().StringVarP(&opts.ProjectID, "project-id", "p", "", "RevenueCat project ID or name (overrides saved default)")
+	root.PersistentFlags().BoolVar(&opts.JSON, "json", false, "Emit machine-readable JSON instead of formatted text")
 
-func init() {
-	RootCmd.PersistentFlags().StringVar(&apiKey, "api-key", "", "RevenueCat public v2 API key (overrides rc config)")
-	RootCmd.PersistentFlags().StringVarP(&projectID, "project-id", "p", "", "RevenueCat project ID (overrides saved default)")
-	RootCmd.PersistentFlags().BoolVar(&jsonOutput, "json", false, "Emit machine-readable JSON instead of formatted text")
-
-	// Hand the global flags to the internal command tree, which lives in its own
-	// package and cannot see these vars directly.
-	RootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		internalapi.SetFlagProjectID(projectID)
-		internalapi.SetJSONOutput(jsonOutput)
+	// Publish the global flags on the command context, so neither package needs
+	// mutable shared state to read them.
+	root.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		ctx = withOptions(ctx, opts)
+		ctx = internalapi.WithOptions(ctx, internalapi.Options{
+			ProjectRef: opts.ProjectID,
+			JSON:       opts.JSON,
+		})
+		cmd.SetContext(ctx)
 	}
 
 	// Public v2 API commands
-	initApps()
-	initConfig()
-	initProjects()
-	initSubscribers()
-	initProducts()
-	initSubscriptions()
-	initEntitlements()
-	initOffers()
-	initWebhooks()
-	initApiV2()
+	initApps(root)
+	initConfig(root)
+	initProjects(root)
+	initSubscribers(root)
+	initProducts(root)
+	initSubscriptions(root)
+	initEntitlements(root)
+	initApiV2(root)
+	initInstallSkills(root, skills, skillsRoot)
 
 	// Dashboard API commands (rc internal …) plus rc login / rc logout
-	initInternal()
+	initInternal(root)
+	initAuth(root)
+
+	return root
+}
+
+// Execute builds and runs the CLI.
+func Execute(skills fs.FS, skillsRoot string) error {
+	return NewRootCmd(skills, skillsRoot).Execute()
 }

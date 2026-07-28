@@ -113,157 +113,108 @@ func init() {
 	offeringsArchiveCmd.Flags().StringP("offering-id", "o", "", "Offering ID, identifier, or display name (required)")
 }
 
-// resolveOfferingFlag reads -o/--offering-id and turns it into an offering ID,
-// accepting an ID, an identifier, or a display name so callers do not have to
-// look the ID up first. It returns the client alongside so runners make one
-// authentication call rather than two.
-func resolveOfferingFlag(cmd *cobra.Command, projectID string) (string, *rcinternal.Client, error) {
+// offeringRef reads -o/--offering-id and resolves it to an offering ID, accepting
+// an ID, an identifier, or a display name.
+func offeringRef(cmd *cobra.Command, c *Ctx) (string, error) {
 	ref, _ := cmd.Flags().GetString("offering-id")
 	if ref == "" {
-		return "", nil, fmt.Errorf("offering is required (--offering-id or -o); accepts an ID, identifier, or display name")
+		return "", fmt.Errorf("offering is required (--offering-id or -o); accepts an ID, identifier, or display name")
 	}
-	client, err := GetInternalClient()
-	if err != nil {
-		return "", nil, err
-	}
-	id, err := ResolveOfferingID(client, projectID, ref)
-	if err != nil {
-		return "", nil, err
-	}
-	return id, client, nil
+	return ResolveOfferingID(c.Client, c.ProjectID, ref)
 }
 
 func runOfferingsList(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
+	c, err := Dashboard(cmd, "\n📦 Fetching offerings...")
 	if err != nil {
 		return err
 	}
 
-	client, err := GetInternalClient()
-	if err != nil {
-		return err
-	}
-
-	platform, _ := cmd.Flags().GetString("platform")
-
-	Progress("\n📦 Fetching offerings...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings", projectID)
 	params := map[string]string{}
-	if platform != "" {
+	if platform, _ := cmd.Flags().GetString("platform"); platform != "" {
 		params["platform"] = platform
 	}
-	var resp *rcinternal.Response
-	if len(params) > 0 {
-		resp, err = client.GetWithParams(path, params)
-	} else {
-		resp, err = client.Get(path)
-	}
+	resp, err := c.Client.GetWithParams(c.Path("/offerings"), params)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+
+	return c.Respond(resp, func() error {
+		var offerings []rcinternal.Offering
+		if err := json.Unmarshal(ToJSON(resp.Items), &offerings); err != nil {
+			return fmt.Errorf("error parsing offerings: %w", err)
+		}
+		if len(offerings) == 0 {
+			fmt.Println(YellowStyle.Render("No offerings found."))
+			return nil
+		}
+		fmt.Println(InternalStyle.Render("\n📦 Offerings:\n"))
+		for _, o := range offerings {
+			status := GreenStyle.Render("Current")
+			if !o.IsCurrent {
+				status = "Inactive"
+			}
+			archLabel := ""
+			if o.IsArchived {
+				archLabel = " [ARCHIVED]"
+			}
+			fmt.Printf("  ID: %s\n", CyanStyle.Render(o.ID))
+			fmt.Printf("  Identifier: %s\n", o.Identifier)
+			fmt.Printf("  Name: %s\n", o.DisplayName)
+			fmt.Printf("  Status: %s%s\n", status, archLabel)
+			fmt.Printf("  Packages: %d\n", len(o.Packages))
+			if o.Metadata != nil {
+				fmt.Printf("  Metadata: %v\n", o.Metadata)
+			}
+			fmt.Println()
+		}
+		fmt.Println(GrayStyle.Render(fmt.Sprintf("Total: %d offerings", len(offerings))))
 		return nil
-	}
-
-	var offerings []rcinternal.Offering
-	if err := json.Unmarshal(ToJSON(resp.Items), &offerings); err != nil {
-		return fmt.Errorf("error parsing offerings: %w", err)
-	}
-
-	if len(offerings) == 0 {
-		fmt.Println(YellowStyle.Render("No offerings found."))
-		return nil
-	}
-
-	fmt.Println(InternalStyle.Render("\n📦 Offerings:\n"))
-	for _, o := range offerings {
-		status := GreenStyle.Render("Current")
-		if !o.IsCurrent {
-			status = "Inactive"
-		}
-		archLabel := ""
-		if o.IsArchived {
-			archLabel = " [ARCHIVED]"
-		}
-		fmt.Printf("  ID: %s\n", CyanStyle.Render(o.ID))
-		fmt.Printf("  Identifier: %s\n", o.Identifier)
-		fmt.Printf("  Name: %s\n", o.DisplayName)
-		fmt.Printf("  Status: %s%s\n", status, archLabel)
-		fmt.Printf("  Packages: %d\n", len(o.Packages))
-		if o.Metadata != nil {
-			fmt.Printf("  Metadata: %v\n", o.Metadata)
-		}
-		fmt.Println()
-	}
-	fmt.Println(GrayStyle.Render(fmt.Sprintf("Total: %d offerings", len(offerings))))
-
-	return nil
+	})
 }
 
 func runOfferingGet(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
+	c, err := Dashboard(cmd, "\n📦 Fetching offering...")
+	if err != nil {
+		return err
+	}
+	offeringID, err := offeringRef(cmd, c)
 	if err != nil {
 		return err
 	}
 
-	offeringID, client, err := resolveOfferingFlag(cmd, projectID)
+	resp, err := c.Client.Get(c.Path("/offerings/%s", offeringID))
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📦 Fetching offering...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID)
-	resp, err := client.Get(path)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
-
-	var offering rcinternal.Offering
-	if err := json.Unmarshal(ToJSON(resp.Data), &offering); err != nil {
-		return fmt.Errorf("error parsing offering: %w", err)
-	}
-
-	fmt.Println(InternalStyle.Render("\n📦 Offering Details:\n"))
-	fmt.Printf("  ID: %s\n", CyanStyle.Render(offering.ID))
-	fmt.Printf("  Identifier: %s\n", offering.Identifier)
-	fmt.Printf("  Name: %s\n", offering.DisplayName)
-	fmt.Printf("  Archived: %v\n", offering.IsArchived)
-	fmt.Printf("  Current: %v\n", offering.IsCurrent)
-	if offering.Metadata != nil {
-		fmt.Printf("  Metadata: %v\n", offering.Metadata)
-	}
-	fmt.Printf("  Packages: %d\n", len(offering.Packages))
-
-	if len(offering.Packages) > 0 {
-		fmt.Println(InternalStyle.Render("\n  Packages:"))
-		for _, pkg := range offering.Packages {
-			fmt.Printf("    - %s (%s)\n", CyanStyle.Render(pkg.Identifier), pkg.DisplayName)
+	return c.Respond(resp, func() error {
+		var offering rcinternal.Offering
+		if err := json.Unmarshal(ToJSON(resp.Data), &offering); err != nil {
+			return fmt.Errorf("error parsing offering: %w", err)
 		}
-	}
-
-	return nil
+		fmt.Println(InternalStyle.Render("\n📦 Offering Details:\n"))
+		fmt.Printf("  ID: %s\n", CyanStyle.Render(offering.ID))
+		fmt.Printf("  Identifier: %s\n", offering.Identifier)
+		fmt.Printf("  Name: %s\n", offering.DisplayName)
+		fmt.Printf("  Archived: %v\n", offering.IsArchived)
+		fmt.Printf("  Current: %v\n", offering.IsCurrent)
+		if offering.Metadata != nil {
+			fmt.Printf("  Metadata: %v\n", offering.Metadata)
+		}
+		fmt.Printf("  Packages: %d\n", len(offering.Packages))
+		if len(offering.Packages) > 0 {
+			fmt.Println(InternalStyle.Render("\n  Packages:"))
+			for _, pkg := range offering.Packages {
+				fmt.Printf("    - %s (%s)\n", CyanStyle.Render(pkg.Identifier), pkg.DisplayName)
+			}
+		}
+		return nil
+	})
 }
 
 func runOfferingsCreate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	identifier, _ := cmd.Flags().GetString("identifier")
 	name, _ := cmd.Flags().GetString("name")
-
 	if identifier == "" {
 		return fmt.Errorf("identifier is required (--identifier or -i)")
 	}
@@ -271,52 +222,39 @@ func runOfferingsCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("name is required (--name or -n)")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard(cmd, "\n📦 Creating offering...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📦 Creating offering...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings", projectID)
-	data := map[string]string{
+	resp, err := c.Client.Post(c.Path("/offerings"), map[string]string{
 		"identifier":   identifier,
 		"display_name": name,
-	}
-	resp, err := client.Post(path, data)
+	})
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+
+	return c.Respond(resp, func() error {
+		var offering rcinternal.Offering
+		if err := json.Unmarshal(ToJSON(resp.Data), &offering); err != nil {
+			return fmt.Errorf("error parsing response: %w", err)
+		}
+		fmt.Println(GreenStyle.Render("\n✓ Offering created:"))
+		fmt.Printf("  ID: %s\n", CyanStyle.Render(offering.ID))
+		fmt.Printf("  Identifier: %s\n", offering.Identifier)
+		fmt.Printf("  Name: %s\n", offering.DisplayName)
 		return nil
-	}
-
-	var offering rcinternal.Offering
-	if err := json.Unmarshal(ToJSON(resp.Data), &offering); err != nil {
-		return fmt.Errorf("error parsing response: %w", err)
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Offering created:"))
-	fmt.Printf("  ID: %s\n", CyanStyle.Render(offering.ID))
-	fmt.Printf("  Identifier: %s\n", offering.Identifier)
-	fmt.Printf("  Name: %s\n", offering.DisplayName)
-
-	return nil
+	})
 }
 
 func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
 	displayName, _ := cmd.Flags().GetString("name")
 	identifier, _ := cmd.Flags().GetString("identifier")
 	metadataStr, _ := cmd.Flags().GetString("metadata")
 	metadataMergeStr, _ := cmd.Flags().GetString("metadata-merge")
 	packagesStr, _ := cmd.Flags().GetString("packages")
+
 	if displayName == "" && identifier == "" && metadataStr == "" && metadataMergeStr == "" && packagesStr == "" {
 		return fmt.Errorf("at least one of --name (-n), --identifier (-i), --metadata (-m), --metadata-merge, or --packages is required")
 	}
@@ -324,13 +262,12 @@ func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("use only one of --metadata (replace) and --metadata-merge (merge)")
 	}
 
-	var metadata map[string]interface{}
+	var metadata, metadataPatch map[string]interface{}
 	if metadataStr != "" {
 		if err := json.Unmarshal([]byte(metadataStr), &metadata); err != nil {
 			return fmt.Errorf("--metadata must be a JSON object: %w", err)
 		}
 	}
-	var metadataPatch map[string]interface{}
 	if metadataMergeStr != "" {
 		if err := json.Unmarshal([]byte(metadataMergeStr), &metadataPatch); err != nil {
 			return fmt.Errorf("--metadata-merge must be a JSON object: %w", err)
@@ -343,51 +280,153 @@ func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	offeringID, client, err := resolveOfferingFlag(cmd, projectID)
+	c, err := Dashboard(cmd, "\n📦 Saving offering (internal PATCH)...")
+	if err != nil {
+		return err
+	}
+	offeringID, err := offeringRef(cmd, c)
 	if err != nil {
 		return err
 	}
 
 	// --metadata-merge is read-modify-write: fetch current metadata so untouched keys survive.
 	if metadataPatch != nil {
-		current, err := fetchOfferingMetadata(client, projectID, offeringID)
+		current, err := c.offeringMetadata(offeringID)
 		if err != nil {
 			return err
 		}
 		metadata = mergeMetadata(current, metadataPatch)
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings_with_packages/%s", projectID, offeringID)
-
-	patchBody := map[string]interface{}{}
+	body := map[string]interface{}{}
 	if displayName != "" {
-		patchBody["display_name"] = displayName
+		body["display_name"] = displayName
 	}
 	if identifier != "" {
-		patchBody["identifier"] = identifier
+		body["identifier"] = identifier
 	}
 	if metadata != nil {
-		patchBody["metadata"] = metadata
+		body["metadata"] = metadata
 	}
 	if packages != nil {
-		patchBody["packages"] = packages
+		body["packages"] = packages
 	}
 
-	Progress("\n📦 Saving offering (internal PATCH)...")
-	patchResp, err := client.PatchWithPackages(path, patchBody)
+	resp, err := c.Client.Patch(c.Path("/offerings_with_packages/%s", offeringID), body)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(patchResp); err != nil {
+
+	return c.Respond(resp, func() error {
+		fmt.Println(GreenStyle.Render("\n✓ Offering updated via internal API."))
+		fmt.Println(GrayStyle.Render("Open RevenueCat → Product catalog → Offerings, select this offering, and refresh if needed to see display name / metadata / packages."))
+		return nil
+	})
+}
+
+func runOfferingsDelete(cmd *cobra.Command, args []string) error {
+	c, err := Dashboard(cmd, "\n📦 Deleting offering...")
+	if err != nil {
 		return err
 	}
-	if EmitJSON(patchResp) {
-		return nil
+	offeringID, err := offeringRef(cmd, c)
+	if err != nil {
+		return err
 	}
 
-	fmt.Println(GreenStyle.Render("\n✓ Offering updated via internal API."))
-	fmt.Println(GrayStyle.Render("Open RevenueCat → Product catalog → Offerings, select this offering, and refresh if needed to see display name / metadata / packages."))
-	return nil
+	resp, err := c.Client.Delete(c.Path("/offerings/%s", offeringID))
+	if err != nil {
+		return err
+	}
+
+	return c.Respond(resp, func() error {
+		fmt.Println(GreenStyle.Render("\n✓ Offering deleted: " + offeringID))
+		return nil
+	})
+}
+
+func runOfferingsDuplicate(cmd *cobra.Command, args []string) error {
+	identifier, _ := cmd.Flags().GetString("identifier")
+	name, _ := cmd.Flags().GetString("name")
+	packagesOnly, _ := cmd.Flags().GetBool("packages-only")
+	if identifier == "" {
+		return fmt.Errorf("identifier is required (--identifier or -i)")
+	}
+	if name == "" {
+		return fmt.Errorf("name is required (--name or -n)")
+	}
+
+	c, err := Dashboard(cmd, "\n📦 Duplicating offering...")
+	if err != nil {
+		return err
+	}
+	offeringID, err := offeringRef(cmd, c)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.Client.Post(c.Path("/offerings/%s/duplicate", offeringID), map[string]interface{}{
+		"identifier":    identifier,
+		"display_name":  name,
+		"packages_only": packagesOnly,
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.Respond(resp, func() error {
+		var offering map[string]interface{}
+		if err := json.Unmarshal(ToJSON(resp.Data), &offering); err != nil {
+			return fmt.Errorf("error parsing response: %w", err)
+		}
+		fmt.Println(GreenStyle.Render("\n✓ Offering duplicated:"))
+		fmt.Printf("  ID: %s\n", CyanStyle.Render(GetStringValue(offering, "id", "?")))
+		fmt.Printf("  Identifier: %s\n", GetStringValue(offering, "identifier", "?"))
+		fmt.Printf("  Name: %s\n", GetStringValue(offering, "display_name", "?"))
+		return nil
+	})
+}
+
+func runOfferingsSetCurrent(cmd *cobra.Command, args []string) error {
+	c, err := Dashboard(cmd, "\n📦 Setting offering as current...")
+	if err != nil {
+		return err
+	}
+	offeringID, err := offeringRef(cmd, c)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.Client.Patch(c.Path("/offerings/%s", offeringID), map[string]interface{}{"is_current": true})
+	if err != nil {
+		return err
+	}
+
+	return c.Respond(resp, func() error {
+		fmt.Println(GreenStyle.Render("\n✓ Offering set as current"))
+		return nil
+	})
+}
+
+func runOfferingsArchive(cmd *cobra.Command, args []string) error {
+	c, err := Dashboard(cmd, "\n📦 Archiving offering...")
+	if err != nil {
+		return err
+	}
+	offeringID, err := offeringRef(cmd, c)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.Client.Post(c.Path("/offerings/%s/actions/archive", offeringID), map[string]interface{}{})
+	if err != nil {
+		return err
+	}
+
+	return c.Respond(resp, func() error {
+		fmt.Println(GreenStyle.Render("\n✓ Offering archived"))
+		return nil
+	})
 }
 
 // mergeMetadata applies patch on top of current and returns the result. A nil value
@@ -412,14 +451,14 @@ func mergeMetadata(current, patch map[string]interface{}) map[string]interface{}
 	return merged
 }
 
-// fetchOfferingMetadata returns the offering's current metadata object, or an empty
-// map if it has none. Used by --metadata-merge to avoid clobbering existing keys.
-func fetchOfferingMetadata(client *rcinternal.Client, projectID, offeringID string) (map[string]interface{}, error) {
-	resp, err := client.Get(fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID))
-	if err != nil {
-		return nil, fmt.Errorf("could not read current metadata: %w", err)
+// offeringMetadata returns the offering's current metadata object, or an empty map
+// if it has none. Used by --metadata-merge to avoid clobbering existing keys.
+func (c *Ctx) offeringMetadata(offeringID string) (map[string]interface{}, error) {
+	resp, err := c.Client.Get(c.Path("/offerings/%s", offeringID))
+	if err == nil {
+		err = CheckResponse(resp)
 	}
-	if err := CheckResponse(resp); err != nil {
+	if err != nil {
 		return nil, fmt.Errorf("could not read current metadata: %w", err)
 	}
 	obj, ok := resp.Data.(map[string]interface{})
@@ -431,152 +470,4 @@ func fetchOfferingMetadata(client *rcinternal.Client, projectID, offeringID stri
 		return map[string]interface{}{}, nil
 	}
 	return meta, nil
-}
-
-func runOfferingsDelete(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
-	offeringID, client, err := resolveOfferingFlag(cmd, projectID)
-	if err != nil {
-		return err
-	}
-
-	Progress("\n📦 Deleting offering...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID)
-	resp, err := client.Delete(path)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Offering deleted: " + offeringID))
-	return nil
-}
-
-func runOfferingsDuplicate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
-	identifier, _ := cmd.Flags().GetString("identifier")
-	name, _ := cmd.Flags().GetString("name")
-	packagesOnly, _ := cmd.Flags().GetBool("packages-only")
-
-	if identifier == "" {
-		return fmt.Errorf("identifier is required (--identifier or -i)")
-	}
-	if name == "" {
-		return fmt.Errorf("name is required (--name or -n)")
-	}
-
-	offeringID, client, err := resolveOfferingFlag(cmd, projectID)
-	if err != nil {
-		return err
-	}
-
-	Progress("\n📦 Duplicating offering...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s/duplicate", projectID, offeringID)
-	data := map[string]interface{}{
-		"identifier":    identifier,
-		"display_name":  name,
-		"packages_only": packagesOnly,
-	}
-
-	resp, err := client.Post(path, data)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
-
-	var offering map[string]interface{}
-	if err := json.Unmarshal(ToJSON(resp.Data), &offering); err != nil {
-		return fmt.Errorf("error parsing response: %w", err)
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Offering duplicated:"))
-	fmt.Printf("  ID: %s\n", CyanStyle.Render(offering["id"].(string)))
-	fmt.Printf("  Identifier: %s\n", offering["identifier"])
-	fmt.Printf("  Name: %s\n", offering["display_name"])
-
-	return nil
-}
-
-func runOfferingsSetCurrent(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
-	offeringID, client, err := resolveOfferingFlag(cmd, projectID)
-	if err != nil {
-		return err
-	}
-
-	Progress("\n📦 Setting offering as current...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s", projectID, offeringID)
-	data := map[string]interface{}{
-		"is_current": true,
-	}
-
-	resp, err := client.Patch(path, data)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Offering set as current"))
-
-	return nil
-}
-
-func runOfferingsArchive(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
-	offeringID, client, err := resolveOfferingFlag(cmd, projectID)
-	if err != nil {
-		return err
-	}
-
-	Progress("\n📦 Archiving offering...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/offerings/%s/actions/archive", projectID, offeringID)
-	resp, err := client.Post(path, map[string]interface{}{})
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Offering archived"))
-
-	return nil
 }

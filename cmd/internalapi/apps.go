@@ -55,125 +55,101 @@ func init() {
 }
 
 func runAppsList(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
+	c, err := Dashboard(cmd, "\n📱 Fetching apps...")
 	if err != nil {
 		return err
 	}
 
-	client, err := GetInternalClient()
+	path := fmt.Sprintf("/developers/me/projects/%s/apps", c.ProjectID)
+	resp, err := c.Client.Get(path)
 	if err != nil {
 		return err
 	}
+	return c.Respond(resp, func() error {
 
-	Progress("\n📱 Fetching apps...")
+		var apps []rcinternal.App
+		if err := json.Unmarshal(ToJSON(resp.Items), &apps); err != nil {
+			return fmt.Errorf("error parsing apps: %w", err)
+		}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/apps", projectID)
-	resp, err := client.Get(path)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+		if len(apps) == 0 {
+			fmt.Println(YellowStyle.Render("No apps found."))
+			return nil
+		}
+
+		fmt.Println(InternalStyle.Render("\n📱 Apps:\n"))
+		for _, a := range apps {
+			fmt.Printf("  ID: %s\n", CyanStyle.Render(a.ID))
+			fmt.Printf("  Name: %s\n", a.Name)
+			fmt.Printf("  Type: %s\n", a.Type)
+			fmt.Println()
+		}
+
 		return nil
-	}
-
-	var apps []rcinternal.App
-	if err := json.Unmarshal(ToJSON(resp.Items), &apps); err != nil {
-		return fmt.Errorf("error parsing apps: %w", err)
-	}
-
-	if len(apps) == 0 {
-		fmt.Println(YellowStyle.Render("No apps found."))
-		return nil
-	}
-
-	fmt.Println(InternalStyle.Render("\n📱 Apps:\n"))
-	for _, a := range apps {
-		fmt.Printf("  ID: %s\n", CyanStyle.Render(a.ID))
-		fmt.Printf("  Name: %s\n", a.Name)
-		fmt.Printf("  Type: %s\n", a.Type)
-		fmt.Println()
-	}
-
-	return nil
+	})
 }
-
 func runAppsSubscriptionGroups(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	appID, _ := cmd.Flags().GetString("app-id")
 	if appID == "" {
 		return fmt.Errorf("--app-id is required")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard(cmd, "\n📚 Fetching subscription groups for app...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📚 Fetching subscription groups for app...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/subscription_groups", projectID, appID)
-	resp, err := client.Get(path)
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/subscription_groups", c.ProjectID, appID)
+	resp, err := c.Client.Get(path)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
+	return c.Respond(resp, func() error {
 
-	var groups []map[string]interface{}
-	if len(resp.Items) > 0 {
-		_ = json.Unmarshal(ToJSON(resp.Items), &groups)
-	}
-	if len(groups) == 0 && resp.Data != nil {
-		var asArray []map[string]interface{}
-		if err := json.Unmarshal(ToJSON(resp.Data), &asArray); err == nil {
-			groups = asArray
-		} else {
-			var asOne map[string]interface{}
-			if err2 := json.Unmarshal(ToJSON(resp.Data), &asOne); err2 == nil {
-				groups = []map[string]interface{}{asOne}
+		var groups []map[string]interface{}
+		if len(resp.Items) > 0 {
+			_ = json.Unmarshal(ToJSON(resp.Items), &groups)
+		}
+		if len(groups) == 0 && resp.Data != nil {
+			var asArray []map[string]interface{}
+			if err := json.Unmarshal(ToJSON(resp.Data), &asArray); err == nil {
+				groups = asArray
+			} else {
+				var asOne map[string]interface{}
+				if err2 := json.Unmarshal(ToJSON(resp.Data), &asOne); err2 == nil {
+					groups = []map[string]interface{}{asOne}
+				}
 			}
 		}
-	}
 
-	if len(groups) == 0 {
-		fmt.Println(YellowStyle.Render("No subscription groups found."))
+		if len(groups) == 0 {
+			fmt.Println(YellowStyle.Render("No subscription groups found."))
+			return nil
+		}
+
+		fmt.Println(InternalStyle.Render("\n📚 Subscription Groups:\n"))
+		for _, g := range groups {
+			id := GetStringValue(g, "id", GetStringValue(g, "subscription_group_id", ""))
+			identifier := GetStringValue(g, "identifier", GetStringValue(g, "subscription_group_identifier", ""))
+			name := GetStringValue(g, "name", GetStringValue(g, "display_name", GetStringValue(g, "group_name", "")))
+
+			fmt.Printf("  ID: %s\n", CyanStyle.Render(id))
+			if identifier != "" {
+				fmt.Printf("  Identifier: %s\n", identifier)
+			}
+			if name != "" {
+				fmt.Printf("  Name: %s\n", name)
+			}
+
+			if products, ok := g["products"].([]interface{}); ok {
+				fmt.Printf("  Products: %d\n", len(products))
+			}
+			fmt.Println()
+		}
+
 		return nil
-	}
-
-	fmt.Println(InternalStyle.Render("\n📚 Subscription Groups:\n"))
-	for _, g := range groups {
-		id := GetStringValue(g, "id", GetStringValue(g, "subscription_group_id", ""))
-		identifier := GetStringValue(g, "identifier", GetStringValue(g, "subscription_group_identifier", ""))
-		name := GetStringValue(g, "name", GetStringValue(g, "display_name", GetStringValue(g, "group_name", "")))
-
-		fmt.Printf("  ID: %s\n", CyanStyle.Render(id))
-		if identifier != "" {
-			fmt.Printf("  Identifier: %s\n", identifier)
-		}
-		if name != "" {
-			fmt.Printf("  Name: %s\n", name)
-		}
-
-		if products, ok := g["products"].([]interface{}); ok {
-			fmt.Printf("  Products: %d\n", len(products))
-		}
-		fmt.Println()
-	}
-
-	return nil
+	})
 }
-
 func validateDurationEnum(duration string) error {
 	switch duration {
 	case "ONE_WEEK", "ONE_MONTH", "TWO_MONTHS", "THREE_MONTHS", "SIX_MONTHS", "ONE_YEAR":
@@ -184,11 +160,6 @@ func validateDurationEnum(duration string) error {
 }
 
 func runAppStoreProductsCreate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	appID, _ := cmd.Flags().GetString("app-id")
 	if appID == "" {
 		return fmt.Errorf("--app-id is required")
@@ -241,26 +212,20 @@ func runAppStoreProductsCreate(cmd *cobra.Command, args []string) error {
 		product["subscription_group"] = subGroup
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard(cmd, "\n📦 Creating app store product (internal POST)...")
 	if err != nil {
 		return err
 	}
-
-	Progress("\n📦 Creating app store product (internal POST)...")
-	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/app_store_products", projectID, appID)
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/app_store_products", c.ProjectID, appID)
 	body := map[string]interface{}{"products": []interface{}{product}}
 
-	resp, err := client.Post(path, body)
+	resp, err := c.Client.Post(path, body)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
+	return c.Respond(resp, func() error {
 
-	fmt.Println(GreenStyle.Render("\n✓ App store product created."))
-	return nil
+		fmt.Println(GreenStyle.Render("\n✓ App store product created."))
+		return nil
+	})
 }

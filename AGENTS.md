@@ -53,6 +53,17 @@ cmd/internalapi/  everything under `rc internal`, incl. rc internal api
 API.md            full endpoint reference for both APIs
 ```
 
+## Known-broken endpoints
+
+The dashboard API is undocumented and its paths move without notice.
+
+- `rc internal charts …` — all subcommands 404 as of 2026-07 (`charts_v2` path gone)
+- `rc internal experiments …` — was broken, fixed by repointing
+  `price_experiments` → `experiments`
+
+A 404 from `rc internal` usually means the path moved, not that the CLI is buggy.
+Capture the real request from the dashboard's network tab before changing code.
+
 ## Escape hatches
 
 ```bash

@@ -8,13 +8,13 @@ import (
 	"revenuecat-cli/config"
 )
 
-func initConfig() {
+func initConfig(root *cobra.Command) {
 	configCmd := &cobra.Command{
 		Use:   "config",
 		Short: "Manage RevenueCat CLI configuration",
 		RunE:  runConfig,
 	}
-	RootCmd.AddCommand(configCmd)
+	root.AddCommand(configCmd)
 }
 
 func runConfig(cmd *cobra.Command, args []string) error {
