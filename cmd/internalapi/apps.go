@@ -55,7 +55,7 @@ func init() {
 }
 
 func runAppsList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📱 Fetching apps...")
+	c, err := Dashboard(cmd, "\n📱 Fetching apps...")
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func runAppsSubscriptionGroups(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--app-id is required")
 	}
 
-	c, err := Dashboard("\n📚 Fetching subscription groups for app...")
+	c, err := Dashboard(cmd, "\n📚 Fetching subscription groups for app...")
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func runAppStoreProductsCreate(cmd *cobra.Command, args []string) error {
 		product["subscription_group"] = subGroup
 	}
 
-	c, err := Dashboard("\n📦 Creating app store product (internal POST)...")
+	c, err := Dashboard(cmd, "\n📦 Creating app store product (internal POST)...")
 	if err != nil {
 		return err
 	}

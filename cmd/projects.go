@@ -8,7 +8,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initProjects() {
+func initProjects(root *cobra.Command) {
 	projectsCmd := &cobra.Command{
 		Use:   "projects",
 		Short: "Manage RevenueCat projects",
@@ -35,10 +35,10 @@ func initProjects() {
 	}
 
 	projectsCmd.AddCommand(projectsListCmd, projectsGetCmd, projectsCurrentCmd)
-	RootCmd.AddCommand(projectsCmd)
+	root.AddCommand(projectsCmd)
 
 	// Aliases
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "project:get",
 		Short: "Get current project details",
 		RunE:  runGetCurrentProject,
@@ -46,7 +46,7 @@ func initProjects() {
 }
 
 func runListProjects(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func runListProjects(cmd *cobra.Command, args []string) error {
 }
 
 func runGetProject(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func runGetProject(cmd *cobra.Command, args []string) error {
 }
 
 func runGetCurrentProject(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

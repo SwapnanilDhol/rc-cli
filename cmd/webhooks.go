@@ -8,7 +8,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initWebhooks() {
+func initWebhooks(root *cobra.Command) {
 	webhooksCmd := &cobra.Command{
 		Use:   "webhooks",
 		Short: "Manage webhooks",
@@ -39,15 +39,15 @@ func initWebhooks() {
 	}
 
 	webhooksCmd.AddCommand(webhooksListCmd, webhooksCreateCmd, webhooksTestCmd, webhooksEventsCmd)
-	RootCmd.AddCommand(webhooksCmd)
+	root.AddCommand(webhooksCmd)
 
 	// Aliases
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "webhooks:list",
 		Short: "List all webhooks",
 		RunE:  runListWebhooks,
 	})
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "webhooks:create",
 		Short: "Create a new webhook",
 		RunE:  runCreateWebhook,
@@ -55,7 +55,7 @@ func initWebhooks() {
 }
 
 func runListWebhooks(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func runTestWebhook(cmd *cobra.Command, args []string) error {
 }
 
 func runWebhookEvents(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

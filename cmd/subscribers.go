@@ -10,7 +10,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initSubscribers() {
+func initSubscribers(root *cobra.Command) {
 	subscribersCmd := &cobra.Command{
 		Use:   "subscribers",
 		Short: "Manage subscribers (customers)",
@@ -57,15 +57,15 @@ func initSubscribers() {
 	subscribersSubscriptionsCmd.Flags().StringP("app-user-id", "u", "", "App User ID")
 
 	subscribersCmd.AddCommand(subscribersListCmd, subscribersGetCmd, subscribersSearchCmd, subscribersEntitlementsCmd, subscribersSubscriptionsCmd)
-	RootCmd.AddCommand(subscribersCmd)
+	root.AddCommand(subscribersCmd)
 
 	// Aliases
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "users:list",
 		Short: "List subscribers",
 		RunE:  runListSubscribers,
 	})
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "users:get",
 		Short: "Get subscriber details",
 		RunE:  runGetSubscriber,
@@ -73,7 +73,7 @@ func initSubscribers() {
 }
 
 func runListSubscribers(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func runListSubscribers(cmd *cobra.Command, args []string) error {
 }
 
 func runGetSubscriber(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func runGetSubscriber(cmd *cobra.Command, args []string) error {
 }
 
 func runSearchSubscriber(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func runSearchSubscriber(cmd *cobra.Command, args []string) error {
 }
 
 func runSubscriberEntitlements(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -302,7 +302,7 @@ func runSubscriberEntitlements(cmd *cobra.Command, args []string) error {
 }
 
 func runSubscriberSubscriptions(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

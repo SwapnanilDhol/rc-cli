@@ -9,7 +9,7 @@ import (
 // All internal commands use the internal dashboard API at https://app.revenuecat.com/internal/v1
 // vs the public /v2 API. Internal commands require session cookie auth (rc login),
 // while public API commands use API key auth (rc config).
-func initInternal() {
+func initInternal(root *cobra.Command) {
 	internalCmd := &cobra.Command{
 		Use:   "internal",
 		Short: "Internal Dashboard API commands",
@@ -55,5 +55,5 @@ All internal commands require authentication via 'rc login'.`,
 		rcinternalapi.RawAPICmd,
 	)
 
-	RootCmd.AddCommand(internalCmd)
+	root.AddCommand(internalCmd)
 }

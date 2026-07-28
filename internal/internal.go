@@ -147,12 +147,6 @@ func (c *Client) Patch(path string, data interface{}) (*Response, error) {
 	return c.doRequest("PATCH", path, data)
 }
 
-// PatchWithPackages patches an offering at the offerings_with_packages endpoint,
-// which allows setting both metadata AND attaching/detaching packages in one call.
-func (c *Client) PatchWithPackages(path string, data interface{}) (*Response, error) {
-	return c.doRequest("PATCH", path, data)
-}
-
 func (c *Client) doRequest(method, path string, data interface{}) (*Response, error) {
 	var payload []byte
 	if data != nil {

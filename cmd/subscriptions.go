@@ -8,7 +8,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initSubscriptions() {
+func initSubscriptions(root *cobra.Command) {
 	subscriptionsCmd := &cobra.Command{
 		Use:   "subscriptions",
 		Short: "Manage subscriptions",
@@ -22,10 +22,10 @@ func initSubscriptions() {
 	subscriptionsListCmd.Flags().StringP("app-user-id", "u", "", "App User ID")
 
 	subscriptionsCmd.AddCommand(subscriptionsListCmd)
-	RootCmd.AddCommand(subscriptionsCmd)
+	root.AddCommand(subscriptionsCmd)
 
 	// Alias
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "subs:list",
 		Short: "List subscriptions",
 		RunE:  runListSubscriptions,
@@ -33,7 +33,7 @@ func initSubscriptions() {
 }
 
 func runListSubscriptions(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

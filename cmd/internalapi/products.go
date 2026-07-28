@@ -59,7 +59,7 @@ func validateProductType(productType string) error {
 func runProductsList(cmd *cobra.Command, args []string) error {
 	limit, _ := cmd.Flags().GetInt("limit")
 
-	c, err := Dashboard("\n🛍️ Fetching products...")
+	c, err := Dashboard(cmd, "\n🛍️ Fetching products...")
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func runProductsCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--name is required")
 	}
 
-	c, err := Dashboard("\n🛍️ Creating product...")
+	c, err := Dashboard(cmd, "\n🛍️ Creating product...")
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func runProductsUpdate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("at least one of --product-type, --identifier, or --name is required")
 	}
 
-	c, err := Dashboard("\n🛍️ Updating product (PATCH)...")
+	c, err := Dashboard(cmd, "\n🛍️ Updating product (PATCH)...")
 	if err != nil {
 		return err
 	}

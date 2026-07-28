@@ -9,7 +9,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initEntitlements() {
+func initEntitlements(root *cobra.Command) {
 	entitlementsCmd := &cobra.Command{
 		Use:   "entitlements",
 		Short: "Manage entitlements",
@@ -43,10 +43,10 @@ func initEntitlements() {
 	entitlementsActiveCmd.Flags().StringP("app-user-id", "u", "", "App User ID")
 
 	entitlementsCmd.AddCommand(entitlementsListCmd, entitlementsGetCmd, entitlementsProductsCmd, entitlementsActiveCmd)
-	RootCmd.AddCommand(entitlementsCmd)
+	root.AddCommand(entitlementsCmd)
 
 	// Alias
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "entitlements:list",
 		Short: "List entitlements",
 		RunE:  runListEntitlements,
@@ -54,7 +54,7 @@ func initEntitlements() {
 }
 
 func runListEntitlements(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func runListEntitlements(cmd *cobra.Command, args []string) error {
 }
 
 func runGetEntitlement(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func runGetEntitlement(cmd *cobra.Command, args []string) error {
 }
 
 func runEntitlementProducts(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func runEntitlementProducts(cmd *cobra.Command, args []string) error {
 }
 
 func runActiveEntitlements(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

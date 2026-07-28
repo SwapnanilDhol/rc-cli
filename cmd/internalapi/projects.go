@@ -59,7 +59,7 @@ func runProjectsList(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := DashboardNoProject("\n📁 Fetching projects...")
+	c, err := DashboardNoProject(cmd, "\n📁 Fetching projects...")
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func runProjectGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("project-id is required (--project-id or -i)")
 	}
 
-	c, err := DashboardNoProject("\n📁 Fetching project details...")
+	c, err := DashboardNoProject(cmd, "\n📁 Fetching project details...")
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func runProjectsUse(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to save project: %w", err)
 	}
 
-	if JSONOutput {
+	if OptionsOf(cmd).JSON {
 		EmitJSONValue(map[string]string{"project_id": projectID})
 		return nil
 	}
@@ -173,7 +173,7 @@ func runProjectsCreate(cmd *cobra.Command, args []string) error {
 	category, _ := cmd.Flags().GetString("category")
 	platforms, _ := cmd.Flags().GetStringSlice("platforms")
 
-	c, err := DashboardNoProject("\n📁 Creating project...")
+	c, err := DashboardNoProject(cmd, "\n📁 Creating project...")
 	if err != nil {
 		return err
 	}

@@ -11,18 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	skillsFS   fs.FS
-	skillsRoot string
-)
-
-// SetSkillsFS receives the embedded skills from the root package, which is the
-// only place go:embed can reach them.
-func SetSkillsFS(f fs.FS, root string) {
-	skillsFS, skillsRoot = f, root
-}
-
-func initInstallSkills() {
+func initInstallSkills(root *cobra.Command, skillsFS fs.FS, skillsRoot string) {
 	cmd := &cobra.Command{
 		Use:   "install-skills",
 		Short: "Install the rc agent skills so coding agents can use them anywhere",
@@ -36,16 +25,18 @@ Skills are embedded in the binary, so this works from a Homebrew install.
   rc install-skills --force    # overwrite existing copies
   rc install-skills --list     # show what would be installed
   rc install-skills --dir ./x  # install somewhere else`,
-		RunE: runInstallSkills,
+		RunE: func(c *cobra.Command, args []string) error {
+			return runInstallSkills(c, skillsFS, skillsRoot)
+		},
 	}
 	cmd.Flags().Bool("force", false, "Overwrite skills that are already installed")
 	cmd.Flags().Bool("list", false, "List the bundled skills without installing")
 	cmd.Flags().String("dir", "", "Target directory (default ~/.claude/skills)")
-	RootCmd.AddCommand(cmd)
+	root.AddCommand(cmd)
 }
 
 // bundledSkills returns the skill directory names embedded in the binary.
-func bundledSkills() ([]string, error) {
+func bundledSkills(skillsFS fs.FS, skillsRoot string) ([]string, error) {
 	if skillsFS == nil {
 		return nil, fmt.Errorf("no skills embedded in this binary")
 	}
@@ -62,8 +53,8 @@ func bundledSkills() ([]string, error) {
 	return names, nil
 }
 
-func runInstallSkills(cmd *cobra.Command, args []string) error {
-	names, err := bundledSkills()
+func runInstallSkills(cmd *cobra.Command, skillsFS fs.FS, skillsRoot string) error {
+	names, err := bundledSkills(skillsFS, skillsRoot)
 	if err != nil {
 		return err
 	}
@@ -73,7 +64,7 @@ func runInstallSkills(cmd *cobra.Command, args []string) error {
 
 	list, _ := cmd.Flags().GetBool("list")
 	if list {
-		if jsonOutput {
+		if jsonRequested(cmd) {
 			return emitJSON(names)
 		}
 		fmt.Println(appsStyle.Render("\nBundled skills:\n"))
@@ -103,13 +94,13 @@ func runInstallSkills(cmd *cobra.Command, args []string) error {
 			skipped = append(skipped, name)
 			continue
 		}
-		if err := copySkill(name, dest); err != nil {
+		if err := copySkill(skillsFS, skillsRoot, name, dest); err != nil {
 			return fmt.Errorf("installing %s: %w", name, err)
 		}
 		installed = append(installed, name)
 	}
 
-	if jsonOutput {
+	if jsonRequested(cmd) {
 		return emitJSON(map[string]interface{}{
 			"target": target, "installed": installed, "skipped": skipped,
 		})
@@ -128,8 +119,8 @@ func runInstallSkills(cmd *cobra.Command, args []string) error {
 }
 
 // copySkill writes one embedded skill directory to dest.
-func copySkill(name, dest string) error {
-	srcRoot := path(skillsRoot, name)
+func copySkill(skillsFS fs.FS, skillsRoot, name, dest string) error {
+	srcRoot := skillsRoot + "/" + name
 	return fs.WalkDir(skillsFS, srcRoot, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -148,10 +139,4 @@ func copySkill(name, dest string) error {
 		}
 		return os.WriteFile(out, data, 0644)
 	})
-}
-
-// path joins embedded-FS path elements, which always use forward slashes
-// regardless of host platform.
-func path(parts ...string) string {
-	return strings.Join(parts, "/")
 }

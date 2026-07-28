@@ -8,7 +8,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initOffers() {
+func initOffers(root *cobra.Command) {
 	offersCmd := &cobra.Command{
 		Use:   "offers",
 		Short: "Promotional offers (public v2 API)",
@@ -22,11 +22,11 @@ func initOffers() {
 	}
 
 	offersCmd.AddCommand(offersListCmd)
-	RootCmd.AddCommand(offersCmd)
+	root.AddCommand(offersCmd)
 }
 
 func runListOffers(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func runListOffers(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("HTTP %d: %s %s", resp.StatusCode, resp.Error, resp.Message)
 	}
 
-	if jsonOutput {
+	if jsonRequested(cmd) {
 		return emitJSON(resp.Items)
 	}
 

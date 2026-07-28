@@ -8,6 +8,11 @@ import (
 	"github.com/spf13/pflag"
 )
 
+func testRoot(t *testing.T) *cobra.Command {
+	t.Helper()
+	return NewRootCmd(nil, "")
+}
+
 // walk visits every command in the tree, depth first.
 func walk(c *cobra.Command, fn func(*cobra.Command)) {
 	fn(c)
@@ -29,8 +34,9 @@ func fullName(c *cobra.Command) string {
 // command. Adding the global -p/--project-id collided with subscribers list's
 // local -p/--platform and hard-panicked `rc subscribers list`.
 func TestNoShorthandCollisionsWithPersistentFlags(t *testing.T) {
+	root := testRoot(t)
 	global := map[string]string{}
-	RootCmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+	root.PersistentFlags().VisitAll(func(f *pflag.Flag) {
 		if f.Shorthand != "" {
 			global[f.Shorthand] = f.Name
 		}
@@ -39,7 +45,7 @@ func TestNoShorthandCollisionsWithPersistentFlags(t *testing.T) {
 		t.Fatal("expected the root command to define shorthand persistent flags")
 	}
 
-	walk(RootCmd, func(c *cobra.Command) {
+	walk(root, func(c *cobra.Command) {
 		c.Flags().VisitAll(func(f *pflag.Flag) {
 			if f.Shorthand == "" {
 				return
@@ -55,8 +61,9 @@ func TestNoShorthandCollisionsWithPersistentFlags(t *testing.T) {
 // Executing --help on every command exercises cobra's flag merging, which is
 // where a collision actually blows up.
 func TestEveryCommandHelpDoesNotPanic(t *testing.T) {
+	root := testRoot(t)
 	var names []string
-	walk(RootCmd, func(c *cobra.Command) {
+	walk(root, func(c *cobra.Command) {
 		if c.Name() != "completion" && c.Name() != "help" {
 			names = append(names, fullName(c))
 		}
@@ -73,7 +80,7 @@ func TestEveryCommandHelpDoesNotPanic(t *testing.T) {
 					t.Fatalf("panic running 'rc %s --help': %v", strings.Join(args, " "), r)
 				}
 			}()
-			c, _, err := RootCmd.Find(args)
+			c, _, err := root.Find(args)
 			if err != nil {
 				t.Fatalf("could not find command: %v", err)
 			}

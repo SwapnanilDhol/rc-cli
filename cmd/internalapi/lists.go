@@ -42,7 +42,7 @@ func init() {
 func runListsList(cmd *cobra.Command, args []string) error {
 	limit, _ := cmd.Flags().GetInt("limit")
 
-	c, err := Dashboard("\n👥 Fetching subscriber lists...")
+	c, err := Dashboard(cmd, "\n👥 Fetching subscriber lists...")
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func runListsGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("list-id is required (--list-id or -l)")
 	}
 
-	c, err := DashboardNoProject("\n👥 Fetching subscriber list...")
+	c, err := DashboardNoProject(cmd, "\n👥 Fetching subscriber list...")
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func runListsGet(cmd *cobra.Command, args []string) error {
 	})
 }
 func runListsManifest(cmd *cobra.Command, args []string) error {
-	c, err := DashboardNoProject("\n👥 Fetching subscriber lists manifest...")
+	c, err := DashboardNoProject(cmd, "\n👥 Fetching subscriber lists manifest...")
 	if err != nil {
 		return err
 	}

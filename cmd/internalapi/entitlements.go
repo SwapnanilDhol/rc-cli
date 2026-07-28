@@ -66,7 +66,7 @@ func init() {
 }
 
 func runEntitlementsList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📋 Fetching entitlements...")
+	c, err := Dashboard(cmd, "\n📋 Fetching entitlements...")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func runEntitlementsCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("name is required (--name or -n)")
 	}
 
-	c, err := Dashboard("\n📋 Creating entitlement...")
+	c, err := Dashboard(cmd, "\n📋 Creating entitlement...")
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func runEntitlementsDelete(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
 	}
 
-	c, err := Dashboard("\n📋 Deleting entitlement...")
+	c, err := Dashboard(cmd, "\n📋 Deleting entitlement...")
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func runEntitlementsArchive(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
 	}
 
-	c, err := Dashboard("\n📋 Archiving entitlement...")
+	c, err := Dashboard(cmd, "\n📋 Archiving entitlement...")
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func runEntitlementsAttachProducts(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--product-ids is required")
 	}
 
-	c, err := Dashboard("\n📎 Attaching products to entitlement...")
+	c, err := Dashboard(cmd, "\n📎 Attaching products to entitlement...")
 	if err != nil {
 		return err
 	}
@@ -228,7 +228,7 @@ func runEntitlementsDetachProducts(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--product-ids is required")
 	}
 
-	c, err := Dashboard("\n📎 Detaching products from entitlement...")
+	c, err := Dashboard(cmd, "\n📎 Detaching products from entitlement...")
 	if err != nil {
 		return err
 	}

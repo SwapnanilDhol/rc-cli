@@ -11,7 +11,7 @@ import (
 var appsStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("12"))
 var cyanStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("14"))
 
-func initApps() {
+func initApps(root *cobra.Command) {
 	appsCmd := &cobra.Command{
 		Use:   "apps",
 		Short: "Manage RevenueCat apps",
@@ -32,15 +32,15 @@ func initApps() {
 	appsGetCmd.Flags().StringP("app-id", "i", "", "App ID")
 
 	appsCmd.AddCommand(appsListCmd, appsGetCmd)
-	RootCmd.AddCommand(appsCmd)
+	root.AddCommand(appsCmd)
 
 	// Aliases with colons
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "apps:list",
 		Short: "List all apps (alias)",
 		RunE:  runListApps,
 	})
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "apps:get",
 		Short: "Get app details (alias)",
 		RunE:  runGetApp,
@@ -48,7 +48,7 @@ func initApps() {
 }
 
 func runListApps(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func runListApps(cmd *cobra.Command, args []string) error {
 }
 
 func runGetApp(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

@@ -70,7 +70,7 @@ func runChartsOverview(cmd *cobra.Command, args []string) error {
 	sandbox, _ := cmd.Flags().GetBool("sandbox")
 	appUUID, _ := cmd.Flags().GetString("app-uuid")
 
-	c, err := Dashboard("\n📊 Fetching project overview...")
+	c, err := Dashboard(cmd, "\n📊 Fetching project overview...")
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func runChartsOverview(cmd *cobra.Command, args []string) error {
 func runChartsOverviewAll(cmd *cobra.Command, args []string) error {
 	sandbox, _ := cmd.Flags().GetBool("sandbox")
 
-	c, err := DashboardNoProject("\n📊 Fetching overview for all projects...")
+	c, err := DashboardNoProject(cmd, "\n📊 Fetching overview for all projects...")
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func runChartsTrials(cmd *cobra.Command, args []string) error {
 	sandbox, _ := cmd.Flags().GetBool("sandbox")
 	appUUID, _ := cmd.Flags().GetString("app-uuid")
 
-	c, err := Dashboard("\n📊 Fetching trial analytics...")
+	c, err := Dashboard(cmd, "\n📊 Fetching trial analytics...")
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func runChartsTransactions(cmd *cobra.Command, args []string) error {
 	sandbox, _ := cmd.Flags().GetBool("sandbox")
 	appUUID, _ := cmd.Flags().GetString("app-uuid")
 
-	c, err := Dashboard("\n📊 Fetching transaction analytics...")
+	c, err := Dashboard(cmd, "\n📊 Fetching transaction analytics...")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func runChartsRevenue(cmd *cobra.Command, args []string) error {
 	sandbox, _ := cmd.Flags().GetBool("sandbox")
 	appUUID, _ := cmd.Flags().GetString("app-uuid")
 
-	c, err := Dashboard("\n📊 Fetching revenue analytics...")
+	c, err := Dashboard(cmd, "\n📊 Fetching revenue analytics...")
 	if err != nil {
 		return err
 	}

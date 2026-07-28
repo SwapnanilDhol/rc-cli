@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -8,19 +9,19 @@ import (
 )
 
 // The real embed lives in the root package, so exercise the copy logic against
-// an in-memory FS with the same shape.
-func testFS() {
-	SetSkillsFS(fstest.MapFS{
+// an in-memory FS with the same shape. Passing it in per-test means no shared
+// state and no ordering between tests.
+func testSkills() (fs.FS, string) {
+	return fstest.MapFS{
 		".claude/skills/rc-cli-usage/SKILL.md":      {Data: []byte("---\nname: rc-cli-usage\n---\nbody")},
 		".claude/skills/rc-asc-bridge/SKILL.md":     {Data: []byte("---\nname: rc-asc-bridge\n---\nbody")},
 		".claude/skills/rc-asc-bridge/ref/extra.md": {Data: []byte("nested")},
 		".claude/skills/README.md":                  {Data: []byte("index, not a skill")},
-	}, ".claude/skills")
+	}, ".claude/skills"
 }
 
 func TestBundledSkillsListsOnlyDirectories(t *testing.T) {
-	testFS()
-	names, err := bundledSkills()
+	names, err := bundledSkills(testSkills())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,9 +31,9 @@ func TestBundledSkillsListsOnlyDirectories(t *testing.T) {
 }
 
 func TestCopySkillIncludesNestedFiles(t *testing.T) {
-	testFS()
+	fsys, root := testSkills()
 	dest := filepath.Join(t.TempDir(), "rc-asc-bridge")
-	if err := copySkill("rc-asc-bridge", dest); err != nil {
+	if err := copySkill(fsys, root, "rc-asc-bridge", dest); err != nil {
 		t.Fatal(err)
 	}
 	for _, rel := range []string{"SKILL.md", filepath.Join("ref", "extra.md")} {
@@ -47,24 +48,22 @@ func TestCopySkillIncludesNestedFiles(t *testing.T) {
 }
 
 func TestCopySkillWritesReadableContent(t *testing.T) {
-	testFS()
+	fsys, root := testSkills()
 	dest := filepath.Join(t.TempDir(), "s")
-	if err := copySkill("rc-cli-usage", dest); err != nil {
+	if err := copySkill(fsys, root, "rc-cli-usage", dest); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dest, "SKILL.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(data) == "" {
+	if len(data) == 0 {
 		t.Error("copied skill is empty")
 	}
 }
 
 func TestBundledSkillsErrorsWhenNothingEmbedded(t *testing.T) {
-	SetSkillsFS(nil, "")
-	if _, err := bundledSkills(); err == nil {
+	if _, err := bundledSkills(nil, ""); err == nil {
 		t.Fatal("expected an error when no skills are embedded")
 	}
-	testFS() // restore for any later test in this package
 }

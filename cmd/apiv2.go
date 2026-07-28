@@ -13,7 +13,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initApiV2() {
+func initApiV2(root *cobra.Command) {
 	cmd := &cobra.Command{
 		Use:     "api",
 		Aliases: []string{"v2", "http"},
@@ -38,7 +38,7 @@ Examples:
 	cmd.Flags().Bool("pretty", true, "Pretty-print JSON response body when possible")
 	cmd.Flags().Bool("substitute-project", true, "Replace {project_id} / {{project_id}} using default project")
 
-	RootCmd.AddCommand(cmd)
+	root.AddCommand(cmd)
 }
 
 func runApiV2(cmd *cobra.Command, args []string) error {
@@ -50,7 +50,7 @@ func runApiV2(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unsupported HTTP method %q (use GET, POST, DELETE, PUT, PATCH)", method)
 	}
 
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

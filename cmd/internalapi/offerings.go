@@ -124,7 +124,7 @@ func offeringRef(cmd *cobra.Command, c *Ctx) (string, error) {
 }
 
 func runOfferingsList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📦 Fetching offerings...")
+	c, err := Dashboard(cmd, "\n📦 Fetching offerings...")
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func runOfferingsList(cmd *cobra.Command, args []string) error {
 }
 
 func runOfferingGet(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📦 Fetching offering...")
+	c, err := Dashboard(cmd, "\n📦 Fetching offering...")
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func runOfferingsCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("name is required (--name or -n)")
 	}
 
-	c, err := Dashboard("\n📦 Creating offering...")
+	c, err := Dashboard(cmd, "\n📦 Creating offering...")
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	c, err := Dashboard("\n📦 Saving offering (internal PATCH)...")
+	c, err := Dashboard(cmd, "\n📦 Saving offering (internal PATCH)...")
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func runOfferingsUpdate(cmd *cobra.Command, args []string) error {
 }
 
 func runOfferingsDelete(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📦 Deleting offering...")
+	c, err := Dashboard(cmd, "\n📦 Deleting offering...")
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func runOfferingsDuplicate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("name is required (--name or -n)")
 	}
 
-	c, err := Dashboard("\n📦 Duplicating offering...")
+	c, err := Dashboard(cmd, "\n📦 Duplicating offering...")
 	if err != nil {
 		return err
 	}
@@ -388,7 +388,7 @@ func runOfferingsDuplicate(cmd *cobra.Command, args []string) error {
 }
 
 func runOfferingsSetCurrent(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📦 Setting offering as current...")
+	c, err := Dashboard(cmd, "\n📦 Setting offering as current...")
 	if err != nil {
 		return err
 	}
@@ -409,7 +409,7 @@ func runOfferingsSetCurrent(cmd *cobra.Command, args []string) error {
 }
 
 func runOfferingsArchive(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📦 Archiving offering...")
+	c, err := Dashboard(cmd, "\n📦 Archiving offering...")
 	if err != nil {
 		return err
 	}

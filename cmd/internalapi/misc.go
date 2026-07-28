@@ -70,7 +70,7 @@ func init() {
 }
 
 func runUtilitiesCountries(cmd *cobra.Command, args []string) error {
-	c, err := DashboardNoProject("\n🌍 Fetching countries...")
+	c, err := DashboardNoProject(cmd, "\n🌍 Fetching countries...")
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func runUtilitiesCountries(cmd *cobra.Command, args []string) error {
 	})
 }
 func runProductStoresStatuses(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n🏪 Fetching product stores statuses...")
+	c, err := Dashboard(cmd, "\n🏪 Fetching product stores statuses...")
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func runProductStoresStatuses(cmd *cobra.Command, args []string) error {
 	})
 }
 func runCollaboratorsList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n👥 Fetching collaborators...")
+	c, err := Dashboard(cmd, "\n👥 Fetching collaborators...")
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func runCollaboratorsList(cmd *cobra.Command, args []string) error {
 	})
 }
 func runAPIKeysList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n🔑 Fetching API keys...")
+	c, err := Dashboard(cmd, "\n🔑 Fetching API keys...")
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func runAPIKeysList(cmd *cobra.Command, args []string) error {
 	})
 }
 func runAuditList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n📜 Fetching audit logs...")
+	c, err := Dashboard(cmd, "\n📜 Fetching audit logs...")
 	if err != nil {
 		return err
 	}

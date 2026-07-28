@@ -8,7 +8,7 @@ import (
 	"revenuecat-cli/api"
 )
 
-func initProducts() {
+func initProducts(root *cobra.Command) {
 	productsCmd := &cobra.Command{
 		Use:   "products",
 		Short: "Manage products",
@@ -29,7 +29,7 @@ func initProducts() {
 	productsGetCmd.Flags().StringP("product-id", "i", "", "Product ID")
 
 	productsCmd.AddCommand(productsListCmd, productsGetCmd)
-	RootCmd.AddCommand(productsCmd)
+	root.AddCommand(productsCmd)
 
 	// Offerings subcommand
 	offeringsCmd := &cobra.Command{
@@ -59,7 +59,7 @@ func initProducts() {
 	offeringsPackagesCmd.Flags().StringP("offering-id", "i", "", "Offering ID")
 
 	offeringsCmd.AddCommand(offeringsListCmd, offeringsGetCmd, offeringsPackagesCmd)
-	RootCmd.AddCommand(offeringsCmd)
+	root.AddCommand(offeringsCmd)
 
 	// Packages subcommand
 	packagesCmd := &cobra.Command{
@@ -82,10 +82,10 @@ func initProducts() {
 	packagesProductsCmd.Flags().StringP("package-id", "i", "", "Package ID")
 
 	packagesCmd.AddCommand(packagesGetCmd, packagesProductsCmd)
-	RootCmd.AddCommand(packagesCmd)
+	root.AddCommand(packagesCmd)
 
 	// Aliases
-	RootCmd.AddCommand(&cobra.Command{
+	root.AddCommand(&cobra.Command{
 		Use:   "packages:list",
 		Short: "List offerings (alias)",
 		RunE:  runListOfferings,
@@ -93,7 +93,7 @@ func initProducts() {
 }
 
 func runListProducts(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func runListProducts(cmd *cobra.Command, args []string) error {
 }
 
 func runGetProduct(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func runGetProduct(cmd *cobra.Command, args []string) error {
 }
 
 func runListOfferings(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func runListOfferings(cmd *cobra.Command, args []string) error {
 }
 
 func runGetOffering(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func runGetOffering(cmd *cobra.Command, args []string) error {
 }
 
 func runOfferingPackages(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func runOfferingPackages(cmd *cobra.Command, args []string) error {
 }
 
 func runGetPackage(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func runGetPackage(cmd *cobra.Command, args []string) error {
 }
 
 func runPackageProducts(cmd *cobra.Command, args []string) error {
-	cfg, err := loadConfig()
+	cfg, err := loadConfig(cmd)
 	if err != nil {
 		return err
 	}

@@ -24,7 +24,8 @@ SKILLS = ".claude/skills/*/SKILL.md"
 EXTERNAL = {"asc": shutil.which("asc")}
 
 # Placeholders that appear in documented examples but are not real subcommands.
-PLACEHOLDER_PREFIXES = ("<", "{", "'", '"', "$", "|")
+# Quotes are absent here because shlex has already stripped them.
+PLACEHOLDER_PREFIXES = ("<", "{", "$", "|")
 
 
 # Subcommands are always lowercase words. Anything else (an HTTP verb, a URL path,
@@ -92,6 +93,21 @@ def parse(line):
             yield binary, tuple(path), flags
 
 
+def resolves(binary, path, code, usage, text):
+    """Whether `binary path...` is a real subcommand.
+
+    Cobra (rc) prints the *parent's* help and exits 0 for an unknown subcommand,
+    so the exit code proves nothing; the Usage line does, because it echoes the
+    full path only on a real match. asc does not echo the path, so it falls back
+    to a clean exit with no unknown-command complaint.
+    """
+    if code != 0:
+        return False
+    if binary == "rc":
+        return usage.startswith("rc " + " ".join(path))
+    return "unknown" not in text.lower()[:400]
+
+
 def main():
     if not os.path.exists(RC):
         sys.exit(f"binary not found: {RC} (run: go build -o rc .)")
@@ -122,13 +138,7 @@ def main():
                 if ln.strip() == "Usage:" and i + 1 < len(lines):
                     usage = lines[i + 1].strip()
                     break
-            # asc prints "USAGE" and does not echo the full path, so fall back to
-            # requiring a clean exit plus no unknown-command complaint.
-            if binary == "rc":
-                exists = r.returncode == 0 and usage.startswith("rc " + " ".join(path))
-            else:
-                exists = r.returncode == 0 and "unknown" not in text.lower()[:400]
-            cache[key] = (exists, text)
+            cache[key] = (resolves(binary, path, r.returncode, usage, text), text)
         return cache[key]
 
     for f in files:

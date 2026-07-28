@@ -94,7 +94,7 @@ func runExperimentTypes(cmd *cobra.Command, args []string) error {
 }
 
 func runPriceExperimentsList(cmd *cobra.Command, args []string) error {
-	c, err := Dashboard("\n🔬 Fetching price experiments...")
+	c, err := Dashboard(cmd, "\n🔬 Fetching price experiments...")
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func runPriceExperimentGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("experiment-id is required (--experiment-id or -e)")
 	}
 
-	c, err := Dashboard("\n🔬 Fetching price experiment...")
+	c, err := Dashboard(cmd, "\n🔬 Fetching price experiment...")
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func runPriceExperimentCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("offering-b is required")
 	}
 
-	c, err := Dashboard("\n🔬 Creating price experiment...")
+	c, err := Dashboard(cmd, "\n🔬 Creating price experiment...")
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func runPriceExperimentPause(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("experiment-id is required (--experiment-id or -e)")
 	}
 
-	c, err := Dashboard("\n🔬 Pausing experiment...")
+	c, err := Dashboard(cmd, "\n🔬 Pausing experiment...")
 	if err != nil {
 		return err
 	}
@@ -268,7 +268,7 @@ func runPriceExperimentResume(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("experiment-id is required (--experiment-id or -e)")
 	}
 
-	c, err := Dashboard("\n🔬 Resuming experiment...")
+	c, err := Dashboard(cmd, "\n🔬 Resuming experiment...")
 	if err != nil {
 		return err
 	}
@@ -290,7 +290,7 @@ func runPriceExperimentStop(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("experiment-id is required (--experiment-id or -e)")
 	}
 
-	c, err := Dashboard("\n🔬 Stopping experiment...")
+	c, err := Dashboard(cmd, "\n🔬 Stopping experiment...")
 	if err != nil {
 		return err
 	}
