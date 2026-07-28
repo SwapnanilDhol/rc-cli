@@ -8,7 +8,7 @@ import (
 	"revenuecat-cli/cmd/internalapi"
 )
 
-const version = "0.4.0"
+const version = "1.1.0"
 
 // NewRootCmd builds the whole command tree. Building it in a function rather than
 // package init() means tests get a fresh, isolated tree and nothing depends on
