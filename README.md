@@ -98,7 +98,7 @@ rc internal entitlements list | create | archive | delete
 rc internal entitlements attach-products -e <id> --product-ids <a>,<b>
 rc internal products list --limit 2500 | create | update
 rc internal apps list | subscription-groups -i <app_id>
-rc internal charts overview | revenue | transactions | trials
+rc internal charts overview | revenue | transactions | trials   # ⚠ see note below
 rc internal experiments list | create | pause | resume | stop
 rc internal lists list | get -l <id> | manifest
 rc internal collaborators list | apikeys list | audit list
@@ -108,6 +108,12 @@ rc internal api GET '/developers/me/projects/{project_id}/offerings'
 ```
 
 Run `rc internal <group> --help` for the full flag set on any group.
+
+> **`rc internal charts` currently returns HTTP 404.** The dashboard API is
+> undocumented and its paths move: `charts_v2` no longer resolves, and experiments
+> had to be repointed from `price_experiments` to `experiments`. If a command
+> 404s, capture the real request from the browser's network tab and update the
+> path — the CLI is not at fault.
 
 ### Names instead of IDs
 

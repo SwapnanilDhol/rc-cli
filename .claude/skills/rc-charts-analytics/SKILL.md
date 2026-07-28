@@ -11,7 +11,22 @@ description: >-
 Analytics exist **only** on the dashboard API (`rc login`). There is no public v2
 charts endpoint and no `rc charts` command — use `rc internal charts`.
 
-## Charts
+## ⚠ Charts are currently broken
+
+**Every `rc internal charts` subcommand returns HTTP 404** (verified 2026-07
+against a Pro account, all projects). The commands target
+`/developers/me/charts_v2/…`, which RevenueCat appears to have moved or removed;
+none of the obvious replacements resolve either.
+
+Do not run these expecting data, and do not spend turns debugging the CLI — the
+endpoint is the problem. Read the numbers from the dashboard, or find the current
+path in the browser's network tab and fix `cmd/internalapi/charts.go`.
+
+Experiments had the same problem and were fixed: the path was
+`/price_experiments`, now `/experiments`. Charts likely needs the same treatment
+once someone captures the real request.
+
+## Charts (once the path is fixed)
 
 ```bash
 rc internal charts overview --json

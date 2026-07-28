@@ -99,7 +99,7 @@ func runPriceExperimentsList(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments", c.ProjectID)
+	path := fmt.Sprintf("/developers/me/projects/%s/experiments", c.ProjectID)
 	resp, err := c.Client.Get(path)
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func runPriceExperimentGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments/%s", c.ProjectID, experimentID)
+	path := fmt.Sprintf("/developers/me/projects/%s/experiments/%s", c.ProjectID, experimentID)
 	resp, err := c.Client.Get(path)
 	if err != nil {
 		return err
@@ -207,7 +207,7 @@ func runPriceExperimentCreate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments", c.ProjectID)
+	path := fmt.Sprintf("/developers/me/projects/%s/experiments", c.ProjectID)
 	data := map[string]interface{}{
 		"display_name":          name,
 		"offering_a_id":         offeringA,
@@ -251,7 +251,7 @@ func runPriceExperimentPause(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments/%s/pause", c.ProjectID, experimentID)
+	path := fmt.Sprintf("/developers/me/projects/%s/experiments/%s/pause", c.ProjectID, experimentID)
 	resp, err := c.Client.Post(path, nil)
 	if err != nil {
 		return err
@@ -273,7 +273,7 @@ func runPriceExperimentResume(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments/%s/resume", c.ProjectID, experimentID)
+	path := fmt.Sprintf("/developers/me/projects/%s/experiments/%s/resume", c.ProjectID, experimentID)
 	resp, err := c.Client.Post(path, nil)
 	if err != nil {
 		return err
@@ -295,7 +295,7 @@ func runPriceExperimentStop(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/price_experiments/%s/stop", c.ProjectID, experimentID)
+	path := fmt.Sprintf("/developers/me/projects/%s/experiments/%s/stop", c.ProjectID, experimentID)
 	resp, err := c.Client.Post(path, nil)
 	if err != nil {
 		return err
