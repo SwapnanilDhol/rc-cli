@@ -82,8 +82,7 @@ silent first-match.
 rc projects list                 rc subscribers list
 rc products list                 rc subscribers get <customer_id>
 rc offerings list                rc entitlements list
-rc apps list                     rc offers list
-rc webhooks list                 rc subscriptions list
+rc apps list                     rc subscriptions list
 rc api GET '/projects/{project_id}/customers'      # raw v2 passthrough
 
 # Dashboard (rc login) — see the other skills for each of these

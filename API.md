@@ -78,9 +78,6 @@ Full schemas and permissions are in the [Developer API v2](https://www.revenueca
 | GET | `/projects/{id}/entitlements` | List entitlements |
 | GET | `/projects/{id}/entitlements/{id}` | Get entitlement details |
 | GET | `/projects/{id}/entitlements/{id}/products` | Get products in entitlement |
-| GET | `/projects/{id}/webhooks` | List webhooks |
-| GET | `/projects/{id}/webhooks/events` | Get webhook events |
-| GET | `/projects/{id}/offers` | List promotional offers |
 
 ---
 
@@ -163,7 +160,7 @@ Full schemas and permissions are in the [Developer API v2](https://www.revenueca
 ### Webhooks
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/developers/me/projects/{project_id}/webhooks` | List webhooks |
+| GET | `/developers/me/projects/{project_id}/webhooks` | List webhooks — **404s as of 2026-07; path appears to have changed** |
 | POST | `/developers/me/projects/{project_id}/webhooks` | Create webhook |
 | PUT | `/developers/me/projects/{project_id}/webhooks/{id}` | Update webhook |
 | DELETE | `/developers/me/projects/{project_id}/webhooks/{id}` | Delete webhook |

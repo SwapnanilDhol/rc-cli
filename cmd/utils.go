@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"revenuecat-cli/api"
 	"revenuecat-cli/config"
 )
 
@@ -35,6 +37,61 @@ func optionsOf(cmd *cobra.Command) options {
 
 // jsonRequested reports whether --json was passed.
 func jsonRequested(cmd *cobra.Command) bool { return optionsOf(cmd).JSON }
+
+// progress prints a status line to stderr, and nothing under --json, so stdout
+// stays a clean parseable document.
+func progress(cmd *cobra.Command, msg string) {
+	if jsonRequested(cmd) {
+		return
+	}
+	fmt.Fprintln(os.Stderr, msg)
+}
+
+// respond is the single place a public v2 command decides its output mode. It
+// checks the response, then renders either the API's JSON verbatim or the human
+// view — never both. Anything that must happen regardless of output mode belongs
+// before this call.
+func respond(cmd *cobra.Command, resp *api.Response, human func() error) error {
+	if resp == nil {
+		return fmt.Errorf("empty response from the v2 API")
+	}
+	if resp.StatusCode >= 400 {
+		msg := resp.Message
+		if msg == "" {
+			msg = resp.Error
+		}
+		if msg == "" {
+			msg = "request failed"
+		}
+		if resp.StatusCode == 401 || resp.StatusCode == 403 {
+			return fmt.Errorf("HTTP %d: %s (check your key: rc config)", resp.StatusCode, msg)
+		}
+		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, msg)
+	}
+	if jsonRequested(cmd) {
+		return emitRaw(resp.Raw)
+	}
+	if human == nil {
+		return nil
+	}
+	return human()
+}
+
+// emitRaw pretty-prints the server's body unchanged.
+func emitRaw(raw []byte) error {
+	if len(raw) == 0 {
+		_, err := os.Stdout.WriteString("{}\n")
+		return err
+	}
+	var buf bytes.Buffer
+	if err := json.Indent(&buf, raw, "", "  "); err != nil {
+		_, err := os.Stdout.Write(raw)
+		return err
+	}
+	buf.WriteByte('\n')
+	_, err := os.Stdout.Write(buf.Bytes())
+	return err
+}
 
 // emitJSON writes v to stdout as indented JSON. Used by every command when --json
 // is set so agents get a parseable payload instead of the decorated human view.

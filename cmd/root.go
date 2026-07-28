@@ -67,8 +67,6 @@ Pass --json to any command for machine-readable output.`,
 	initProducts(root)
 	initSubscriptions(root)
 	initEntitlements(root)
-	initOffers(root)
-	initWebhooks(root)
 	initApiV2(root)
 	initInstallSkills(root, skills, skillsRoot)
 

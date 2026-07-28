@@ -75,9 +75,9 @@ rc internal offerings list --json | jq '.[].identifier'
 ```bash
 rc projects list                             rc apps list
 rc products list                             rc entitlements list
-rc offerings list                            rc offers list
-rc subscribers list                          rc subscriptions list
-rc subscribers get <customer_id>             rc webhooks list
+rc offerings list                            rc subscriptions list
+rc subscribers list
+rc subscribers get <customer_id>
 rc subscribers entitlements <customer_id>
 rc subscribers subscriptions <customer_id>
 

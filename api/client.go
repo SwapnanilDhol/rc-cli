@@ -88,6 +88,7 @@ func (c *Client) get(path string, query url.Values) (*Response, error) {
 		}
 	}
 	response.StatusCode = status
+	response.Raw = body
 	return &response, nil
 }
 
@@ -104,10 +105,15 @@ func (c *Client) GetWithParams(path string, params map[string]string) (*Response
 }
 
 type Response struct {
-	StatusCode int           `json:"-"`
-	Items      []interface{} `json:"items,omitempty"`
-	NextPage   string        `json:"next_page,omitempty"`
-	Data       interface{}   `json:"data,omitempty"`
-	Error      string        `json:"error,omitempty"`
-	Message    string        `json:"message,omitempty"`
+	StatusCode int `json:"-"`
+	// Raw is the response body exactly as the server sent it, so --json can echo
+	// the API verbatim rather than round-tripping through this struct and
+	// silently dropping fields it does not model.
+	Raw []byte `json:"-"`
+
+	Items    []interface{} `json:"items,omitempty"`
+	NextPage string        `json:"next_page,omitempty"`
+	Data     interface{}   `json:"data,omitempty"`
+	Error    string        `json:"error,omitempty"`
+	Message  string        `json:"message,omitempty"`
 }

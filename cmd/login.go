@@ -127,7 +127,7 @@ func performLogin(email, password string) error {
 		return err
 	}
 
-	fmt.Println("\n🔐 Logging in...")
+	fmt.Fprintln(os.Stderr, "\n🔐 Logging in...")
 
 	loginResp, err := internal.Login(email, password)
 	if err != nil {
