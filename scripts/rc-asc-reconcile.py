@@ -37,7 +37,13 @@ def run(cmd):
 
 
 def as_list(payload, *keys):
-    """Both CLIs vary between a bare array and an object wrapping one."""
+    """Unwrap a list payload.
+
+    Both CLIs return the upstream response verbatim, and the two upstream APIs
+    differ: App Store Connect wraps everything in {"data": [...]}, while the
+    RevenueCat dashboard returns a bare array for some resources and
+    {"products": [...]} for others.
+    """
     if isinstance(payload, list):
         return payload
     for k in keys:

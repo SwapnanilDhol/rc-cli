@@ -66,59 +66,42 @@ func init() {
 }
 
 func runEntitlementsList(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
+	c, err := Dashboard("\n📋 Fetching entitlements...")
 	if err != nil {
 		return err
 	}
 
-	client, err := GetInternalClient()
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements", c.ProjectID)
+	resp, err := c.Client.Get(path)
 	if err != nil {
 		return err
 	}
+	return c.Respond(resp, func() error {
 
-	Progress("\n📋 Fetching entitlements...")
+		var entitlements []rcinternal.Entitlement
+		if err := json.Unmarshal(ToJSON(resp.Items), &entitlements); err != nil {
+			return fmt.Errorf("error parsing entitlements: %w", err)
+		}
 
-	path := fmt.Sprintf("/developers/me/projects/%s/entitlements", projectID)
-	resp, err := client.Get(path)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+		if len(entitlements) == 0 {
+			fmt.Println(YellowStyle.Render("No entitlements found."))
+			return nil
+		}
+
+		fmt.Println(InternalStyle.Render("\n📋 Entitlements:\n"))
+		for _, e := range entitlements {
+			fmt.Printf("  ID: %s\n", CyanStyle.Render(e.ID))
+			fmt.Printf("  Identifier: %s\n", e.Identifier)
+			fmt.Printf("  Name: %s\n", e.DisplayName)
+			fmt.Printf("  Products: %d\n", len(e.Products))
+			fmt.Println()
+		}
+		fmt.Println(GrayStyle.Render(fmt.Sprintf("Total: %d entitlements", len(entitlements))))
+
 		return nil
-	}
-
-	var entitlements []rcinternal.Entitlement
-	if err := json.Unmarshal(ToJSON(resp.Items), &entitlements); err != nil {
-		return fmt.Errorf("error parsing entitlements: %w", err)
-	}
-
-	if len(entitlements) == 0 {
-		fmt.Println(YellowStyle.Render("No entitlements found."))
-		return nil
-	}
-
-	fmt.Println(InternalStyle.Render("\n📋 Entitlements:\n"))
-	for _, e := range entitlements {
-		fmt.Printf("  ID: %s\n", CyanStyle.Render(e.ID))
-		fmt.Printf("  Identifier: %s\n", e.Identifier)
-		fmt.Printf("  Name: %s\n", e.DisplayName)
-		fmt.Printf("  Products: %d\n", len(e.Products))
-		fmt.Println()
-	}
-	fmt.Println(GrayStyle.Render(fmt.Sprintf("Total: %d entitlements", len(entitlements))))
-
-	return nil
+	})
 }
-
 func runEntitlementsCreate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	identifier, _ := cmd.Flags().GetString("identifier")
 	name, _ := cmd.Flags().GetString("name")
 
@@ -129,117 +112,81 @@ func runEntitlementsCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("name is required (--name or -n)")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n📋 Creating entitlement...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📋 Creating entitlement...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/entitlements", projectID)
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements", c.ProjectID)
 	data := map[string]string{
 		"identifier":   identifier,
 		"display_name": name,
 	}
-	resp, err := client.Post(path, data)
+	resp, err := c.Client.Post(path, data)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+	return c.Respond(resp, func() error {
+
+		var entitlement rcinternal.Entitlement
+		if err := json.Unmarshal(ToJSON(resp.Data), &entitlement); err != nil {
+			return fmt.Errorf("error parsing response: %w", err)
+		}
+
+		fmt.Println(GreenStyle.Render("\n✓ Entitlement created:"))
+		fmt.Printf("  ID: %s\n", CyanStyle.Render(entitlement.ID))
+		fmt.Printf("  Identifier: %s\n", entitlement.Identifier)
+		fmt.Printf("  Name: %s\n", entitlement.DisplayName)
+
 		return nil
-	}
-
-	var entitlement rcinternal.Entitlement
-	if err := json.Unmarshal(ToJSON(resp.Data), &entitlement); err != nil {
-		return fmt.Errorf("error parsing response: %w", err)
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Entitlement created:"))
-	fmt.Printf("  ID: %s\n", CyanStyle.Render(entitlement.ID))
-	fmt.Printf("  Identifier: %s\n", entitlement.Identifier)
-	fmt.Printf("  Name: %s\n", entitlement.DisplayName)
-
-	return nil
+	})
 }
-
 func runEntitlementsDelete(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
 	if entitlementID == "" {
 		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n📋 Deleting entitlement...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📋 Deleting entitlement...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s", projectID, entitlementID)
-	resp, err := client.Delete(path)
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s", c.ProjectID, entitlementID)
+	resp, err := c.Client.Delete(path)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+	return c.Respond(resp, func() error {
+
+		fmt.Println(GreenStyle.Render("\n✓ Entitlement deleted: " + entitlementID))
 		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Entitlement deleted: " + entitlementID))
-	return nil
+	})
 }
-
 func runEntitlementsArchive(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
 	if entitlementID == "" {
 		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n📋 Archiving entitlement...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📋 Archiving entitlement...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/actions/archive", projectID, entitlementID)
-	resp, err := client.Post(path, map[string]interface{}{})
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/actions/archive", c.ProjectID, entitlementID)
+	resp, err := c.Client.Post(path, map[string]interface{}{})
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+	return c.Respond(resp, func() error {
+
+		fmt.Println(GreenStyle.Render("\n✓ Entitlement archived"))
+
 		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Entitlement archived"))
-
-	return nil
+	})
 }
-
 func runEntitlementsAttachProducts(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
 	if entitlementID == "" {
 		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
@@ -250,39 +197,27 @@ func runEntitlementsAttachProducts(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--product-ids is required")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n📎 Attaching products to entitlement...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📎 Attaching products to entitlement...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/attach_products", projectID, entitlementID)
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/attach_products", c.ProjectID, entitlementID)
 	body := map[string]interface{}{
 		"products_ids": productIDs,
 	}
 
-	resp, err := client.Post(path, body)
+	resp, err := c.Client.Post(path, body)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
+	return c.Respond(resp, func() error {
 
-	fmt.Println(GreenStyle.Render("\n✓ Products attached"))
-	return nil
+		fmt.Println(GreenStyle.Render("\n✓ Products attached"))
+		return nil
+	})
 }
-
 func runEntitlementsDetachProducts(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	entitlementID, _ := cmd.Flags().GetString("entitlement-id")
 	if entitlementID == "" {
 		return fmt.Errorf("entitlement-id is required (--entitlement-id or -e)")
@@ -293,29 +228,23 @@ func runEntitlementsDetachProducts(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--product-ids is required")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n📎 Detaching products from entitlement...")
 	if err != nil {
 		return err
 	}
 
-	Progress("\n📎 Detaching products from entitlement...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/detach_products", projectID, entitlementID)
+	path := fmt.Sprintf("/developers/me/projects/%s/entitlements/%s/detach_products", c.ProjectID, entitlementID)
 	body := map[string]interface{}{
 		"products_ids": productIDs,
 	}
 
-	resp, err := client.Post(path, body)
+	resp, err := c.Client.Post(path, body)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
+	return c.Respond(resp, func() error {
 
-	fmt.Println(GreenStyle.Render("\n✓ Products detached"))
-	return nil
+		fmt.Println(GreenStyle.Render("\n✓ Products detached"))
+		return nil
+	})
 }

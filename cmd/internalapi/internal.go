@@ -143,23 +143,62 @@ func CheckResponse(resp *rcinternal.Response) error {
 	return nil
 }
 
-// EmitJSON prints the response payload as JSON when --json is set and reports
-// whether it did, so callers can `if EmitJSON(resp) { return nil }` before their
-// human-readable printing.
-func EmitJSON(resp *rcinternal.Response) bool {
-	if !JSONOutput {
-		return false
+// Ctx is what every dashboard command needs: the resolved project and an
+// authenticated client. Building it once removes the project/auth preamble that
+// was otherwise repeated in every runner.
+type Ctx struct {
+	ProjectID string
+	Client    *rcinternal.Client
+}
+
+// Dashboard resolves the project, authenticates, and prints the progress line.
+// Project-scoped commands start here.
+func Dashboard(progress string) (*Ctx, error) {
+	projectID, err := GetProjectID()
+	if err != nil {
+		return nil, err
 	}
-	var payload interface{}
-	switch {
-	case len(resp.Items) > 0:
-		payload = resp.Items
-	case resp.Data != nil:
-		payload = resp.Data
-	default:
-		payload = map[string]interface{}{"status": resp.StatusCode}
+	client, err := GetInternalClient()
+	if err != nil {
+		return nil, err
 	}
-	return EmitJSONValue(payload)
+	Progress(progress)
+	return &Ctx{ProjectID: projectID, Client: client}, nil
+}
+
+// DashboardNoProject is for the handful of commands that are account-scoped
+// rather than project-scoped (listing or creating projects, for instance).
+func DashboardNoProject(progress string) (*Ctx, error) {
+	client, err := GetInternalClient()
+	if err != nil {
+		return nil, err
+	}
+	Progress(progress)
+	return &Ctx{Client: client}, nil
+}
+
+// Path builds a project-scoped internal API path.
+func (c *Ctx) Path(format string, args ...interface{}) string {
+	return fmt.Sprintf("/developers/me/projects/"+c.ProjectID+format, args...)
+}
+
+// Respond is the single place the output mode is decided, and the only place a
+// command should return from after a request. It checks the response, then
+// renders either JSON or the human view — never both, and never one instead of
+// a side effect, because anything that must happen regardless belongs before
+// this call.
+func (c *Ctx) Respond(resp *rcinternal.Response, human func() error) error {
+	if err := CheckResponse(resp); err != nil {
+		return err
+	}
+	if JSONOutput {
+		EmitJSONValue(resp.Payload())
+		return nil
+	}
+	if human == nil {
+		return nil
+	}
+	return human()
 }
 
 // EmitJSONValue prints an arbitrary value as JSON when --json is set.

@@ -39,8 +39,9 @@ rc internal offerings list --json
 rc internal projects list --json
 ```
 
-Exit code is non-zero on any HTTP error, so `set -e` and `||` behave. An empty result
-is `[]`, not a "none found" sentence.
+Exit code is non-zero on any HTTP error, so `set -e` and `||` behave. Output is the
+API's response verbatim, so a command's JSON type is stable: a list command returns
+`[]` when empty, never a "none found" sentence and never an object.
 
 ## Setup
 

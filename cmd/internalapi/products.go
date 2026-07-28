@@ -57,76 +57,59 @@ func validateProductType(productType string) error {
 }
 
 func runProductsList(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
-	client, err := GetInternalClient()
-	if err != nil {
-		return err
-	}
-
 	limit, _ := cmd.Flags().GetInt("limit")
 
-	Progress("\n🛍️ Fetching products...")
-
-	path := fmt.Sprintf("/developers/me/projects/%s/products", projectID)
-	params := map[string]string{"limit": fmt.Sprintf("%d", limit)}
-	resp, err := client.GetWithParams(path, params)
+	c, err := Dashboard("\n🛍️ Fetching products...")
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
+
+	path := fmt.Sprintf("/developers/me/projects/%s/products", c.ProjectID)
+	params := map[string]string{"limit": fmt.Sprintf("%d", limit)}
+	resp, err := c.Client.GetWithParams(path, params)
+	if err != nil {
 		return err
 	}
-	if EmitJSON(resp) {
-		return nil
-	}
+	return c.Respond(resp, func() error {
 
-	var products []rcinternal.Product
+		var products []rcinternal.Product
 
-	// Try resp.Items first (some endpoints return products in items array)
-	if err := json.Unmarshal(ToJSON(resp.Items), &products); err != nil || len(products) == 0 {
-		// Fall back to resp.Data which may have products at data["products"] or data["data"]
-		var data map[string]interface{}
-		if err2 := json.Unmarshal(ToJSON(resp.Data), &data); err2 == nil {
-			if prods, ok := data["products"].([]interface{}); ok {
-				itemsJSON, _ := json.Marshal(prods)
-				json.Unmarshal(itemsJSON, &products)
-			} else if prods, ok := data["data"].([]interface{}); ok {
-				itemsJSON, _ := json.Marshal(prods)
-				json.Unmarshal(itemsJSON, &products)
+		// Try resp.Items first (some endpoints return products in items array)
+		if err := json.Unmarshal(ToJSON(resp.Items), &products); err != nil || len(products) == 0 {
+			// Fall back to resp.Data which may have products at data["products"] or data["data"]
+			var data map[string]interface{}
+			if err2 := json.Unmarshal(ToJSON(resp.Data), &data); err2 == nil {
+				if prods, ok := data["products"].([]interface{}); ok {
+					itemsJSON, _ := json.Marshal(prods)
+					json.Unmarshal(itemsJSON, &products)
+				} else if prods, ok := data["data"].([]interface{}); ok {
+					itemsJSON, _ := json.Marshal(prods)
+					json.Unmarshal(itemsJSON, &products)
+				}
 			}
 		}
-	}
 
-	if len(products) == 0 {
-		fmt.Println(YellowStyle.Render("No products found."))
-		return nil
-	}
-
-	fmt.Println(InternalStyle.Render("\n🛍️ Products:\n"))
-	for _, p := range products {
-		fmt.Printf("  ID: %s\n", CyanStyle.Render(p.ID))
-		fmt.Printf("  Identifier: %s\n", p.Identifier)
-		fmt.Printf("  Type: %s\n", p.ProductType)
-		if p.App != nil {
-			fmt.Printf("  App: %s\n", p.App.Name)
+		if len(products) == 0 {
+			fmt.Println(YellowStyle.Render("No products found."))
+			return nil
 		}
-		fmt.Println()
-	}
-	fmt.Println(GrayStyle.Render(fmt.Sprintf("Total: %d products", len(products))))
 
-	return nil
+		fmt.Println(InternalStyle.Render("\n🛍️ Products:\n"))
+		for _, p := range products {
+			fmt.Printf("  ID: %s\n", CyanStyle.Render(p.ID))
+			fmt.Printf("  Identifier: %s\n", p.Identifier)
+			fmt.Printf("  Type: %s\n", p.ProductType)
+			if p.App != nil {
+				fmt.Printf("  App: %s\n", p.App.Name)
+			}
+			fmt.Println()
+		}
+		fmt.Println(GrayStyle.Render(fmt.Sprintf("Total: %d products", len(products))))
+
+		return nil
+	})
 }
-
 func runProductsCreate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	appID, _ := cmd.Flags().GetString("app-id")
 	productType, _ := cmd.Flags().GetString("product-type")
 	identifier, _ := cmd.Flags().GetString("identifier")
@@ -148,52 +131,40 @@ func runProductsCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--name is required")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n🛍️ Creating product...")
 	if err != nil {
 		return err
 	}
-
-	Progress("\n🛍️ Creating product...")
-	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/products", projectID, appID)
+	path := fmt.Sprintf("/developers/me/projects/%s/apps/%s/products", c.ProjectID, appID)
 	data := map[string]interface{}{
 		"product_type": productType,
 		"identifier":   identifier,
 		"display_name": displayName,
 	}
 
-	resp, err := client.Post(path, data)
+	resp, err := c.Client.Post(path, data)
 	if err != nil {
 		return err
 	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
-		return nil
-	}
+	return c.Respond(resp, func() error {
 
-	var product rcinternal.Product
-	if resp.Data != nil {
-		_ = json.Unmarshal(ToJSON(resp.Data), &product)
-	}
-	if product.ID != "" {
+		var product rcinternal.Product
+		if resp.Data != nil {
+			_ = json.Unmarshal(ToJSON(resp.Data), &product)
+		}
+		if product.ID != "" {
+			fmt.Println(GreenStyle.Render("\n✓ Product created"))
+			fmt.Printf("  ID: %s\n", CyanStyle.Render(product.ID))
+			fmt.Printf("  Identifier: %s\n", product.Identifier)
+			fmt.Printf("  Type: %s\n", product.ProductType)
+			return nil
+		}
+
 		fmt.Println(GreenStyle.Render("\n✓ Product created"))
-		fmt.Printf("  ID: %s\n", CyanStyle.Render(product.ID))
-		fmt.Printf("  Identifier: %s\n", product.Identifier)
-		fmt.Printf("  Type: %s\n", product.ProductType)
 		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Product created"))
-	return nil
+	})
 }
-
 func runProductsUpdate(cmd *cobra.Command, args []string) error {
-	projectID, err := GetProjectID()
-	if err != nil {
-		return err
-	}
-
 	productID, _ := cmd.Flags().GetString("product-id")
 	productType, _ := cmd.Flags().GetString("product-type")
 	identifier, _ := cmd.Flags().GetString("identifier")
@@ -220,24 +191,18 @@ func runProductsUpdate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("at least one of --product-type, --identifier, or --name is required")
 	}
 
-	client, err := GetInternalClient()
+	c, err := Dashboard("\n🛍️ Updating product (PATCH)...")
 	if err != nil {
 		return err
 	}
+	path := fmt.Sprintf("/developers/me/projects/%s/products/%s", c.ProjectID, productID)
+	resp, err := c.Client.Patch(path, patchBody)
+	if err != nil {
+		return err
+	}
+	return c.Respond(resp, func() error {
 
-	Progress("\n🛍️ Updating product (PATCH)...")
-	path := fmt.Sprintf("/developers/me/projects/%s/products/%s", projectID, productID)
-	resp, err := client.Patch(path, patchBody)
-	if err != nil {
-		return err
-	}
-	if err := CheckResponse(resp); err != nil {
-		return err
-	}
-	if EmitJSON(resp) {
+		fmt.Println(GreenStyle.Render("\n✓ Product updated via internal API."))
 		return nil
-	}
-
-	fmt.Println(GreenStyle.Render("\n✓ Product updated via internal API."))
-	return nil
+	})
 }

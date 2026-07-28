@@ -131,9 +131,9 @@ rc  <cmd> --json
 | `rc internal products list` | `{"has_more":…, "products":[...]}` |
 | `rc internal apps list` | bare array |
 
-Known `rc` bug: a list that comes back **empty** emits `{"status":200}` rather than
-`[]`, so `| jq '.[]'` fails on an empty catalog. Guard with
-`jq 'if type=="array" then .[] else empty end'` until it is fixed.
+`rc --json` emits exactly what the API returned, so a given command always has the
+same JSON type — a list command returns `[]` when empty, never an object. The
+shapes above differ because the two upstream APIs differ, not because `rc` varies.
 
 ## Related
 
